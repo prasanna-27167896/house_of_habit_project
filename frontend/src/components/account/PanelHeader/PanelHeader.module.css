@@ -1,0 +1,37 @@
+.header {
+  padding: max(1.2rem, 1.2dvw) max(1.4rem, 1.4dvw);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: max(0.4rem, 0.4dvw);
+}
+
+.prefix {
+  display: flex;
+  align-items: center;
+}
+
+.action {
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: max(1.3rem, 1.3dvw);
+  font-weight: 500;
+  color: #28282b;
+  margin: 0 0 max(0.3rem, 0.3dvw);
+}
+
+.subtitle {
+  font-size: max(0.95rem, 0.95dvw);
+  color: #28282b;
+  margin: 0;
+}

@@ -1,0 +1,266 @@
+.wrapper {
+  max-width: max(52rem, 52dvw);
+  margin: 0 auto;
+  padding: max(1.5rem, 1.5dvw) max(1rem, 1dvw) max(3rem, 3dvw);
+  display: flex;
+  flex-direction: column;
+  gap: max(1rem, 1dvw);
+}
+
+/* ── Back button ── */
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: max(0.3rem, 0.3dvw);
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: max(0.9rem, 0.9dvw);
+  font-weight: 400;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: max(0.3rem, 0.3dvw);
+  transition: opacity var(--transition-fast);
+}
+
+.backBtn:hover {
+  opacity: 0.6;
+}
+
+.notFound {
+  text-align: center;
+  font-size: max(1rem, 1dvw);
+  color: #999;
+  padding: max(4rem, 4dvw) 0;
+}
+
+/* ── Section cards ── */
+.section {
+  background: #fafafa;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+}
+
+/* ── Product header ── */
+.productHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: max(1.2rem, 1.2dvw);
+  padding: max(1.2rem, 1.2dvw) max(1.5rem, 1.5dvw);
+  background: #ffffff;
+}
+
+.productImage {
+  width: max(8rem, 8dvw);
+  height: max(9rem, 9dvw);
+  object-fit: cover;
+  border-radius: var(--border-radius-sm);
+  flex-shrink: 0;
+}
+
+.productInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.productName {
+  font-size: max(1rem, 1dvw);
+  font-weight: 600;
+  color: #28282b;
+  margin: 0 0 max(0.3rem, 0.3dvw);
+}
+
+.productDesc {
+  font-size: max(0.82rem, 0.82dvw);
+  color: #777;
+  margin: 0 0 max(0.3rem, 0.3dvw);
+}
+
+.productMeta {
+  font-size: max(0.78rem, 0.78dvw);
+  color: #999;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ── Eligible row ── */
+.eligibleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: max(1rem, 1dvw) max(1.5rem, 1.5dvw);
+  background: #ffffff;
+}
+
+.eligibleLeft {
+  display: flex;
+  align-items: center;
+  gap: max(0.5rem, 0.5dvw);
+}
+
+.eligibleText {
+  font-size: max(0.95rem, 0.95dvw);
+  font-weight: 500;
+  color: #28282b;
+}
+
+.viewPolicyBtn {
+  background: #ff5f15;
+  color: #fff;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  padding: max(0.45rem, 0.45dvw) max(1rem, 1dvw);
+  font-size: max(0.82rem, 0.82dvw);
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.viewPolicyBtn:hover {
+  opacity: 0.85;
+}
+
+/* ── Reason section ── */
+.reasonSection {
+  padding: max(1.2rem, 1.2dvw) max(1.5rem, 1.5dvw);
+  background: #ffffff;
+}
+
+.sectionTitle {
+  font-size: max(0.95rem, 0.95dvw);
+  font-weight: 600;
+  color: #28282b;
+  margin: 0;
+}
+
+.sectionSub {
+  font-size: max(0.78rem, 0.78dvw);
+  color: #999;
+  margin: max(0.2rem, 0.2dvw) 0 0;
+}
+
+.divider {
+  height: 1px;
+  background: #f0f0f0;
+  margin: max(0.8rem, 0.8dvw) 0;
+}
+
+.selectLabel {
+  font-size: max(0.9rem, 0.9dvw);
+  font-weight: 600;
+  color: #28282b;
+  margin: 0 0 max(0.8rem, 0.8dvw);
+}
+
+.required {
+  color: #e53935;
+}
+
+/* ── Reason radio list ── */
+.reasonList {
+  display: flex;
+  flex-direction: column;
+  gap: max(0.6rem, 0.6dvw);
+  margin-bottom: max(1rem, 1dvw);
+}
+
+.reasonItem {
+  display: flex;
+  align-items: center;
+  gap: max(0.5rem, 0.5dvw);
+  font-size: max(0.85rem, 0.85dvw);
+  color: #28282b;
+  cursor: pointer;
+}
+
+.radio {
+  width: max(1rem, 1dvw);
+  height: max(1rem, 1dvw);
+  accent-color: #ff5f15;
+  cursor: pointer;
+}
+
+/* ── Comment box ── */
+.commentBox {
+  width: 100%;
+  padding: max(0.6rem, 0.6dvw);
+  border: 1px solid #e5e5e5;
+  border-radius: var(--border-radius-sm);
+  font-size: max(0.82rem, 0.82dvw);
+  font-family: var(--font-family);
+  color: #28282b;
+  resize: vertical;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+
+.commentBox::placeholder {
+  color: #ccc;
+}
+
+.commentBox:focus {
+  border-color: #ff5f15;
+}
+
+.cancelNote {
+  font-size: max(0.75rem, 0.75dvw);
+  color: #999;
+  text-align: center;
+  margin: max(0.8rem, 0.8dvw) 0 0;
+}
+
+/* ── Refund footer ── */
+.refundFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: max(1rem, 1dvw) max(1.5rem, 1.5dvw);
+  background: #ffffff;
+}
+
+.refundPrice {
+  font-size: max(1rem, 1dvw);
+  font-weight: 600;
+  color: #28282b;
+  margin: max(0.2rem, 0.2dvw) 0 0;
+}
+
+.cancelBtn {
+  background: #ff5f15;
+  color: #fff;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  padding: max(0.6rem, 0.6dvw) max(1.2rem, 1.2dvw);
+  font-size: max(0.88rem, 0.88dvw);
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.cancelBtn:hover {
+  opacity: 0.85;
+}
+
+.cancelBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .wrapper {
+    padding: 1rem 0.5rem 2rem;
+  }
+
+  .productImage {
+    width: 5rem;
+    height: 5.5rem;
+  }
+
+  .refundFooter {
+    flex-direction: column;
+    gap: 0.8rem;
+    align-items: stretch;
+    text-align: center;
+  }
+}

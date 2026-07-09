@@ -1,0 +1,147 @@
+.panel {
+  background: #FAFAFA;
+  bottom: 64px;
+}
+
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 14px;
+  background: #FAFAFA;
+  flex-shrink: 0;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo svg {
+  width: 90px;
+  height: auto;
+}
+
+.closeBtn {
+  background: transparent;
+  cursor: pointer;
+}
+
+.closeBtn svg {
+  width: max(2.2rem, 2.2dvw);
+  height: max(2.2rem, 2.2dvw);
+}
+
+
+.navList {
+  list-style: none;
+  margin-top: max(0.2rem, 0.2dvw);
+  padding: 0;
+}
+
+.navItem {
+  background: #FAFAFA;
+}
+
+.navBtn {
+  width: 100%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  margin-top: max(0.6rem, 0.6dvw);
+  text-align: left;
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: #28282b;
+}
+
+.navLeft {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.navIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+}
+
+
+.navDivider {
+  margin: 0 14px;
+  border: none;
+  border-bottom: 1px solid #28282B1A;
+}
+
+
+.spacer {
+  flex: 1;
+  min-height: 32px;
+}
+
+.footer {
+  background: #FAFAFA;
+  padding: 12px;
+  flex-shrink: 0;
+}
+
+.socials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(0.6rem, 0.6dvw) 0;
+}
+
+.socialBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+}
+
+
+
+.socialBtn svg {
+  width: 32px;
+  height: 32px;
+}
+
+.footerDivider {
+  border: none;
+  border-top: 1px solid #28282B1A;
+  margin: 0;
+}
+
+.footerBottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2px;
+  padding: 10px;
+  font-size: 0.65rem;
+  font-weight: 400;
+  color: #28282B;
+}
+
+.privacy {
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s;
+}
+
+.privacy:hover {
+  color: #555;
+}
+
+.copy {
+  text-align: right;
+}

@@ -1,0 +1,82 @@
+.panel {
+  border: 1px solid #eaeaea;
+  border-radius: var(--border-radius-lg);
+  padding: max(1rem, 1dvw);
+  background: #ffffff;
+  min-height: max(36rem, 36dvw);
+  overflow: hidden;
+}
+
+/* ── Orange top banner ── */
+.banner {
+  width: 100%;
+  height: max(7.5rem, 7.5dvw);
+  background: var(--secondary-color);
+  border-radius: max(0.8rem, 0.8dvw);
+}
+
+/* ── Profile header row ── */
+.profileHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 max(1.5rem, 1.5dvw) max(1.4rem, 1.4dvw);
+  margin-top: max(-2.4rem, -2.4dvw);
+}
+
+.avatarWrapper {
+  display: flex;
+  align-items: flex-end;
+  gap: max(0.4rem, 0.4dvw);
+}
+
+.avatar {
+  width: max(4.8rem, 4.8dvw);
+  height: max(4.6rem, 4.6dvw);
+  background: #2b2b2b;
+  border-radius: var(--border-radius-md);
+  color: #fff;
+  font-size: max(3rem, 3dvw);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: max(0.1rem, 0.1dvw) solid var(--background-color);
+}
+
+.greeting {
+  font-size: max(0.8rem, 0.8dvw);
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.emailText {
+  font-size: max(0.65rem, 0.65dvw);
+  color: #686868;
+}
+
+.editBtn {
+  background: none;
+  border: none;
+  color: #ff5f15;
+  font-size: max(0.8rem, 0.8dvw);
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  padding-bottom: max(0.4rem, 0.4dvw);
+  text-decoration: underline;
+  transition: opacity var(--transition-fast);
+}
+
+.editBtn:hover {
+  opacity: 0.75;
+}
+
+/* ── Info fields ── */
+.infoGrid {
+  display: grid;
+  grid-template-columns: 2fr;
+  gap: max(1.4rem, 1.4dvw);
+  padding: max(0.4rem, 0.4dvw);
+}

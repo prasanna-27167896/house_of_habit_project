@@ -1,0 +1,242 @@
+/* ── Contact Section ── */
+.contactSection {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: max(1.5rem, 1.5dvw);
+  padding: max(0.4rem, 0.4dvw) max(8.6rem, 8.6dvw);
+  align-items: start;
+}
+
+/* ── Illustration ── */
+.illustrationWrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: max(1.5rem, 1.5dvw);
+}
+
+.illustration {
+  width: 100%;
+  max-width: max(24rem, 24dvw);
+  height: auto;
+}
+
+.supportRow {
+  display: flex;
+  align-items: flex-end;
+  gap: max(1.2rem, 1.2dvw);
+  margin-top: max(0.5rem, 0.5dvw);
+}
+
+.qrBlock {
+  display: flex;
+  flex-direction: column;
+}
+
+.qrCode {
+  width: max(4rem, 4dvw);
+  height: max(4rem, 4dvw);
+  margin-bottom: max(0.5rem, 0.5dvw);
+}
+
+.supportTitle {
+  font-size: max(0.95rem, 0.95dvw);
+  font-weight: 500;
+  color: #28282b;
+}
+
+.supportText {
+  font-size: max(0.75rem, 0.75dvw);
+  color: #2c2c2c;
+  font-weight: 300;
+}
+
+.emailBlock {
+  display: flex;
+  flex-direction: column;
+}
+
+.emailLabel {
+  font-size: max(0.75rem, 0.75dvw);
+  color: #616161;
+}
+
+.emailLink {
+  font-size: max(0.8rem, 0.8dvw);
+  color: #28282b;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+/* ── Form ── */
+.form {
+  background: #fafafa;
+  border-radius: max(0.8rem, 0.8dvw);
+  padding: max(1.4rem, 1.4dvw);
+}
+
+.formTitle {
+  font-size: max(1.58rem, 1.58dvw);
+  font-weight: 600;
+  color: #28282b;
+  margin-bottom: max(0.8rem, 0.8dvw);
+}
+
+.label {
+  display: block;
+  font-size: max(0.85rem, 0.85dvw);
+  font-weight: 500;
+  color: #28282b;
+  margin-bottom: max(0.3rem, 0.3dvw);
+}
+
+.input,
+.textarea {
+  width: 100%;
+  font-size: max(0.75rem, 0.75dvw);
+  color: #28282b;
+  border-radius: max(0.4rem, 0.4dvw);
+  border: none;
+  padding: max(0.8rem, 0.8dvw) max(0.7rem, 0.7dvw);
+  margin-bottom: max(0.8rem, 0.8dvw);
+  outline: none;
+  background: #ffffff;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: #9d9d9d;
+}
+
+.input:focus,
+.textarea:focus {
+  border-color: var(--secondary-color);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: max(6rem, 6dvw);
+}
+
+.formAction {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: max(0.2rem, 0.2dvw);
+}
+
+/* ── FAQ Section ── */
+.faqSection {
+  padding: max(5.4rem, 5.4dvw) max(8.8rem, 8.8dvw);
+}
+
+.faqTitle {
+  font-size: max(1.8rem, 1.8dvw);
+  font-weight: 600;
+  color: #28282b;
+  line-height: 1.4;
+  margin-bottom: max(1.5rem, 1.5dvw);
+}
+
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: max(0.9rem, 0.9dvw);
+}
+
+.faqItem {
+  background: #ffffff;
+  border-radius: max(0.8rem, 0.8dvw);
+  border: 1px solid #eaeaea;
+  overflow: hidden;
+}
+
+.faqHeader {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: max(1rem, 1dvw);
+  padding: max(1rem, 1dvw);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.faqQuestion {
+  font-size: max(0.9rem, 0.9dvw);
+  font-weight: 500;
+  color: #28282b;
+}
+
+.faqContent {
+  flex: 1;
+}
+
+.faqAnswerWrapper {
+  overflow: hidden;
+  transition: max-height 0.42s ease;
+  will-change: max-height;
+}
+
+.faqAnswer {
+  font-size: max(0.85rem, 0.85dvw);
+  color: #28282b;
+  line-height: 1.7;
+
+  font-weight: 400;
+}
+
+.faqToggle {
+  flex-shrink: 0;
+  font-size: max(1.3rem, 1.3dvw);
+  color: var(--secondary-color);
+  font-weight: 200;
+  line-height: 1;
+  transition: transform 0.35s ease;
+}
+
+.faqToggleOpen {
+  transform: rotate(45deg);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .heroTitle {
+    font-size: clamp(2rem, 6vw, 3rem);
+  }
+
+  .heroIcon {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  .contactSection {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .illustration {
+    max-width: 16rem;
+  }
+
+  .supportRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .faqTitle {
+    font-size: clamp(1.5rem, 5vw, 2rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    padding: 1.5rem 0 0.5rem;
+  }
+
+  .form {
+    padding: 1.25rem;
+  }
+}

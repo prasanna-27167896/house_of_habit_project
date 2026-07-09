@@ -1,0 +1,169 @@
+.card {
+  border: 1px solid #eaeaea;
+  border-radius: var(--border-radius-md);
+  background: #ffffff;
+  overflow: hidden;
+}
+
+/* ── Status header ── */
+.statusHeader {
+  padding: max(0.7rem, 0.7dvw) max(1.2rem, 1.2dvw);
+}
+
+.statusInfo {
+  display: flex;
+  align-items: flex-start;
+  gap: max(0.5rem, 0.5dvw);
+}
+
+.statusDot {
+  width: max(0.6rem, 0.6dvw);
+  height: max(0.6rem, 0.6dvw);
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: max(0.3rem, 0.3dvw);
+}
+
+.statusLabel {
+  font-size: max(0.9rem, 0.9dvw);
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.statusDate {
+  font-size: max(0.72rem, 0.72dvw);
+  color: #666;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ── Product row ── */
+.productRow {
+  display: flex;
+  align-items: center;
+  gap: max(1rem, 1dvw);
+  padding: max(0.5rem, 0.5dvw) max(1.2rem, 1.2dvw) max(0.8rem, 0.8dvw);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.productRow:hover {
+  background: #fafafa;
+}
+
+.productImage {
+  width: max(4.5rem, 4.5dvw);
+  height: max(5rem, 5dvw);
+  object-fit: cover;
+  border-radius: var(--border-radius-sm);
+  flex-shrink: 0;
+}
+
+.productInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.productName {
+  font-size: max(0.88rem, 0.88dvw);
+  font-weight: 500;
+  color: #28282b;
+  margin: 0 0 max(0.15rem, 0.15dvw);
+}
+
+.productDesc {
+  font-size: max(0.75rem, 0.75dvw);
+  color: #777;
+  margin: 0 0 max(0.15rem, 0.15dvw);
+}
+
+.productMeta {
+  font-size: max(0.72rem, 0.72dvw);
+  color: #999;
+  margin: 0;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: #999;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Return window info ── */
+.returnInfo {
+  font-size: max(0.78rem, 0.78dvw);
+  color: #555;
+  padding: max(0.4rem, 0.4dvw) max(1.2rem, 1.2dvw) max(0.7rem, 0.7dvw);
+  margin: 0;
+}
+
+.returnDot {
+  margin-right: max(0.3rem, 0.3dvw);
+}
+
+/* ── Refund link ── */
+.refundLink {
+  padding: 0 max(1.2rem, 1.2dvw) max(0.7rem, 0.7dvw);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.viewRefundBtn {
+  background: none;
+  border: none;
+  color: #ff5f15;
+  font-size: max(0.82rem, 0.82dvw);
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.viewRefundBtn:hover {
+  opacity: 0.7;
+}
+
+/* ── Action buttons ── */
+.actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: max(0.6rem, 0.6dvw);
+  padding: max(0.4rem, 0.4dvw) max(1.2rem, 1.2dvw) max(1rem, 1dvw);
+}
+
+.actionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: max(0.35rem, 0.35dvw);
+  padding: max(0.55rem, 0.55dvw) max(0.5rem, 0.5dvw);
+  font-size: max(0.78rem, 0.78dvw);
+  font-weight: 400;
+  color: #28282b;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+  white-space: nowrap;
+}
+
+.actionBtn:hover {
+  background: #f5f5f5;
+  border-color: #ccc;
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .productImage {
+    width: 3.5rem;
+    height: 4rem;
+  }
+
+  .actions {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+  }
+}

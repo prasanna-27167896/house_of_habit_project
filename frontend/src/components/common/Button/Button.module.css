@@ -1,0 +1,141 @@
+.btn {
+  --pill: calc(max(2.8rem, 2.8dvw) - 6px);
+}
+.sm {
+  --pill: calc(max(2.6rem, 2.6dvw) - 6px);
+}
+
+/* ── Base button ── */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  border-radius: max(0.8rem, 0.8dvw);
+  padding: 0 max(1rem, 1dvw);
+  height: max(2.8rem, 2.8dvw);
+  font-size: max(0.9rem, 0.9dvw);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+/* ── Expanding pill ── */
+.pill {
+  position: absolute;
+  inset: 3px;
+  width: var(--pill); /* perfect square: (button-height - 6px) × (button-height - 6px) */
+  border-radius: max(0.7rem, 0.7dvw);
+  overflow: hidden; /* clips the arrow when pill is small */
+  z-index: 0;
+  transition: width 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn:hover .pill {
+  width: calc(100% - 6px); /* expands while keeping 3px gap on right */
+}
+
+/* ── Arrow icon — pinned to pill's right edge ── */
+.icon {
+  position: absolute;
+  right: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  color: white;
+}
+
+/* ── Text labels ── */
+
+/* Hidden sizer — in normal flow, pushes button to text width */
+.sizer {
+  visibility: hidden;
+  pointer-events: none;
+  padding-left: calc(var(--pill));
+  white-space: nowrap;
+}
+
+.label {
+  position: absolute;
+  top: 50%;
+  white-space: nowrap;
+  z-index: 1;
+  transition:
+    transform 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Resting label: anchored right after the pill */
+.labelOut {
+  left: calc(var(--pill) + max(0.8rem, 0.8dvw));
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+.btn:hover .labelOut {
+  opacity: 0;
+  transform: translateY(-50%) translateX(120%);
+}
+
+/* Hover label: white, enters from left */
+.labelIn {
+  opacity: 0;
+  color: white;
+  left: max(0.8rem, 0.8dvw);
+  transform: translateY(-50%) translateX(-200%);
+}
+.btn:hover .labelIn {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* ══ Variants ══ */
+
+/* Light: white button, orange pill sweeps across → fully orange on hover */
+.light {
+  background: var(--btn-bg, white);
+  color: var(--btn-text, #1a1a1a);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+.light .pill {
+  background: var(--pill-bg, #ff5f15);
+}
+.light:hover .labelIn {
+  color: white;
+}
+
+/* Primary: orange button, dark overlay sweeps → subtle depth */
+.primary {
+  background: var(--btn-bg, #ff5f15);
+  color: var(--btn-text, white);
+}
+.primary .pill {
+  background: var(--pill-bg, rgba(0, 0, 0, 0.15));
+}
+
+/* Dark: dark button, lighter overlay sweeps */
+.dark {
+  background: var(--btn-bg, #1a1a1a);
+  color: var(--btn-text, white);
+}
+.dark .pill {
+  background: var(--pill-bg, rgba(255, 255, 255, 0.1));
+}
+
+/* ══ Sizes ══ */
+
+.sm {
+  padding: 0 max(0.8rem, 0.8dvw);
+  height: max(2.6rem, 2.6dvw);
+  font-size: max(0.85rem, 0.85dvw);
+}
+
+/* ══ No-icon variant — plain solid button, no animation ══ */
+.noIcon {
+  padding: 0 max(1.6rem, 1.6dvw);
+}
+.noIcon.sm {
+  padding: 0 max(1.3rem, 1.3dvw);
+}

@@ -1,0 +1,48 @@
+.panel {
+  border: 1px solid #eaeaea;
+  border-radius: var(--border-radius-lg);
+  background: var(--background-color);
+  min-height: max(36rem, 36dvw);
+}
+
+/* ── Body ── */
+.body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: max(1.2rem, 1.2dvw);
+  padding: max(6rem, 6dvw) max(1.5rem, 1.5dvw);
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  gap: max(1.1rem, 1.1dvw);
+  text-align: left;
+}
+
+.heading,
+.item,
+.note,
+.link {
+  font-size: max(0.95rem, 0.95dvw);
+  font-weight: 400;
+  color: #000000;
+  margin: 0;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  line-height: 1.6;
+}
+
+.icon {
+  font-size: max(1rem, 1dvw);
+  flex-shrink: 0;
+}
+
+.link:hover {
+  color: var(--secondary-color);
+}

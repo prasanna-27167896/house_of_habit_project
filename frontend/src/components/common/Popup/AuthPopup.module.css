@@ -1,0 +1,143 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2e3c584d;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.container {
+  position: relative;
+  display: flex;
+  width: max(62rem, 62dvw);
+  height: max(28rem, 28dvw);
+  border-radius: max(1.2rem, 1.2dvw);
+  overflow: hidden;
+  background-image: url("../../../assets/images/auth-banner.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.closeBtn {
+  position: absolute;
+  top: max(2rem, 2dvw);
+  right: max(9rem, 9dvw);
+  z-index: 1001;
+  width: max(1.8rem, 1.8dvw);
+  height: max(1.8rem, 1.8dvw);
+  border-radius: 50%;
+  border: 1.5px solid #ffffff;
+  background: transparent;
+  color: #ffffff;
+  font-size: max(0.8rem, 0.8dvw);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  line-height: 1;
+}
+
+.closeBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* ── Left Panel ── */
+.leftPanel {
+  flex: 1.9;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.leftContent {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: max(2rem, 2dvw);
+  text-align: center;
+}
+
+.logo {
+  width: max(15rem, 15dvw);
+  height: auto;
+}
+
+.welcomeText {
+  color: #ffffff;
+  font-size: max(1.6rem, 1.6dvw);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* ── Right Panel ── */
+.rightPanel {
+  flex: 1;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: max(1.4rem, 1.4dvw);
+  margin: max(1.1rem, 1.1dvw);
+}
+
+.modeActive {
+  background: #f37021;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.6rem;
+  cursor: pointer;
+}
+
+.modeInactive {
+  background: #fafafa;
+  color: #28282b;
+  border: 1px solid #e6e6e6;
+  padding: 0.5rem 1rem;
+  border-radius: 0.6rem;
+  cursor: pointer;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    width: 92vw;
+    height: auto;
+    max-height: 90vh;
+  }
+
+  .leftPanel {
+    flex: none;
+    height: 180px;
+  }
+
+  .logo {
+    width: 10rem;
+  }
+
+  .welcomeText {
+    font-size: 1rem;
+  }
+
+  .rightPanel {
+    padding: 1.5rem;
+  }
+
+  .closeBtn {
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 2rem;
+    height: 2rem;
+    font-size: 1rem;
+  }
+}

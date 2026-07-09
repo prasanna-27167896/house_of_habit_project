@@ -1,0 +1,74 @@
+/* ═══════════════════════════════════════════════════════════════════
+   SlidePanel — reusable slide-from-top overlay panel
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Overlay / backdrop ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* ── Panel ── */
+.panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+
+  animation: slidePanelDown var(--slide-duration, 600ms) cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.panel.closing {
+  animation: slidePanelUp var(--slide-duration, 600ms) cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes slidePanelDown {
+  from {
+    transform: translateY(-100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slidePanelUp {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+.desktopOnly {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .desktopOnly {
+    display: none;
+  }
+}
+
+.mobileOnly {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobileOnly {
+    display: block;
+  }
+}

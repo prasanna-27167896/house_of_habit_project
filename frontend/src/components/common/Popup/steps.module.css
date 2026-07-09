@@ -1,0 +1,242 @@
+/* ── Shared styles for all popup form steps ── */
+
+.step {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  justify-content: space-between;
+  padding: max(0.5rem, 0.5dvw) 0;
+  height: 100%;
+  text-align: center;
+}
+
+.authContainer {
+  width: 100%;
+  max-width: max(28rem, 28dvw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: max(0.4rem, 0.4dvw);
+  padding: max(0.8rem, 0.8dvw);
+}
+
+.title {
+  font-size: max(1.3rem, 1.3dvw);
+  font-weight: 600;
+  color: #28282b;
+  margin-bottom: max(0.2rem, 0.2dvh);
+}
+
+.subtitle {
+  font-size: max(1.3rem, 1.3dvw);
+  color: #28282b;
+  margin-bottom: max(1rem, 1dvh);
+  font-weight: 300;
+}
+
+.subparagraph {
+  font-size: max(0.95rem, 0.95dvw);
+  color: #28282b;
+  margin-bottom: max(1rem, 1dvh);
+  font-weight: 300;
+}
+
+.phoneHighlight {
+  font-weight: 500;
+  color: #28282b;
+}
+
+/* ── Input ── */
+.inputGroup {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  background: #fafafa;
+  border-radius: max(0.8rem, 0.8dvw);
+  padding: max(0.9rem, 0.9dvw) max(1rem, 1dvw);
+  margin-bottom: max(1.2rem, 1.2dvw);
+}
+
+.prefix {
+  font-size: max(0.8rem, 0.8dvw);
+  font-weight: 500;
+  color: #28282b;
+  padding-right: max(0.5rem, 0.5dvw);
+  border-right: 1px solid #28282b;
+  margin-right: max(0.5rem, 0.5dvw);
+  white-space: nowrap;
+}
+
+.input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: max(0.8rem, 0.8dvw);
+  color: #28282b;
+  outline: none;
+}
+
+.input::placeholder,
+.emailInput::placeholder {
+  color: #9c9c9d;
+  font-weight: 300;
+}
+
+.emailInput {
+  width: 100%;
+  background: #fafafa;
+  border-radius: max(0.8rem, 0.8dvw);
+  padding: max(1rem, 1dvw) max(0.8rem, 0.8dvw);
+  margin-bottom: max(1.2rem, 1.2dvw);
+  font-size: max(0.8rem, 0.8dvw);
+  color: #28282b;
+  border: none;
+  outline: none;
+}
+
+/* ── Submit Button ── */
+.submitBtn {
+  width: 100%;
+  padding: max(0.65rem, 0.65dvw) 0;
+  border: none;
+  border-radius: max(0.5rem, 0.5dvw);
+  font-size: max(0.95rem, 0.95dvw);
+  font-weight: 400;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.btnInactive {
+  background: #f5b896;
+}
+
+.btnActive {
+  background: #f37021;
+}
+
+.btnActive:hover {
+  background: #e0641a;
+}
+
+/* ── OTP Inputs ── */
+.otpGroup {
+  display: flex;
+  gap: max(0.8rem, 0.8dvw);
+  justify-content: center;
+  margin-bottom: max(0.6rem, 0.6dvh);
+}
+
+.otpBox {
+  width: max(3.2rem, 3.2dvw);
+  height: max(3.2rem, 3.2dvw);
+  border-radius: max(0.8rem, 0.8dvw);
+  text-align: center;
+  font-size: max(1.3rem, 1.3dvw);
+  font-weight: 600;
+  color: #28282b;
+  background: #fafafa;
+  outline: none;
+  border: 1.5px solid transparent;
+  transition: border-color var(--transition-fast);
+}
+
+.otpBox:focus {
+  border-color: #ff5f15;
+}
+
+.otpBoxFilled {
+  border-color: #ff5f15;
+}
+
+/* ── Links ── */
+.resendLink {
+  font-size: max(0.95rem, 0.95dvw);
+  color: #28282b;
+  font-weight: 400;
+  text-decoration: underline;
+  margin-bottom: max(1.2rem, 1.2dvh);
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+.troubleLink {
+  font-size: max(0.95rem, 0.95dvw);
+  color: #9c9c9d;
+  text-decoration: underline;
+  font-weight: 400;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding-bottom: max(0.8rem, 0.8dvw);
+}
+
+/* ── Footer text ── */
+.footerText {
+  color: #28282b;
+  font-size: max(0.9rem, 0.9dvw);
+  font-weight: 300;
+  padding-bottom: max(0.8rem, 0.8dvw);
+}
+
+.footerText a {
+  color: #28282b;
+  text-decoration: underline;
+  font-weight: 400;
+}
+
+/* ── Success Step ── */
+.successStep {
+  width: 100%;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-radius: max(1.4rem, 1.4dvw);
+}
+
+.handshakeImg {
+  width: 100%;
+  height: auto;
+}
+
+.successText {
+  font-size: max(1.4rem, 1.4dvw);
+  font-weight: 500;
+  color: #28282b;
+}
+
+.errorMessage {
+  color: #ff4d4f; /* Red error color */
+  font-size: 0.875rem;
+  margin-top: -10px;
+  margin-bottom: 10px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .title {
+    font-size: 1.2rem;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+  }
+
+  .otpBox {
+    width: 2.8rem;
+    height: 2.8rem;
+    font-size: 1rem;
+  }
+
+  .footerText {
+    font-size: 0.75rem;
+  }
+}

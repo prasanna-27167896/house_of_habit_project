@@ -1,0 +1,138 @@
+.panel {
+  border: 1px solid #eaeaea;
+  border-radius: var(--border-radius-lg);
+  background: var(--background-color);
+  min-height: max(36rem, 36dvw);
+}
+
+/* ── Header actions (search + filter) ── */
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: max(0.6rem, 0.6dvw);
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: max(0.4rem, 0.4dvw);
+  background: #f7f7f7;
+  border: 1px solid #e5e5e5;
+  border-radius: var(--border-radius-sm);
+  padding: max(0.4rem, 0.4dvw) max(0.7rem, 0.7dvw);
+  min-width: max(14rem, 14dvw);
+}
+
+.searchInput {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: max(0.78rem, 0.78dvw);
+  color: #28282b;
+  width: 100%;
+  font-family: var(--font-family);
+}
+
+.searchInput::placeholder {
+  color: #aaa;
+}
+
+.filterBtn {
+  display: flex;
+  align-items: center;
+  gap: max(0.3rem, 0.3dvw);
+  padding: max(0.4rem, 0.4dvw) max(0.7rem, 0.7dvw);
+  font-size: max(0.78rem, 0.78dvw);
+  font-weight: 400;
+  color: #28282b;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  white-space: nowrap;
+}
+
+.filterBtn:hover {
+  background: #f5f5f5;
+}
+
+/* ── Filter pills row ── */
+.filterRow {
+  display: flex;
+  gap: max(0.4rem, 0.4dvw);
+  padding: 0 max(1.4rem, 1.4dvw) max(0.8rem, 0.8dvw);
+  flex-wrap: wrap;
+}
+
+.filterPill {
+  padding: max(0.3rem, 0.3dvw) max(0.8rem, 0.8dvw);
+  font-size: max(0.75rem, 0.75dvw);
+  font-weight: 400;
+  color: #555;
+  background: #f5f5f5;
+  border: 1px solid #e5e5e5;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.filterPill:hover {
+  background: #eee;
+}
+
+.filterActive {
+  background: #ff5f15;
+  color: #ffffff;
+  border-color: #ff5f15;
+}
+
+/* ── Order list ── */
+.orderList {
+  display: flex;
+  flex-direction: column;
+  gap: max(1rem, 1dvw);
+  padding: max(0.5rem, 0.5dvw) max(1.2rem, 1.2dvw) max(1.5rem, 1.5dvw);
+}
+
+.noResults {
+  text-align: center;
+  font-size: max(0.9rem, 0.9dvw);
+  color: #999;
+  padding: max(3rem, 3dvw) 0;
+  margin: 0;
+}
+
+/* ── Empty state ── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: max(1rem, 1dvw);
+  padding: max(3rem, 3dvw) max(1.5rem, 1.5dvw);
+}
+
+.emptyText {
+  font-size: max(1.25rem, 1.25dvw);
+  color: #28282b;
+  font-weight: 400;
+  margin: 0;
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .headerActions {
+    flex-direction: column;
+    width: 100%;
+    gap: 0.4rem;
+  }
+
+  .searchBox {
+    min-width: 100%;
+  }
+
+  .filterRow {
+    padding: 0 1rem 0.6rem;
+  }
+}

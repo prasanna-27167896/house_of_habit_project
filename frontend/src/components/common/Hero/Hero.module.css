@@ -1,0 +1,78 @@
+/* ── Hero ── */
+.hero {
+  padding: max(4rem, 4dvw) max(2rem, 2dvw);
+}
+
+.heroLeft {
+  display: flex;
+  align-items: center;
+  gap: max(1rem, 1dvw);
+  margin-bottom: max(0.8rem, 0.8dvw);
+}
+
+.heroTitle {
+  font-size: max(4.4rem, 4.4dvw);
+  font-weight: 500;
+  color: #28282b;
+  line-height: 1.1;
+}
+
+.heroIcon {
+  width: max(11rem, 11dvw);
+  height: auto;
+}
+
+.heroSub {
+  font-size: max(1.2rem, 1.2dvw);
+  color: #28282b;
+  line-height: 1.6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .hero {
+    padding: max(2rem, 2dvw) 1.5rem;
+  }
+
+  .heroLeft {
+    gap: max(0.6rem, 0.6dvw);
+    margin-bottom: max(0.6rem, 0.6dvw);
+  }
+
+  .heroTitle {
+    font-size: max(2.6rem, 3.6dvw);
+  }
+
+  .heroIcon {
+    width: max(5rem, 5dvw);
+  }
+
+  .heroSub {
+    font-size: max(1rem, 1.6dvw);
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    padding: 1.25rem 1rem;
+  }
+
+  .heroLeft {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .heroTitle {
+    font-size: 1.6rem;
+    line-height: 1.15;
+  }
+
+  .heroIcon {
+    width: 4.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .heroSub {
+    font-size: 0.95rem;
+  }
+}

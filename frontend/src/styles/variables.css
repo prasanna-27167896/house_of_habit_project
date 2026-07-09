@@ -1,0 +1,90 @@
+:root {
+  /* ================= COLORS ================= */
+
+  --primary-color: #25c6ce;
+  --secondary-color: #ff6b3d;
+
+  --text-color: #2f2f2f;
+  --header-text-color: #2f2f2f;
+  --text-light: #777;
+
+  --border-color: #e5e5e5;
+
+  --background-color: #ffffff;
+  --footer-bg: #2b2b2b;
+
+  /* ================= FONT ================= */
+
+  --font-family: 'Poppins', sans-serif;
+
+  /* ================= RESPONSIVE FONT ================= */
+
+  --font-xs: max(0.7rem, 0.7dvw);
+  --font-sm: max(0.8rem, 0.8dvw);
+  --font-md: max(1rem, 1dvw);
+  --font-lg: max(1.2rem, 1.2dvw);
+  --font-xl: max(1.5rem, 1.5dvw);
+  --font-xxl: max(2rem, 2dvw);
+  --font-xxxl: max(2.4rem, 2.4dvw);
+
+  /* ================= RESPONSIVE SPACING ================= */
+
+  --space-xs: max(0.3rem, 0.3dvw);
+  --space-sm: max(0.5rem, 0.5dvw);
+  --space-md: max(1rem, 1dvw);
+  --space-lg: max(2rem, 2dvw);
+  --space-xl: max(3rem, 3dvw);
+  --space-xxl: max(3.5rem, 3.5dvw);
+
+  /* ================= BORDER ================= */
+
+  --border-size: max(0.05rem, 0.05dvw);
+  --border-radius-sm: max(0.5rem, 0.5dvw);
+  --border-radius-md: max(0.8rem, 0.8dvw);
+  --border-radius-lg: max(1.2rem, 1.2dvw);
+  --border-radius-xl: max(1.5rem, 1.5dvw);
+
+  /* ================= ICON SIZE ================= */
+
+  --icon-sm: max(1rem, 1dvw);
+  --icon-md: max(1.5rem, 1.5dvw);
+  --icon-lg: max(2rem, 2dvw);
+
+  /* ================= CONTAINER ================= */
+
+  --container-padding: max(2rem, 2dvw);
+  --container-width: 1400px;
+
+  /* ================= SHADOW ================= */
+
+  --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.12);
+
+  /* ================= TRANSITION ================= */
+
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+}
+
+/* ── Mobile token overrides ── */
+@media (max-width: 768px) {
+  :root {
+    --container-padding: 1rem;
+    --font-xxxl: clamp(1.4rem, 5.5vw, 2.2rem);
+    --font-xxl: clamp(1.2rem, 4.5vw, 1.8rem);
+    --font-xl: clamp(1rem, 3.5vw, 1.4rem);
+    --space-xl: 1.75rem;
+    --space-lg: 1.25rem;
+    --border-radius-lg: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --container-padding: 0.75rem;
+    --font-xxxl: clamp(1.25rem, 6vw, 1.6rem);
+    --font-xxl: clamp(1.1rem, 5vw, 1.4rem);
+    --space-xl: 1.25rem;
+    --space-lg: 1rem;
+  }
+}

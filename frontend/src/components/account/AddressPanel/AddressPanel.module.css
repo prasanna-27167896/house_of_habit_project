@@ -1,0 +1,208 @@
+.panel {
+  border: 1px solid #eaeaea;
+  border-radius: var(--border-radius-lg);
+  background: var(--background-color);
+  min-height: max(36rem, 36dvw);
+}
+
+.addBtn {
+  flex-shrink: 0;
+  background: #ff5f15;
+  border: none;
+  color: #ffffff;
+  border-radius: var(--border-radius-sm);
+  padding: max(0.5rem, 0.5dvw) max(0.7rem, 0.7dvw);
+  font-size: max(0.92rem, 0.92dvw);
+  font-weight: 400;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  display: flex;
+  align-items: center;
+}
+
+.saveBtn {
+  background: #ff5f15;
+  border: none;
+  color: #ffffff;
+  border-radius: var(--border-radius-sm);
+  padding: max(0.5rem, 0.5dvw) max(2rem, 2dvw);
+  font-size: max(0.95rem, 0.95dvw);
+  font-weight: 400;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.addBtn span,
+.addOutlineBtn span {
+  font-size: max(1.2rem, 1.2dvw);
+  font-weight: 400;
+  margin-right: max(0.3rem, 0.3dvw);
+}
+
+.addBtn:hover,
+.saveBtn:hover,
+.addOutlineBtn:hover {
+  transform: translateY(-1px);
+}
+
+/* ── Add outline btn ── */
+.addOutlineBtn {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1.5px solid var(--secondary-color);
+  color: #ff5f15;
+  border-radius: var(--border-radius-sm);
+  padding: max(0.4rem, 0.4dvw) max(0.6rem, 0.6dvw);
+  font-size: max(0.95rem, 0.95dvw);
+  font-weight: 400;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  display: flex;
+  align-items: center;
+}
+
+/* ── Empty state ── */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: max(0.6rem, 0.6dvw);
+  padding: max(3rem, 3dvw) max(1.5rem, 1.5dvw);
+}
+
+.emptyText {
+  font-size: max(0.95rem, 0.95dvw);
+  color: #28282b;
+  font-weight: 400;
+  margin-top: -12px;
+}
+
+/* ── Address list ── */
+.addressList {
+  display: flex;
+  flex-direction: column;
+  gap: max(1.2rem, 1.2dvw);
+  padding: 0 max(1.2rem, 1.2dvw);
+}
+
+/* ── Address card ── */
+.card {
+  border: 1px solid #e9e9e9;
+  border-radius: var(--border-radius-md);
+  padding: max(1rem, 1dvw) max(1.2rem, 1.2dvw);
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: max(0.8rem, 0.8dvw);
+}
+
+.cardName {
+  display: flex;
+  align-items: center;
+  gap: max(1.2rem, 1.2dvw);
+  font-size: max(0.9rem, 0.9dvw);
+  font-weight: 500;
+  color: #28282b;
+}
+
+.defaultBadge {
+  background: #e6ffe6;
+  color: #00d100;
+  font-size: max(0.7rem, 0.7dvw);
+  font-weight: 400;
+  padding: max(0.15rem, 0.15dvw) max(0.4rem, 0.4dvw);
+  border-radius: max(0.4rem, 0.4dvw);
+}
+
+.cardActions {
+  display: flex;
+  align-items: center;
+  gap: max(0.5rem, 0.5dvw);
+}
+
+.iconBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #28282b;
+}
+
+.iconBtnDelete {
+  color: #e53935;
+}
+
+.cardAddress,
+.cardMobile {
+  font-size: max(1rem, 1dvw);
+  color: #28282b;
+  line-height: 1.7;
+}
+
+/* ── Add Address form ── */
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-color);
+  padding: 0;
+}
+
+.formBody {
+  padding: max(0.4rem, 0.4dvw) max(1.4rem, 1.4dvw);
+  display: flex;
+  flex-direction: column;
+  gap: max(1.2rem, 1.2dvw);
+}
+
+.sectionLabel {
+  font-size: max(0.95rem, 0.95dvw);
+  color: #9c9c9d;
+  font-weight: 400;
+  margin: 0;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: max(1.2rem, 1.2dvw);
+}
+
+/* ── Checkbox ── */
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: max(0.3rem, 0.3dvw);
+  font-size: max(0.75rem, 0.75dvw);
+  color: #28282b;
+  cursor: pointer;
+}
+
+.checkbox {
+  width: max(0.9rem, 0.9dvw);
+  height: max(0.9rem, 0.9dvw);
+  accent-color: #ff5f15;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+/* ── Save row ── */
+.saveRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: max(8rem, 8dvw);
+}

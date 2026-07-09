@@ -1,0 +1,42 @@
+.accordion {
+  overflow: hidden;
+  margin-bottom: max(1rem, 1dvw);
+}
+
+.header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: max(0.5rem, 0.5dvw);
+  padding: max(0.6rem, 0.6dvw);
+  background: #fafafa;
+  font-size: max(0.95rem, 0.95dvw);
+  font-weight: 400;
+  color: var(--text-color);
+  cursor: pointer;
+  border: none;
+}
+
+.title {
+  pointer-events: none;
+}
+
+.chevron {
+  transition: transform var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.body {
+  padding: max(0.6rem, 0.6dvw) max(1rem, 1dvw);
+  font-size: max(0.85rem, 0.85dvw);
+  margin-top: max(0.4rem, 0.4dvw);
+  background: #fafafa;
+  color: #28282b;
+  border-radius: max(0.5rem, 0.5dvw);
+  line-height: 1.7;
+}

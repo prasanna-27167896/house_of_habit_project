@@ -1,0 +1,103 @@
+.priceDetails {
+  background: #ffffff;
+  border: 1px solid #e9e9e9;
+  border-radius: max(0.9rem, 0.9dvw);
+  padding: max(1rem, 1dvw);
+  display: flex;
+  flex-direction: column;
+  gap: max(0.5rem, 0.5dvw);
+}
+
+/* ── Title ── */
+.title {
+  font-size: max(1.25rem, 1.25dvw);
+  text-align: center;
+  font-weight: 500;
+  color: #28282b;
+  margin: 0;
+}
+
+/* ── Price Row ── */
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: max(0.94rem, 0.94dvw);
+}
+
+.label,
+.value {
+  color: #28282b;
+  font-weight: 400;
+}
+
+.discount {
+  color: #28282b;
+}
+
+.grandTotalLabel {
+  color: #28282b;
+  font-weight: 500;
+}
+
+/* ── Grand Total ── */
+.grandTotal {
+  font-size: max(0.94rem, 0.94dvw);
+  font-weight: 500;
+  color: #28282b;
+}
+
+.row:has(.grandTotal) {
+  font-size: max(0.94rem, 0.94dvw);
+  margin: 0;
+}
+
+/* ── Pay Button ── */
+.payButton {
+  width: 100%;
+  background: #ff5f15;
+  color: #ffffff;
+  border: none;
+  padding: max(0.85rem, 0.85dvw) max(1.2rem, 1.2dvw);
+  border-radius: max(0.8rem, 0.8dvw);
+  font-size: max(0.7rem, 0.7dvw);
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: max(0.7rem, 0.7dvw);
+  font-family: inherit;
+}
+
+.payButton:hover {
+  transform: translateY(-1px);
+}
+
+.payButton:active {
+  transform: translateY(0);
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .priceDetails {
+    padding: max(1.2rem, 1.2dvw);
+    gap: max(0.8rem, 0.8dvw);
+  }
+
+  .row {
+    font-size: max(0.85rem, 0.85dvw);
+  }
+
+  .payButton {
+    padding: max(0.85rem, 0.85dvw) max(1.2rem, 1.2dvw);
+    font-size: max(0.9rem, 0.9dvw);
+  }
+}
+
+@media (max-width: 768px) {
+  .priceDetails {
+    padding: max(1.5rem, 1.5dvw);
+  }
+
+  .row {
+    font-size: max(0.9rem, 0.9dvw);
+  }
+}

@@ -1,0 +1,200 @@
+/* ── Section ── */
+.section {
+  margin-top: max(2rem, 2dvw);
+  padding: max(1rem, 1dvw);
+}
+
+/* ── Header ── */
+.header {
+  text-align: left;
+  margin-bottom: max(1.2rem, 1.2dvw);
+}
+
+.title {
+  font-size: max(3rem, 3dvw);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: max(0.2rem, 0.2dvw);
+}
+
+.subtitle {
+  color: #28282b;
+  font-size: max(0.9rem, 0.9dvw);
+}
+
+/* ── Grid ── */
+.grid {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: max(1.2rem, 1.2dvw);
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 0.5rem;
+  -webkit-overflow-scrolling: touch;
+  cursor: grab;
+
+  /* Hide scrollbar for Firefox, IE, and Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Hide scrollbar for Chrome, Safari, and Opera */
+.grid::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.active {
+  cursor: grabbing !important;
+  /* ADD THIS: Stops global smooth scrolling from fighting your drag */
+  scroll-behavior: auto !important;
+}
+
+.active > * {
+  pointer-events: none;
+}
+
+.grid > * {
+  flex: 0 0 calc(100% / 3); /* desktop: 3 cards visible */
+
+  /* Prevents text from highlighting while you drag */
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* ── Card ── */
+.card {
+  position: relative;
+  min-height: 260px;
+  border-radius: max(1rem, 1dvw);
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  padding: max(1rem, 1dvw);
+  background-size: cover;
+  background-position: center;
+  color: #ffffff;
+}
+
+/* Text block inside card */
+.textBlock {
+  position: relative;
+  z-index: 9;
+  width: 60%; /* text left, image right */
+  display: flex;
+  flex-direction: column;
+  gap: max(0.5rem, 0.5dvw);
+}
+
+.productName {
+  font-size: max(1.2rem, 1.2dvw);
+  font-weight: 400;
+  margin: 0;
+}
+
+.productPrice {
+  font-size: max(1.1rem, 1.1dvw);
+  font-weight: 700;
+  margin: 0;
+}
+
+.buyButton {
+  width: fit-content;
+  background-color: transparent;
+}
+
+/* Image wrapper inside card */
+.imageWrapper {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 50%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  overflow: hidden;
+}
+
+.imageWrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  max-height: 100%;
+}
+
+/* ── Tablet adjustments ── */
+@media (max-width: 1024px) {
+  .textBlock {
+    width: 55%;
+  }
+
+  .grid > * {
+    flex: 0 0 50%;
+  }
+}
+
+/* ── Mobile adjustments ── */
+@media (max-width: 768px) {
+  .section {
+    margin-top: max(1.5rem, 1.5dvw);
+    padding: 0;
+  }
+
+  .title {
+    font-size: max(2rem, 2.5dvw);
+  }
+
+  .subtitle {
+    font-size: max(1rem, 1.2dvw);
+  }
+
+  .grid > * {
+    flex: 0 0 85%;
+  }
+
+  .grid {
+    gap: max(1rem, 1dvw);
+    padding-left: max(1rem, 1dvw);
+    padding-right: max(1rem, 1dvw);
+  }
+
+  .card {
+    min-height: 260px;
+    padding: max(1rem, 1dvw) max(1rem, 1dvw) max(1.5rem, 1.5dvw);
+    flex-direction: row;
+    align-items: flex-end;
+    border-radius: max(1.6rem, 1.6dvw);
+  }
+
+  .textBlock {
+    width: 60%;
+    text-align: left;
+  }
+
+  .imageWrapper {
+    width: 50%;
+    height: 100%;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+  }
+
+  .imageWrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    max-height: 100%;
+  }
+
+  .productName {
+    font-size: max(1.2rem, 1.2dvw);
+  }
+
+  .productPrice {
+    font-size: max(1.4rem, 1.4dvw);
+    font-weight: 600;
+  }
+}

@@ -1,0 +1,32 @@
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: max(0.8rem, 0.8dvw);
+  padding: max(1rem, 1dvw) max(2rem, 2dvw);
+  font-size: max(0.9rem, 0.9dvw);
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: max(0.4rem, 0.4dvw);
+}
+
+.link {
+  color: var(--text-color);
+  transition: color var(--transition-fast);
+}
+
+.link:hover {
+  color: var(--secondary-color);
+}
+
+.current {
+  color: var(--text-light);
+}
+
+.separator {
+  color: var(--text-color);
+  font-size: max(0.9rem, 0.9dvw);
+}

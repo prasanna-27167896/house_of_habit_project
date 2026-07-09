@@ -1,0 +1,111 @@
+.header {
+  position: sticky;
+  top: max(1rem, 1dvw);
+  z-index: 100;
+  background: #ffffffbf;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid #f1f1f1;
+  border-radius: max(1rem, 1dvh);
+  margin: max(0.7rem, 0.7dvh);
+  padding: max(0.5rem, 0.5dvh) 0;
+}
+
+.scrolled {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  background: #ffffffcc;
+}
+
+.inner {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 max(1rem, 1dvw);
+  height: max(3rem, 3dvh);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* ── Logo ── */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: max(0.5rem, 0.5dvw);
+  cursor: pointer;
+  user-select: none;
+}
+
+.logo svg {
+  width: max(6.2rem, 6.2dvw);
+  height: max(6.2rem, 6.2dvh);
+}
+
+/* ── Actions ── */
+.actions {
+  position: absolute;
+  right: max(1rem, 1dvw);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: max(0.1rem, 0.1dvw);
+}
+
+.iconBtn {
+  width: max(2.5rem, 2.5dvw);
+  height: max(2.5rem, 2.5dvw);
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconBtn:hover {
+  transform: translateY(-1px);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+
+  .header {
+
+    border-radius: 0;
+    border: none;
+    top: 0;
+    background: #fff;
+  }
+
+  .inner {
+    padding: 0 max(0.5rem, 0.5dvw);
+    height: max(3rem, 3dvh);
+  }
+
+  .actions {
+    right: max(1rem, 1dvw);
+    gap: 4px;
+  }
+
+  .iconBtn {
+    width: max(2.2rem, 2.2dvw);
+    height: max(2.2rem, 2.2dvh);
+  }
+
+  /* Hide wishlist icon on mobile to save space */
+  .iconBtn:nth-child(3) {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .logoBadge {
+    width: max(2rem, 2dvw);
+    height: max(2rem, 2dvh);
+  }
+
+  /* Hide user + wishlist on very small screens */
+  .iconBtn:nth-child(2),
+  .iconBtn:nth-child(3) {
+    display: none;
+  }
+}

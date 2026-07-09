@@ -1,0 +1,180 @@
+import { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import styles from './ReturnItemPage.module.css';
+import { mockOrders } from '../../data/ordersData';
+
+/* ── Inline SVG Icons ── */
+const BackIcon = () => (
+  <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'>
+    <polyline points='15 18 9 12 15 6' />
+  </svg>
+);
+
+const ChevronUpIcon = () => (
+  <svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+    <polyline points='18 15 12 9 6 15' />
+  </svg>
+);
+
+const ChevronDownIcon = () => (
+  <svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+    <polyline points='6 9 12 15 18 9' />
+  </svg>
+);
+
+const RETURN_CATEGORIES = [
+  {
+    id: 'quality',
+    title: 'Quality Issues',
+    subtitle: 'Poor Quality Products',
+    emoji: '🧐',
+    reasons: ['Received a poor quality product', 'Product image was better than the actual product'],
+  },
+  {
+    id: 'change-mind',
+    title: 'Change my mind',
+    subtitle: "I don't want this product",
+    emoji: '🤔',
+    reasons: ["I don't want this product anymore", 'Found a better product elsewhere'],
+  },
+  {
+    id: 'size-fit',
+    title: 'Size & Fit Issues',
+    subtitle: "Doesn't fit me well",
+    emoji: '👤',
+    reasons: ['Size too small', 'Size too big', 'I did not like the fit'],
+  },
+  {
+    id: 'different',
+    title: 'Different Product',
+    subtitle: 'Not what i ordered',
+    emoji: '📦',
+    reasons: ['Received a different product', 'Color is different from what I ordered'],
+  },
+  {
+    id: 'damaged',
+    title: 'Damaged/Used',
+    subtitle: 'Not in good condition',
+    emoji: '🧳',
+    reasons: ['Product is damaged', 'Product seems to be used', 'Packaging was damaged'],
+  },
+];
+
+const ReturnItemPage = () => {
+  const { orderId } = useParams();
+  const navigate = useNavigate();
+  const [openCategory, setOpenCategory] = useState('quality');
+  const [selectedReason, setSelectedReason] = useState('');
+
+  const order = mockOrders.find((o) => o.id === Number(orderId));
+
+  if (!order) {
+    return (
+      <main>
+        <div className='container'>
+          <div className={styles.wrapper}>
+            <button className={styles.backBtn} onClick={() => navigate('/account')}>
+              <BackIcon /> Back to Orders
+            </button>
+            <p className={styles.notFound}>Order not found.</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  const { product } = order;
+
+  const toggleCategory = (id) => {
+    setOpenCategory((prev) => (prev === id ? null : id));
+  };
+
+  return (
+    <main>
+      <div className='container'>
+        <div className={styles.wrapper}>
+          {/* ── Back button ── */}
+          <button className={styles.backBtn} onClick={() => navigate(`/account/order/${order.id}`)}>
+            <BackIcon /> Back to Order
+          </button>
+
+          {/* ── Product header ── */}
+          <section className={styles.section}>
+            <div className={styles.productHeader}>
+              <img src={product.image} alt={product.name} className={styles.productImage} />
+              <div className={styles.productInfo}>
+                <h2 className={styles.productName}>{product.name}</h2>
+                <p className={styles.productDesc}>{product.description}</p>
+                <p className={styles.productMeta}>Size: {product.size}</p>
+                <p className={styles.productPrice}>₹ {product.price}</p>
+              </div>
+            </div>
+          </section>
+
+          {/* ── Want to return? ── */}
+          <section className={styles.section}>
+            <div className={styles.returnPrompt}>
+              <div className={styles.returnEmoji}>😢</div>
+              <h3 className={styles.returnTitle}>Want to return?</h3>
+              <p className={styles.returnSub}>Dont worry we are here to help you</p>
+            </div>
+          </section>
+
+          {/* ── Select return reason ── */}
+          <section className={styles.section}>
+            <div className={styles.reasonSection}>
+              <h3 className={styles.sectionTitle}>Select Return reason</h3>
+              <p className={styles.sectionSub}>Please select correct reason for exchange to improve our service</p>
+
+              <div className={styles.divider} />
+
+              <div className={styles.categoryList}>
+                {RETURN_CATEGORIES.map((cat) => (
+                  <div key={cat.id} className={styles.categoryCard}>
+                    <button className={styles.categoryHeader} onClick={() => toggleCategory(cat.id)}>
+                      <div className={styles.categoryLeft}>
+                        <span className={styles.categoryEmoji}>{cat.emoji}</span>
+                        <div>
+                          <p className={styles.categoryTitle}>{cat.title}</p>
+                          <p className={styles.categorySub}>{cat.subtitle}</p>
+                        </div>
+                      </div>
+                      {openCategory === cat.id ? <ChevronUpIcon /> : <ChevronDownIcon />}
+                    </button>
+
+                    {openCategory === cat.id && (
+                      <div className={styles.categoryBody}>
+                        {cat.reasons.map((reason) => (
+                          <label key={reason} className={styles.reasonItem}>
+                            <input
+                              type='radio'
+                              name='returnReason'
+                              value={reason}
+                              checked={selectedReason === reason}
+                              onChange={(e) => setSelectedReason(e.target.value)}
+                              className={styles.radio}
+                            />
+                            <span>{reason}</span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* ── Continue button ── */}
+          <div className={styles.continueRow}>
+            <button className={styles.continueBtn} disabled={!selectedReason}>
+              Continue
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+};
+
+export default ReturnItemPage;

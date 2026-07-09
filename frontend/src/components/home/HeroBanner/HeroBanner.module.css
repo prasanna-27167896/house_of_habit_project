@@ -1,0 +1,149 @@
+.hero {
+  position: relative;
+  width: 100%;
+  height: max(36rem, 36dvw);
+  border-radius: max(2.2rem, 2.2dvh);
+  overflow: hidden;
+  background-image: url('/images/Banner.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin-top: max(1.5rem, 1.5dvh);
+}
+
+.content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  padding: max(2rem, 2dvh);
+  gap: max(2rem, 2dvw);
+}
+
+/* ── Text block ── */
+.textBlock {
+  margin-left: auto;
+  color: #ffffff;
+  max-width: max(50rem, 50dvw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: max(0.2rem, 0.2dvh);
+}
+
+.subBlock {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-around;
+  gap: max(2.6rem, 2.6dvw);
+}
+
+.heading {
+  font-size: max(4rem, 4dvw);
+  font-weight: 600;
+  line-height: 1;
+  margin-bottom: max(0.5rem, 0.5dvh);
+}
+
+.sub {
+  font-size: max(1.2rem, 1.2dvw);
+  font-weight: 400;
+  opacity: 0.88;
+  margin-bottom: max(0.5rem, 0.5dvh);
+  text-align: left;
+}
+
+/* ── Rating widget ── */
+.rating {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: max(0.5rem, 0.5dvw);
+}
+
+.avatars {
+  display: flex;
+}
+
+.avatar {
+  width: max(1.8rem, 1.8dvw);
+  height: max(1.8rem, 1.8dvh);
+  border-radius: 50%;
+  border: 2px solid #fff;
+  display: block;
+  margin-left: max(-0.8rem, -0.8dvw);
+}
+
+.avatar:first-child {
+  margin-left: 0;
+}
+
+.a1 {
+  background: #a8b4be;
+}
+
+.a2 {
+  background: #7a8d9a;
+}
+
+.a3 {
+  background: #546474;
+}
+
+.ratingText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-size: max(0.9rem, 0.9dvw);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.ratingText strong {
+  font-size: max(0.9rem, 0.9dvw);
+  font-weight: 600;
+  color: #fff;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .hero {
+    width: 100%;
+    height: max(36rem, 36dvw);
+    border-radius: max(2rem, 2dvw);
+  }
+
+  .rating {
+    display: none;
+  }
+
+  .content {
+    padding: max(0.8rem, 0.8dvw);
+
+    /* reverse order on mobile */
+    flex-direction: column-reverse;
+
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: max(0.6rem, 0.6dvw);
+  }
+
+  .textBlock {
+    margin-left: 0;
+    text-align: start;
+    max-width: 100%;
+    align-items: flex-start;
+  }
+
+  .subBlock {
+    justify-content: center;
+    gap: max(2rem, 2dvw);
+  }
+
+  .heading {
+    font-size: max(1.8rem, 1.8dvw);
+  }
+
+  .sub {
+    font-size: max(0.95rem, 0.95dvw);
+  }
+}

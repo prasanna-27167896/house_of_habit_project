@@ -1,0 +1,54 @@
+.wrapper {
+  margin-bottom: max(1.8rem, 1.8dvw);
+}
+
+.fieldset {
+  border: none;
+  border-radius: 8px;
+  padding: max(0.4rem, 0.4dvw) 0;
+}
+
+.label {
+  font-size: max(0.95rem, 0.95dvw);
+  font-weight: 500;
+  color: #28282b;
+}
+
+.inputGroup {
+  display: flex;
+  align-items: center;
+  gap: max(0.5rem, 0.5dvw);
+  margin-top: max(0.4rem, 0.4dvw);
+}
+
+.input {
+  flex: 1;
+  border: none;
+  padding: max(0.8rem, 0.8dvw) max(0.6rem, 0.6dvw);
+  font-size: max(0.9rem, 0.9dvw);
+  font-weight: 400;
+  color: #28282b;
+  background: #fafafa;
+  outline: none;
+  border-radius: max(0.5rem, 0.5dvw);
+}
+
+.input::placeholder {
+  color: #9c9c9d;
+}
+
+.checkBtn {
+  padding: max(0.6rem, 0.6dvw) max(1.4rem, 1.4dvw);
+  background: var(--secondary-color);
+  color: #ffffff;
+  border: none;
+  border-radius: max(0.5rem, 0.5dvw);
+  font-size: max(0.9rem, 0.9dvw);
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.checkBtn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}

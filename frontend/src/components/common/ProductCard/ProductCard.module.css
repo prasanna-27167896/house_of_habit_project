@@ -1,0 +1,138 @@
+.card {
+  cursor: pointer;
+  width: 100%;
+  min-width: 0;
+}
+
+.imageWrapper {
+  position: relative;
+  background: #fafafa;
+  border-radius: clamp(8px, 1.5vw, 12px);
+  overflow: hidden;
+  aspect-ratio: 8 / 9;
+  margin-bottom: clamp(0.5rem, 2vw, 0.75rem);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform var(--transition-normal, 0.25s ease);
+}
+
+.card:hover .image {
+  transform: scale(1.04);
+}
+
+.productDetails {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+/* TEXT WRAPPER (IMPORTANT FOR FLEX) */
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+/* NAME */
+.name {
+  font-size: clamp(0.8rem, 2.5vw, 0.95rem);
+  color: #28282b;
+  font-weight: 400;
+  margin-bottom: 3px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* PRICE */
+.price {
+  font-size: clamp(0.9rem, 2.8vw, 1.1rem);
+  font-weight: 700;
+  color: #1e1e1e;
+  white-space: nowrap;
+}
+
+/* CART BUTTON (FIXED) */
+.cartBtn {
+  width: max(2.8rem, 2.8dvw);
+  height: max(2.8rem, 2.8dvw);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+
+  flex-shrink: 0;
+  cursor: pointer;
+
+  color: #fff;
+}
+
+/* ICON FIX (IMPORTANT) */
+.cartBtn svg {
+  width: 36px;
+  height: 36px;
+  display: block;
+}
+
+.cartBtn:hover {
+  opacity: 0.85;
+}
+
+/* Always visible on touch */
+@media (hover: none) {
+  .cartBtn {
+    opacity: 1;
+  }
+}
+
+/* Small phones */
+@media (max-width: 360px) {
+  .imageWrapper {
+    border-radius: 8px;
+  }
+
+  .name {
+    font-size: 0.8rem;
+  }
+
+  .price {
+    font-size: 0.9rem;
+  }
+}
+
+/* Tablet */
+@media (min-width: 768px) {
+  .imageWrapper {
+    border-radius: 10px;
+  }
+
+  .cartBtn svg {
+    width: 100px;
+    height: 100px;
+    display: block;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1280px) {
+  .imageWrapper {
+    border-radius: 12px;
+  }
+
+  .name {
+    font-size: 0.95rem;
+  }
+
+  .price {
+    font-size: 1.1rem;
+  }
+}
