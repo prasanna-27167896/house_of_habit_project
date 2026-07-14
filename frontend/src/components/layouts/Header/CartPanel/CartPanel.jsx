@@ -1,37 +1,21 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './CartPanel.module.css';
 import CartItem from './CartItem/CartItem';
 import PriceDetails from './PriceDetails/PriceDetails';
-import { useNavigate } from 'react-router-dom';
+import CartDrawerItem from '../../../checkout/CartDrawerItem/CartDrawerItem';
+import CouponSection from '../../../checkout/CouponSection/CouponSection';
+import SavingsBadge from '../../../checkout/SavingsBadge/SavingsBadge';
+import OrderSummary from '../../../checkout/OrderSummary/OrderSummary';
+import AddressModal from '../../../checkout/AddressModal/AddressModal';
 import Button from '../../../common/Button/Button';
-
-// Mock cart data
-const MOCK_CART_ITEMS = [
-  {
-    id: 1,
-    name: 'Solid Muscle Fit Polo shirt',
-    image: 'https://via.placeholder.com/120x160?text=Polo+1',
-    size: 'S',
-    quantity: 1,
-    price: 900,
-    originalPrice: 999,
-  },
-  {
-    id: 2,
-    name: 'Solid Muscle Fit Polo shirt',
-    image: 'https://via.placeholder.com/120x160?text=Polo+2',
-    size: 'S',
-    quantity: 1,
-    price: 900,
-    originalPrice: 999,
-    discount: '20%',
-  },
-];
+import { MOCK_CART_ITEMS } from '../../../../data/checkoutData';
 
 const CartPanel = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState(MOCK_CART_ITEMS);
   const [isClosing, setIsClosing] = useState(false);
+  const [addressModalOpen, setAddressModalOpen] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -54,15 +38,27 @@ const CartPanel = ({ isOpen, onClose }) => {
     setCartItems(cartItems.filter((item) => item.id !== itemId));
   };
 
+  const handleQuantityChange = (itemId, newQty) => {
+    if (newQty < 1) return;
+    setCartItems(cartItems.map((item) =>
+      item.id === itemId ? { ...item, quantity: newQty } : item
+    ));
+  };
+
   const handleStartShopping = () => {
     setIsClosing(true);
     setTimeout(() => {
-      navigate('/shop');
+      navigate('/shop/polo-t-shirts');
       onClose();
     }, 600);
   };
 
-  const handlePayment = () => {
+  const handleProceedToCheckout = () => {
+    setAddressModalOpen(true);
+  };
+
+  const handleAddressSubmit = () => {
+    setAddressModalOpen(false);
     setIsClosing(true);
     setTimeout(() => {
       navigate('/checkout');
@@ -73,6 +69,9 @@ const CartPanel = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   const isEmpty = cartItems.length === 0;
+  const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const totalOriginal = cartItems.reduce((sum, item) => sum + (item.originalPrice || item.price) * item.quantity, 0);
+  const totalSavings = totalOriginal - totalPrice;
 
   return (
     <div className={styles.overlay} onClick={handleClose}>
@@ -82,7 +81,7 @@ const CartPanel = ({ isOpen, onClose }) => {
         </button>
 
         <div className={styles.header}>
-          <h2 className={styles.title}>Cart ({isEmpty ? 0 : cartItems.length})</h2>
+          <h2 className={styles.title}>Your Cart ({isEmpty ? 0 : cartItems.reduce((s, i) => s + i.quantity, 0)} items)</h2>
         </div>
 
         {isEmpty ? (
@@ -101,18 +100,49 @@ const CartPanel = ({ isOpen, onClose }) => {
             </button>
           </div>
         ) : (
-          <div className={styles.content}>
-            <div className={styles.itemsList}>
-              {cartItems.map((item) => (
-                <CartItem key={item.id} item={item} onRemove={handleRemoveItem} />
-              ))}
+          <>
+            {/* ── Desktop Layout ── */}
+            <div className={styles.content}>
+              <div className={styles.itemsList}>
+                {cartItems.map((item) => (
+                  <CartItem key={item.id} item={item} onRemove={handleRemoveItem} />
+                ))}
+              </div>
+              <div className={styles.sidebar}>
+                <PriceDetails items={cartItems} onPayment={handleProceedToCheckout} />
+              </div>
             </div>
-            <div className={styles.sidebar}>
-              <PriceDetails items={cartItems} onPayment={handlePayment} />
+
+            {/* ── Mobile Layout ── */}
+            <div className={styles.mobileContent}>
+              <div className={styles.mobileItemsList}>
+                {cartItems.map((item) => (
+                  <CartDrawerItem
+                    key={item.id}
+                    item={item}
+                    onQuantityChange={handleQuantityChange}
+                    onRemove={handleRemoveItem}
+                  />
+                ))}
+              </div>
+
+              <CouponSection variant="drawer" />
+
+              <div className={styles.mobileBottom}>
+                <SavingsBadge amount={totalSavings} />
+                <OrderSummary total={totalPrice} onProceed={handleProceedToCheckout} />
+              </div>
             </div>
-          </div>
+          </>
         )}
       </div>
+
+      {/* ── Address Modal ── */}
+      <AddressModal
+        isOpen={addressModalOpen}
+        onClose={() => setAddressModalOpen(false)}
+        onSubmit={handleAddressSubmit}
+      />
     </div>
   );
 };

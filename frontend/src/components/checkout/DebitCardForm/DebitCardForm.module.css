@@ -1,0 +1,148 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.title {
+  font-size: max(1.15rem, 1.15dvw);
+  font-weight: 500;
+  color: #28282b;
+  margin-bottom: max(1.2rem, 1.2dvw);
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: max(1rem, 1dvw);
+  flex: 1;
+}
+
+/* ── Two-Column Layout ── */
+.twoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: max(0.8rem, 0.8dvw);
+}
+
+/* ── CVV wrapper with eye toggle ── */
+.cvvWrap {
+  position: relative;
+}
+
+.eyeBtn {
+  position: absolute;
+  right: max(0.6rem, 0.6dvw);
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #777;
+  display: flex;
+  align-items: center;
+  transition: color var(--transition-fast);
+}
+
+.eyeBtn:hover {
+  color: #28282b;
+}
+
+/* ── Save Card Checkbox ── */
+.saveLabel {
+  display: flex;
+  align-items: center;
+  gap: max(0.6rem, 0.6dvw);
+  font-size: max(0.88rem, 0.88dvw);
+  font-weight: 500;
+  color: #28282b;
+  cursor: pointer;
+  margin-top: max(0.5rem, 0.5dvw);
+}
+
+.radio {
+  width: max(1.3rem, 1.3dvw);
+  height: max(1.3rem, 1.3dvw);
+  border-radius: 50%;
+  border: 2px solid #d9d9d9;
+  flex-shrink: 0;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+  cursor: pointer;
+}
+
+.radioActive {
+  border-color: #ff5f15;
+  background: #ff5f15;
+  box-shadow: inset 0 0 0 3px #ffffff;
+}
+
+/* ── Action Buttons ── */
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: max(0.8rem, 0.8dvw);
+  margin-top: auto;
+  padding-top: max(2rem, 2dvw);
+}
+
+.cancelBtn {
+  padding: max(0.85rem, 0.85dvw);
+  border-radius: max(0.8rem, 0.8dvw);
+  border: 2px solid #ff5f15;
+  background: #ffffff;
+  color: #ff5f15;
+  font-size: max(0.88rem, 0.88dvw);
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.cancelBtn:hover {
+  background: #fff5f0;
+}
+
+.continueBtn {
+  padding: max(0.85rem, 0.85dvw);
+  border-radius: max(0.8rem, 0.8dvw);
+  border: none;
+  background: #ff5f15;
+  color: #ffffff;
+  font-size: max(0.88rem, 0.88dvw);
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.continueBtn:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.continueBtn:active {
+  transform: translateY(0);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .twoCol {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+  }
+
+  .actions {
+    padding-top: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.05rem;
+  }
+
+  .actions {
+    gap: 0.6rem;
+  }
+}

@@ -1,0 +1,102 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: max(0.6rem, 0.6dvw);
+}
+
+.title {
+  font-size: max(1.1rem, 1.1dvw);
+  font-weight: 500;
+  color: #28282b;
+  margin-bottom: max(0.2rem, 0.2dvw);
+}
+
+/* ── Payment Card ── */
+.paymentCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: #28282b;
+  color: #ffffff;
+  border: none;
+  border-radius: max(0.8rem, 0.8dvw);
+  padding: max(1rem, 1dvw) max(1.2rem, 1.2dvw);
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
+}
+
+.paymentCard:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.paymentCard:active {
+  transform: translateY(0);
+}
+
+.cardLeft {
+  display: flex;
+  align-items: center;
+  gap: max(0.5rem, 0.5dvw);
+}
+
+.payIcon {
+  font-size: max(1.1rem, 1.1dvw);
+}
+
+.payLabel {
+  font-size: max(0.88rem, 0.88dvw);
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.cardRight {
+  display: flex;
+  align-items: center;
+  gap: max(0.4rem, 0.4dvw);
+  color: #ffffff;
+}
+
+.payAmount {
+  font-family: 'Outfit', sans-serif;
+  font-size: max(0.92rem, 0.92dvw);
+  font-weight: 600;
+}
+
+/* ── COD Wrapper ── */
+.codWrapper {
+  position: relative;
+}
+
+.codBadge {
+  position: absolute;
+  top: max(-0.5rem, -0.5dvw);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff5f15;
+  color: #ffffff;
+  font-size: max(0.65rem, 0.65dvw);
+  font-weight: 600;
+  padding: max(0.15rem, 0.15dvw) max(0.8rem, 0.8dvw);
+  border-radius: max(1rem, 1dvw);
+  white-space: nowrap;
+  z-index: 1;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .paymentCard {
+    padding: 0.9rem 1rem;
+  }
+
+  .payLabel {
+    font-size: 0.85rem;
+  }
+
+  .codBadge {
+    font-size: 0.6rem;
+    top: -0.4rem;
+  }
+}

@@ -1,0 +1,206 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: max(2rem, 2dvw) max(1.5rem, 1.5dvw);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* ── Success Icon ── */
+.iconWrap {
+  position: relative;
+  margin-bottom: max(1.5rem, 1.5dvw);
+}
+
+.checkIcon {
+  width: max(4.5rem, 4.5dvw);
+  height: max(4.5rem, 4.5dvw);
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  border-radius: max(1rem, 1dvw);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(34, 197, 94, 0.3);
+  position: relative;
+  z-index: 1;
+}
+
+/* Confetti dots */
+.confetti {
+  position: absolute;
+  inset: max(-1.5rem, -1.5dvw);
+  z-index: 0;
+}
+
+.confetti::before,
+.confetti::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+}
+
+.confetti::before {
+  width: 6px;
+  height: 6px;
+  background: #ff5f15;
+  top: 0;
+  left: 20%;
+  box-shadow:
+    max(3rem, 3dvw) max(0.5rem, 0.5dvw) 0 0 #22c55e,
+    max(-0.5rem, -0.5dvw) max(2rem, 2dvw) 0 0 #fbbf24,
+    max(4rem, 4dvw) max(3rem, 3dvw) 0 0 #ff5f15,
+    max(1.5rem, 1.5dvw) max(-0.3rem, -0.3dvw) 0 0 #22c55e;
+}
+
+.confetti::after {
+  width: 4px;
+  height: 4px;
+  background: #fbbf24;
+  bottom: 10%;
+  right: 15%;
+  box-shadow:
+    max(-2rem, -2dvw) max(-1rem, -1dvw) 0 1px #ff5f15,
+    max(1rem, 1dvw) max(-2.5rem, -2.5dvw) 0 0 #fbbf24;
+}
+
+/* ── Heading ── */
+.heading {
+  font-size: max(1.4rem, 1.4dvw);
+  font-weight: 600;
+  color: #28282b;
+  margin-bottom: max(0.4rem, 0.4dvw);
+}
+
+.subText {
+  font-size: max(0.82rem, 0.82dvw);
+  color: #777;
+  line-height: 1.5;
+  margin-bottom: max(1.5rem, 1.5dvw);
+  max-width: 350px;
+}
+
+/* ── Details Card ── */
+.detailsCard {
+  width: 100%;
+  border-top: 1px solid #e9e9e9;
+  padding-top: max(1rem, 1dvw);
+  display: flex;
+  flex-direction: column;
+  gap: max(0.6rem, 0.6dvw);
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detailLabel {
+  font-size: max(0.82rem, 0.82dvw);
+  color: #999;
+  font-weight: 400;
+}
+
+.detailValue {
+  font-size: max(0.82rem, 0.82dvw);
+  color: #28282b;
+  font-weight: 600;
+  text-align: right;
+}
+
+/* ── Dashed Divider ── */
+.dashedDivider {
+  border: none;
+  border-top: 2px dashed #e9e9e9;
+  margin: max(0.3rem, 0.3dvw) 0;
+}
+
+/* ── Amount ── */
+.amountLabel {
+  font-size: max(0.88rem, 0.88dvw);
+  font-weight: 600;
+  color: #28282b;
+}
+
+.amountValue {
+  font-family: 'Outfit', sans-serif;
+  font-size: max(1rem, 1dvw);
+  font-weight: 700;
+  color: #28282b;
+}
+
+/* ── Appreciation ── */
+.appreciation {
+  font-size: max(0.88rem, 0.88dvw);
+  color: #555;
+  font-style: italic;
+  margin-top: max(1.5rem, 1.5dvw);
+  margin-bottom: max(2rem, 2dvw);
+}
+
+/* ── Action Buttons ── */
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: max(0.8rem, 0.8dvw);
+  width: 100%;
+}
+
+.trackBtn {
+  padding: max(0.85rem, 0.85dvw);
+  border-radius: max(0.8rem, 0.8dvw);
+  border: 2px solid #ff5f15;
+  background: #ffffff;
+  color: #ff5f15;
+  font-size: max(0.85rem, 0.85dvw);
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.trackBtn:hover {
+  background: #fff5f0;
+}
+
+.shopBtn {
+  padding: max(0.85rem, 0.85dvw);
+  border-radius: max(0.8rem, 0.8dvw);
+  border: 2px solid #ff5f15;
+  background: #ffffff;
+  color: #ff5f15;
+  font-size: max(0.85rem, 0.85dvw);
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.shopBtn:hover {
+  background: #fff5f0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .wrapper {
+    padding: 2rem 1.2rem;
+  }
+
+  .heading {
+    font-size: 1.25rem;
+  }
+
+  .checkIcon {
+    width: 4rem;
+    height: 4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .actions {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+  }
+}
