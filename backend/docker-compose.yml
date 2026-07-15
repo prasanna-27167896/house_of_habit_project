@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: hoh_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: hoh@123
+      POSTGRES_DB: hohdb
+    ports:
+      - "5434:5432"
+    volumes:
+      - hoh_pgdata:/var/lib/postgresql/data
+
+volumes:
+  hoh_pgdata:

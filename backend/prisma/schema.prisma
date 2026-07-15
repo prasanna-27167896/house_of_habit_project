@@ -1,0 +1,629 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── ENUMS ───────────────────────────────────────────────────────────────────
+
+enum RoleName {
+  ROLE_ADMIN
+  ROLE_USER
+}
+
+enum Gender {
+  MEN
+  WOMEN
+  UNISEX
+  KIDS
+}
+
+enum FitType {
+  SLIM
+  REGULAR
+  LOOSE
+  OVERSIZED
+}
+
+enum Season {
+  SUMMER
+  WINTER
+  MONSOON
+  ALL_SEASON
+}
+
+enum AddressType {
+  HOME
+  WORK
+  OTHER
+}
+
+enum CouponType {
+  PERCENTAGE
+  FIXED
+}
+
+enum CouponScope {
+  CART
+  CATEGORY
+  PRODUCT
+}
+
+enum OrderStatus {
+  PENDING
+  ORDER_PLACED
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+  RETURN_REQUESTED
+  RETURNED
+  RETURN_REJECTED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COD_PENDING // COD order placed & stock deducted, but cash not collected yet — flips to COMPLETED on delivery
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum ReservationStatus {
+  ACTIVE     // stock is held for an in-progress checkout
+  CONSUMED   // payment succeeded — the hold became a real sale
+  RELEASED   // hold expired or payment failed — stock returned
+}
+
+enum RefundStatus {
+  NONE           // no refund owed (unpaid cancel, or not cancelled)
+  REFUND_PENDING // paid order cancelled/returned — money owed to the customer
+  REFUNDED       // refund completed (manually via Razorpay, or by API later)
+}
+
+// ─── AUTH & USERS — Module 1 ─────────────────────────────────────────────────
+
+model User {
+  userId              String    @id @default(uuid())
+  fullName            String?
+  email               String    @unique
+  password            String
+  mobile              String?
+  dateOfBirth         DateTime?
+  imageUrl            String?
+  locked              Boolean   @default(false) // permanent admin ban (only an admin sets/clears this)
+  failedLoginAttempts Int       @default(0)
+  accountLockedAt     DateTime?
+  lockedUntil         DateTime? // temporary login cooldown after too many wrong passwords; auto-expires
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  roles             UserRole[]
+  sessions          Session[]
+  forgotPassword    ForgotPassword?
+  wishlists         Wishlist[]
+  cart              Cart?
+  addresses         Address[]
+  orders            Order[]
+  reviews           Review[]
+  couponRedemptions CouponRedemption[]
+
+  @@map("users")
+}
+
+model Role {
+  roleId   String   @id @default(uuid())
+  roleName RoleName @unique
+
+  userRoles UserRole[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  userId String
+  roleId String
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [roleId], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+// Session-backed auth — one row per active login (multi-device).
+// Access + refresh JWTs both carry this session's id; the middleware validates
+// the session on every request, so revoking a row logs that device out instantly.
+model Session {
+  id          String   @id @default(uuid())
+  userId      String
+  // SHA-256 of the current refresh token — never the raw token. Rotated on every
+  // refresh; a mismatch on refresh means a stolen/replayed token → revoke.
+  refreshHash String
+  ipAddress   String?
+  userAgent   String?
+  revoked     Boolean  @default(false)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model EmailVerification {
+  verificationId String    @id @default(uuid())
+  email          String    @unique
+  otp            Int
+  isVerified     Boolean   @default(false)
+  attempts       Int       @default(0) // wrong-OTP guesses; OTP is invalidated after the limit
+  // Before verification: OTP expiry. After verification: expiry of the "verified" state —
+  // register must run before this, so a stale verified email can't be claimed forever.
+  expiresAt      DateTime
+  lastOtpSentAt  DateTime? // last time an OTP email was sent — enforces a resend cooldown
+  createdAt      DateTime  @default(now())
+
+  @@map("email_verifications")
+}
+
+model ForgotPassword {
+  fpId          String    @id @default(uuid())
+  otp           Int
+  attempts      Int       @default(0) // wrong-OTP guesses; OTP is invalidated after the limit
+  expiresAt     DateTime
+  lastOtpSentAt DateTime? // last time an OTP email was sent — enforces a resend cooldown
+  userId        String    @unique
+  createdAt     DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("forgot_passwords")
+}
+
+// ─── CATEGORIES & BRANDS — Module 2 ─────────────────────────────────────────
+
+model Category {
+  categoryId          String   @id @default(uuid())
+  categoryTitle       String   @unique @db.VarChar(100)
+  categoryDescription String?  @db.Text
+  imageUrl            String?
+  imageKey            String?
+  isDisabled          Boolean  @default(false)
+  isDeleted           Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  brands   Brand[]
+  products Product[]
+  coupons  Coupon[]
+
+  @@map("categories")
+}
+
+model Brand {
+  brandId    String   @id @default(uuid())
+  brandName  String
+  brandCode  String?
+  status     String?
+  imageUrl   String?
+  imageKey   String?
+  categoryId String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  category Category? @relation(fields: [categoryId], references: [categoryId])
+  products Product[]
+
+  @@map("brands")
+}
+
+// ─── PRODUCTS & VARIANTS — Module 3 ──────────────────────────────────────────
+
+model Product {
+  productId          String   @id @default(uuid())
+  title              String
+  description        String?  @db.Text
+  longDescription    String?  @db.Text
+
+  // Pricing (in rupees)
+  price              Int
+  discountedPrice    Int
+  discountPercentage Int?
+
+  // Clothing-specific attributes
+  gender             Gender?
+  fitType            FitType?
+  season             Season?
+  material           String?
+  occasion           String?
+  pattern            String?
+
+  // Up to 4 images (url + R2 key pairs)
+  imageUrl           String?
+  imageKey           String?
+  imageUrl1          String?
+  imageKey1          String?
+  imageUrl2          String?
+  imageKey2          String?
+  imageUrl3          String?
+  imageKey3          String?
+
+  returnPolicy       String?
+
+  // Denormalised rating stats (updated by review module)
+  avgRating          Float    @default(0) // average star rating (0–5)
+  totalReviews       Int      @default(0) // number of reviews
+
+  isDisabled         Boolean  @default(false)
+  isDeleted          Boolean  @default(false)
+
+  categoryId         String
+  brandId            String?
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  category           Category        @relation(fields: [categoryId], references: [categoryId])
+  brand              Brand?          @relation(fields: [brandId], references: [brandId])
+  variants           ProductVariant[]
+  wishlists          Wishlist[]
+  coupons            Coupon[]
+  reviews            Review[]
+
+  @@map("products")
+}
+
+model ProductVariant {
+  variantId  String   @id @default(uuid())
+  productId  String
+  size       String
+  color      String
+  colorCode  String?
+  sku        String   @unique
+  stock      Int      @default(0)
+  price      Int?
+  isActive   Boolean  @default(true)
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  product      Product                @relation(fields: [productId], references: [productId], onDelete: Cascade)
+  cartItems    CartItem[]
+  orderItems   OrderItem[]
+  reservations InventoryReservation[]
+
+  @@map("product_variants")
+}
+
+// ─── INVENTORY RESERVATION ───────────────────────────────────────────────────
+// `stock` on ProductVariant is the "available to buy" count. At checkout we
+// atomically decrement it and record the held quantity here so an abandoned
+// payment can be swept and the stock returned. Success → CONSUMED (stock stays
+// down, real sale). Expiry/failure → RELEASED (stock added back).
+model InventoryReservation {
+  id        String            @id @default(uuid())
+  variantId String
+  userId    String
+  orderId   String
+  quantity  Int
+  status    ReservationStatus @default(ACTIVE)
+  expiresAt DateTime
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  variant ProductVariant @relation(fields: [variantId], references: [variantId], onDelete: Cascade)
+  order   Order          @relation(fields: [orderId], references: [orderId], onDelete: Cascade)
+
+  @@index([status, expiresAt])
+  @@index([orderId])
+  @@map("inventory_reservations")
+}
+
+// ─── ADDRESSES — Module 6 ────────────────────────────────────────────────────
+
+model Address {
+  addressId    String      @id @default(uuid())
+  userId       String
+  fullName     String
+  phone        String
+  addressLine1 String
+  addressLine2 String?
+  city         String
+  state        String
+  pincode      String
+  country      String      @default("India")
+  addressType  AddressType @default(HOME)
+  isDefault    Boolean     @default(false)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  user         User        @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  orders       Order[]
+
+  @@map("addresses")
+}
+
+// ─── CART — Module 5 ─────────────────────────────────────────────────────────
+
+model Cart {
+  cartId    String     @id @default(uuid())
+  userId    String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  user      User       @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  items     CartItem[]
+
+  @@map("carts")
+}
+
+model CartItem {
+  cartItemId String   @id @default(uuid())
+  cartId     String
+  variantId  String
+  quantity   Int      @default(1)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  cart       Cart           @relation(fields: [cartId], references: [cartId], onDelete: Cascade)
+  variant    ProductVariant @relation(fields: [variantId], references: [variantId], onDelete: Cascade)
+
+  @@unique([cartId, variantId])
+  @@map("cart_items")
+}
+
+// ─── COUPONS — Module 7 ──────────────────────────────────────────────────────
+
+model Coupon {
+  couponId      String      @id @default(uuid())
+  couponCode    String      @unique @db.VarChar(30)
+  couponType    CouponType
+  couponScope   CouponScope @default(CART)
+  value         Float
+  minOrderValue Float?
+  maxDiscount   Float?
+  isActive      Boolean     @default(true)
+  perUserLimit  Int?        // max redemptions per customer (null = unlimited)
+  startDate     DateTime?
+  endDate       DateTime?
+  usageLimit    Int?        // max redemptions overall (null = unlimited)
+  usageCount    Int         @default(0) // atomic global counter (reserved at checkout)
+  categoryId    String?
+  productId     String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  category    Category?          @relation(fields: [categoryId], references: [categoryId])
+  product     Product?           @relation(fields: [productId], references: [productId])
+  redemptions CouponRedemption[]
+
+  @@map("coupons")
+}
+
+// One row per (coupon, order) — the redemption ledger. Enforces the per-user cap
+// and rides the order's reservation lifecycle (created at checkout, deleted on
+// release, kept on success).
+model CouponRedemption {
+  id        String   @id @default(uuid())
+  couponId  String
+  userId    String
+  orderId   String   @unique
+  createdAt DateTime @default(now())
+
+  coupon Coupon @relation(fields: [couponId], references: [couponId], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  order  Order  @relation(fields: [orderId], references: [orderId], onDelete: Cascade)
+
+  @@index([couponId, userId])
+  @@map("coupon_redemptions")
+}
+
+// ─── WISHLIST — Module 4 ──────────────────────────────────────────────────────
+
+model Wishlist {
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [productId], onDelete: Cascade)
+
+  @@id([userId, productId])
+  @@map("wishlists")
+}
+
+// ─── ORDERS — Module 8 ───────────────────────────────────────────────────────
+
+model Order {
+  orderId              String        @id @default(uuid())
+  userId               String
+  shippingAddressId    String
+  orderStatus          OrderStatus   @default(PENDING)
+  paymentStatus        PaymentStatus @default(PENDING)
+  paymentMethod        String?
+  paymentId            String?
+  razorpayOrderId      String?
+  razorpayPaymentLink  String?
+  totalPrice           Float
+  totalDiscountedPrice Float
+  discount             Float
+  couponCode           String?
+  couponDiscount       Float?
+  shippingCharge       Float         @default(0)
+  totalAmount          Float
+  totalItems           Int
+  proofImageUrl        String?       // deprecated — payment-proof upload removed
+  proofImageUrl1       String?       // deprecated — payment-proof upload removed
+  estimatedDelivery    DateTime?
+  deliveredAt          DateTime?
+  // Cancellation & refund tracking
+  cancelledBy          String?       // "CUSTOMER" | "ADMIN" — who cancelled
+  cancelledAt          DateTime?
+  refundStatus         RefundStatus  @default(NONE)
+  refundedAt           DateTime?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  user             User                   @relation(fields: [userId], references: [userId])
+  shippingAddress  Address                @relation(fields: [shippingAddressId], references: [addressId])
+  orderItems       OrderItem[]
+  payments         Payment[]
+  reservations     InventoryReservation[]
+  couponRedemption CouponRedemption?
+
+  @@map("orders")
+}
+
+model Payment {
+  paymentId         String        @id @default(uuid())
+  orderId           String
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  amount            Float
+  currency          String        @default("INR")
+  method            String?
+  status            PaymentStatus
+  source            String?       // "verify" | "webhook" | "cod"
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  order Order @relation(fields: [orderId], references: [orderId], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+model OrderItem {
+  orderItemId     String  @id @default(uuid())
+  orderId         String
+  variantId       String
+  productTitle    String
+  size            String
+  color           String
+  imageUrl        String?
+  quantity        Int
+  price           Float
+  discountedPrice Float
+
+  order   Order          @relation(fields: [orderId], references: [orderId], onDelete: Cascade)
+  variant ProductVariant @relation(fields: [variantId], references: [variantId])
+
+  @@map("order_items")
+}
+
+// ─── REVIEWS — Module 10 ─────────────────────────────────────────────────────
+
+model Review {
+  reviewId      String   @id @default(uuid())
+  userId        String
+  productId     String
+  rating        Int
+  title         String?
+  body          String?  @db.Text
+  hasAdminReply Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user    User         @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  product Product      @relation(fields: [productId], references: [productId], onDelete: Cascade)
+  reply   ReviewReply?
+
+  @@unique([userId, productId])
+  @@map("reviews")
+}
+
+model ReviewReply {
+  replyId   String   @id @default(uuid())
+  reviewId  String   @unique
+  replyText String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  review Review @relation(fields: [reviewId], references: [reviewId], onDelete: Cascade)
+
+  @@map("review_replies")
+}
+
+// ─── FEEDBACK & CONTACT — Module 13 ──────────────────────────────────────────
+
+enum FeedbackStatus {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+}
+
+model ContactMessage {
+  contactId    String    @id @default(uuid())
+  name         String
+  email        String
+  phone        String?
+  subject      String
+  message      String    @db.Text
+  isResolved   Boolean   @default(false)
+  replyMessage String?   @db.Text // what the admin replied (stored, not just emailed)
+  repliedAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@map("contact_messages")
+}
+
+model CustomerFeedback {
+  feedbackId     String         @id @default(uuid())
+  name           String
+  email          String?
+  rating         Int
+  feedbackStatus FeedbackStatus
+  category       String?
+  message        String         @db.Text
+  createdAt      DateTime       @default(now())
+
+  @@map("customer_feedbacks")
+}
+
+// ─── FAQs & STORE INFO — Module 14 ───────────────────────────────────────────
+
+model Faq {
+  faqId        String   @id @default(uuid())
+  question     String
+  answer       String   @db.Text
+  isActive     Boolean  @default(true)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("faqs")
+}
+
+model StoreInfo {
+  storeInfoId      String   @id @default(uuid())
+  storeName        String
+  email            String?
+  phone            String?
+  addressLine1     String?
+  addressLine2     String?
+  city             String?
+  state            String?
+  pincode          String?
+  country          String   @default("India")
+  website          String?
+  openingTime      String?
+  closingTime      String?
+  description      String?  @db.Text
+  instagramUrl     String?
+  facebookUrl      String?
+  twitterUrl       String?
+  youtubeUrl       String?
+  shippingCharge   Float    @default(0)
+  freeShippingAbove Float?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("store_info")
+}

@@ -1,0 +1,47 @@
+{
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "paths": {
+      "@lib/*": ["./src/lib/*"],
+      "@generated/*": ["./src/generated/*"],
+      "@config/*": ["./src/config/*"],
+      "@repos/*": ["./src/repositories/*"],
+      "@services/*": ["./src/services/*"],
+      "@controllers/*": ["./src/controllers/*"],
+      "@middleware/*": ["./src/middleware/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@interfaces/*": ["./src/interfaces/*"],
+      "@routes/*": ["./src/routes/*"],
+      "@validators/*": ["./src/validators/*"],
+      "@types/*": ["./src/types/*"],
+      "@errors/*": ["./src/errors/*"],
+      "@emails/*": ["./src/emails/*"]
+    },
+    "jsx": "react",
+    "esModuleInterop": true,
+
+    "target": "ES2020",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2020"],
+
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+
+    "strict": true,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true
+  },
+  "exclude": ["prisma.config.ts", "node_modules", "dist"],
+  "include": ["src/**/*"],
+  "ts-node": {
+    "files": true
+  }
+}
