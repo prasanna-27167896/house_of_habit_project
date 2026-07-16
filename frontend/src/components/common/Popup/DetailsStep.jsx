@@ -1,7 +1,16 @@
 import { useState, useEffect } from 'react';
 import styles from './steps.module.css';
 
-const DetailsStep = ({ name: initialName = '', setName, phone: initialPhone = '', setPhone, email = '', onSubmit }) => {
+const DetailsStep = ({
+  name: initialName = '',
+  setName,
+  phone: initialPhone = '',
+  setPhone,
+  email = '',
+  onSubmit,
+  error,
+  isLoading,
+}) => {
   const [localName, setLocalName] = useState(initialName);
   const [localPhone, setLocalPhone] = useState(initialPhone);
   const [localEmail, setLocalEmail] = useState(email);
@@ -10,11 +19,14 @@ const DetailsStep = ({ name: initialName = '', setName, phone: initialPhone = ''
     setLocalEmail(email);
   }, [email]);
 
-  const isValid = localName.trim().length > 1 && /^[0-9]{10}$/.test(localPhone) && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(localEmail);
+  const isValid =
+    localName.trim().length > 1 &&
+    /^[0-9]{10}$/.test(localPhone) &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(localEmail);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!isValid) return;
+    if (!isValid || isLoading) return;
     if (setName) setName(localName);
     if (setPhone) setPhone(localPhone);
     onSubmit({ name: localName, phone: localPhone, email: localEmail });
@@ -33,6 +45,7 @@ const DetailsStep = ({ name: initialName = '', setName, phone: initialPhone = ''
             placeholder='Full name'
             value={localName}
             onChange={(e) => setLocalName(e.target.value)}
+            disabled={isLoading}
             autoFocus
           />
 
@@ -45,6 +58,7 @@ const DetailsStep = ({ name: initialName = '', setName, phone: initialPhone = ''
               maxLength={10}
               value={localPhone}
               onChange={(e) => setLocalPhone(e.target.value.replace(/\D/g, ''))}
+              disabled={isLoading}
             />
           </div>
 
@@ -54,19 +68,20 @@ const DetailsStep = ({ name: initialName = '', setName, phone: initialPhone = ''
             placeholder='Email address'
             value={localEmail}
             onChange={(e) => setLocalEmail(e.target.value)}
+            disabled={isLoading}
           />
 
-          <button type='submit' className={`${styles.submitBtn} ${isValid ? styles.btnActive : styles.btnInactive}`} disabled={!isValid}>
-            Update
+          {error && <p className={styles.errorMessage}>{error}</p>}
+
+          <button
+            type='submit'
+            className={`${styles.submitBtn} ${isValid && !isLoading ? styles.btnActive : styles.btnInactive}`}
+            disabled={!isValid || isLoading}
+          >
+            {isLoading ? 'Updating...' : 'Update'}
           </button>
         </div>
       </form>
-
-      {/* <p className={styles.footerText}>
-        I accept that i have read &amp; understand
-        <br />
-        <a href='/privacy-policy'>privacy policy</a> and <a href='/terms'>T&amp;Cs.</a>
-      </p> */}
     </>
   );
 };

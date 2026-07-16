@@ -1,0 +1,102 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+}
+
+.container {
+  background: #ffffff;
+  border-radius: 1.2rem;
+  width: 100%;
+  max-width: 380px;
+  padding: 2rem 1.5rem 1.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  animation: popIn 0.25s ease-out forwards;
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.iconCircle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #ffebe0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f1f1f;
+  margin-bottom: 0.4rem;
+}
+
+.subtext {
+  font-size: 0.88rem;
+  color: #666666;
+  line-height: 1.4;
+  margin-bottom: 1.5rem;
+  max-width: 260px;
+}
+
+.actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.confirmBtn {
+  width: 100%;
+  padding: 0.75rem 0;
+  background: #f37021;
+  color: #ffffff;
+  border: none;
+  border-radius: 0.6rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.confirmBtn:hover {
+  background: #e05e10;
+}
+
+.stayBtn {
+  background: none;
+  border: none;
+  color: #f37021;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  transition: opacity 0.2s ease;
+}
+
+.stayBtn:hover {
+  opacity: 0.8;
+}

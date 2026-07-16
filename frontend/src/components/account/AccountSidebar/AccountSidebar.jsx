@@ -1,4 +1,10 @@
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import styles from './AccountSidebar.module.css';
+import { logoutUser } from '../../../store/slices/authSlice';
+import useAuthStore from '../../../store/useAuthStore';
+import LogoutPopup from '../../../components/common/Popup/LogoutPopup';
 
 const LogoutIcon = () => (
   <svg
@@ -24,21 +30,51 @@ const NAV_ITEMS = [
   { id: 'support', label: 'Help & Support' },
 ];
 
-const AccountSidebar = ({ activeTab, onTabChange }) => (
-  <aside className={styles.sidebar}>
-    <nav className={styles.nav}>
-      {NAV_ITEMS.map(({ id, label }) => (
-        <button key={id} className={`${styles.navItem} ${activeTab === id ? styles.active : ''}`} onClick={() => onTabChange(id)}>
-          {label}
-        </button>
-      ))}
+const AccountSidebar = ({ activeTab, onTabChange }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const zustandLogout = useAuthStore((state) => state.logout);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-      <button className={`${styles.navItem} ${styles.logout}`}>
-        <LogoutIcon />
-        Logout
-      </button>
-    </nav>
-  </aside>
-);
+  const handleConfirmLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await dispatch(logoutUser());
+      zustandLogout();
+    } finally {
+      setIsLoggingOut(false);
+      setShowLogoutModal(false);
+      navigate('/');
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
+  };
+
+  return (
+    <>
+      <aside className={styles.sidebar}>
+        <nav className={styles.nav}>
+          {NAV_ITEMS.map(({ id, label }) => (
+            <button key={id} className={`${styles.navItem} ${activeTab === id ? styles.active : ''}`} onClick={() => onTabChange(id)}>
+              {label}
+            </button>
+          ))}
+
+          <button className={`${styles.navItem} ${styles.logout}`} onClick={() => setShowLogoutModal(true)}>
+            <LogoutIcon />
+            Logout
+          </button>
+        </nav>
+      </aside>
+
+      <LogoutPopup
+        isOpen={showLogoutModal}
+        isLoggingOut={isLoggingOut}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleConfirmLogout}
+      />
+    </>
+  );
+};
 
 export default AccountSidebar;

@@ -1,11 +1,18 @@
 import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import styles from "./AuthPopup.module.css";
 import OtpStep from "./OtpStep";
 import EmailStep from "./EmailStep";
 import DetailsStep from "./DetailsStep";
 import SuccessStep from "./SuccessStep";
 import LogoWhite from "../../../assets/icons/hoh-logo-white.svg?react";
-import api from "../../../utils/axiosInstance";
+import {
+  sendVerificationOtp,
+  verifyOtp,
+  registerUser,
+  clearError,
+} from "../../../store/slices/authSlice";
 import useAuthStore from "../../../store/useAuthStore";
 
 const STEPS = {
@@ -22,33 +29,52 @@ const AuthPopup = ({ isOpen, onClose, mode: initialMode = MODES.LOGIN }) => {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [error, setError] = useState("");
 
-  // NEW: Loading state
-  const [isLoading, setIsLoading] = useState(false);
-
-  const login = useAuthStore((state) => state.login);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { isLoading, error, isAuthenticated } = useSelector((state) => state.auth);
+  const zustandLogin = useAuthStore((state) => state.login);
 
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
+      setStep(STEPS.EMAIL);
+      setEmail("");
+      setName("");
+      setPhone("");
+      dispatch(clearError());
     } else {
       document.body.style.overflow = "";
     }
-    return () => (document.body.style.overflow = "");
-  }, [isOpen]);
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen, dispatch]);
+
+  useEffect(() => {
+    if (step === STEPS.SUCCESS) {
+      const timer = setTimeout(() => {
+        handleClose();
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [step]);
 
   if (!isOpen) return null;
 
   const handleClose = () => {
+    const wasAuthenticated = isAuthenticated;
     setStep(STEPS.EMAIL);
     setMode(initialMode);
     setEmail("");
     setName("");
     setPhone("");
-    setError("");
-    setIsLoading(false); // Reset loading on close
+    dispatch(clearError());
     onClose();
+    if (wasAuthenticated) {
+      navigate("/");
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }
   };
 
   const renderStep = () => {
@@ -59,21 +85,13 @@ const AuthPopup = ({ isOpen, onClose, mode: initialMode = MODES.LOGIN }) => {
             initialEmail={email}
             mode={mode}
             error={error}
-            isLoading={isLoading} // Pass down
+            isLoading={isLoading}
             onSubmit={async (submittedEmail) => {
-              setError("");
-              setIsLoading(true); // Start loading
-              try {
-                await api.post("/auth/send-otp", { email: submittedEmail });
+              dispatch(clearError());
+              const result = await dispatch(sendVerificationOtp(submittedEmail));
+              if (sendVerificationOtp.fulfilled.match(result)) {
                 setEmail(submittedEmail);
                 setStep(STEPS.OTP);
-              } catch (err) {
-                setError(
-                  err.response?.data?.message ||
-                    "Failed to send OTP. Try again.",
-                );
-              } finally {
-                setIsLoading(false); // Stop loading regardless of success/fail
               }
             }}
           />
@@ -84,30 +102,26 @@ const AuthPopup = ({ isOpen, onClose, mode: initialMode = MODES.LOGIN }) => {
           <OtpStep
             contact={email}
             error={error}
-            isLoading={isLoading} // Pass down
+            isLoading={isLoading}
+            onResend={async () => {
+              dispatch(clearError());
+              await dispatch(sendVerificationOtp(email));
+            }}
             onVerify={async (otpCode) => {
-              setError("");
-              setIsLoading(true); // Start loading
-              try {
-                const response = await api.post("/auth/verify-otp", {
-                  email,
-                  otp: otpCode,
-                });
-                const { user } = response.data;
-
-                if (!user.name || !user.phone) {
-                  setStep(STEPS.DETAILS);
+              dispatch(clearError());
+              const result = await dispatch(
+                verifyOtp({ email, otp: Number(otpCode) })
+              );
+              if (verifyOtp.fulfilled.match(result)) {
+                const resData = result.payload.data || result.payload;
+                if (resData?.user && resData?.accessToken) {
+                  zustandLogin(resData.user, resData.accessToken);
+                  onClose();
+                  navigate("/");
+                  window.scrollTo({ top: 0, left: 0, behavior: "instant" });
                 } else {
-                  login(user);
-                  setStep(STEPS.SUCCESS);
+                  setStep(STEPS.DETAILS);
                 }
-              } catch (err) {
-                setError(
-                  err.response?.data?.message ||
-                    "Invalid OTP. Please try again.",
-                );
-              } finally {
-                setIsLoading(false); // Stop loading
               }
             }}
           />
@@ -121,31 +135,23 @@ const AuthPopup = ({ isOpen, onClose, mode: initialMode = MODES.LOGIN }) => {
             phone={phone}
             setPhone={setPhone}
             email={email}
+            error={error}
             isLoading={isLoading}
-            // 1. Accept the incoming data object here:
             onSubmit={async (formData) => {
-              setError("");
-              setIsLoading(true);
-
-              // 2. Use formData to see the immediate values
-              console.log("Submitting:", formData);
-
-              try {
-                const response = await api.post("/auth/onboard", {
-                  // 3. Send the immediate values to your backend
-                  name: formData.name,
-                  phone: formData.phone,
+              dispatch(clearError());
+              const result = await dispatch(
+                registerUser({
+                  fullName: formData.name,
+                  mobile: formData.phone,
                   email: formData.email,
-                });
-                login(response.data.user);
+                })
+              );
+              if (registerUser.fulfilled.match(result)) {
+                const resData = result.payload.data || result.payload;
+                if (resData?.user && resData?.accessToken) {
+                  zustandLogin(resData.user, resData.accessToken);
+                }
                 setStep(STEPS.SUCCESS);
-              } catch (err) {
-                setError(
-                  err.response?.data?.message ||
-                    "Onboarding failed. Try again.",
-                );
-              } finally {
-                setIsLoading(false);
               }
             }}
           />
@@ -171,7 +177,6 @@ const AuthPopup = ({ isOpen, onClose, mode: initialMode = MODES.LOGIN }) => {
         <div className={styles.leftPanel}>
           <div className={styles.leftContent}>
             <LogoWhite className={styles.logo} />
-            {/* Fixed spelling from "Resister" to "Register" */}
             <p className={styles.welcomeText}>
               Welcome! Register to avail the deals!
             </p>

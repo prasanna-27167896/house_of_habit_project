@@ -40,23 +40,7 @@ userRouter.get("/", userController.getProfile);
  */
 userRouter.put("/update", userController.updateProfile);
 
-/**
- * @openapi
- * /user/change-password:
- *   put:
- *     tags: [User]
- *     summary: Change my password
- *     security: [{ bearerAuth: [] }]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema: { $ref: '#/components/schemas/ChangeOwnPasswordInput' }
- *     responses:
- *       200: { $ref: '#/components/responses/Success' }
- *       401: { $ref: '#/components/responses/Unauthorized' }
- */
-userRouter.put("/change-password", userController.changeOwnPassword);
+
 
 // ── Admin (manage users) ───────────────────────────────────────────────────────
 adminUserRouter.use(authenticate, requireRole("ROLE_ADMIN"));

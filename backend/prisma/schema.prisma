@@ -93,7 +93,6 @@ model User {
   userId              String    @id @default(uuid())
   fullName            String?
   email               String    @unique
-  password            String
   mobile              String?
   dateOfBirth         DateTime?
   imageUrl            String?

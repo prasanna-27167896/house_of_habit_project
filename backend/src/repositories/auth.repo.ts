@@ -49,14 +49,12 @@ export const deleteEmailVerification = (email: string) =>
 
 export const createUser = (
   email: string,
-  password: string,
   fullName?: string,
   mobile?: string,
 ): Promise<UserWithRoles> =>
   prisma.user.create({
     data: {
       email,
-      password,
       ...(fullName !== undefined && { fullName }),
       ...(mobile !== undefined && { mobile }),
       roles: { create: { role: { connect: { roleName: "ROLE_USER" } } } },
@@ -192,5 +190,5 @@ export const deleteForgotPassword = (userId: string) =>
 export const updateUserPassword = (userId: string, password: string) =>
   prisma.user.update({
     where: { userId },
-    data: { password, failedLoginAttempts: 0, lockedUntil: null },
+    data: { failedLoginAttempts: 0, lockedUntil: null },
   });

@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import styles from "./steps.module.css";
 
-// Set to 4 digits as per your backend update
+// Set to 4 digits as per backend schema
 const OTP_LENGTH = 4;
 const RESEND_SECONDS = 60;
 
-const OtpStep = ({ contact, onVerify, error, isLoading }) => {
+const OtpStep = ({ contact, onVerify, onResend, error, isLoading }) => {
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
   const [timer, setTimer] = useState(RESEND_SECONDS);
   const inputsRef = useRef([]);
@@ -61,8 +61,7 @@ const OtpStep = ({ contact, onVerify, error, isLoading }) => {
   const handleResend = () => {
     setOtp(Array(OTP_LENGTH).fill(""));
     setTimer(RESEND_SECONDS);
-    // You could also trigger an API call to resend the OTP here if you wanted,
-    // or pass down an `onResend` prop from AuthPopup.
+    if (onResend) onResend();
   };
 
   const handleSubmit = (e) => {
@@ -93,12 +92,11 @@ const OtpStep = ({ contact, onVerify, error, isLoading }) => {
               onChange={(e) => handleChange(i, e.target.value)}
               onKeyDown={(e) => handleKeyDown(i, e)}
               autoFocus={i === 0}
-              disabled={isLoading} // Lock inputs while verifying
+              disabled={isLoading}
             />
           ))}
         </div>
 
-        {/* Display backend errors (e.g., "Invalid OTP. Attempts left: 3") */}
         {error && <p className={styles.errorMessage}>{error}</p>}
 
         <button

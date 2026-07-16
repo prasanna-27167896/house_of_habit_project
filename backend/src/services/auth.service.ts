@@ -1,9 +1,7 @@
 import { createHash } from "node:crypto";
-import bcrypt from "bcrypt";
 import { prisma } from "@lib/prisma";
 import * as authRepo from "@repos/auth.repo";
 import { Errors } from "@errors/index";
-import { hashPassword, comparePassword } from "@utils/bcrypt";
 import { generateOtp, otpExpiresAt } from "@utils/otp";
 import {
   signAccessToken,
@@ -13,7 +11,7 @@ import {
 import { sendOtpEmail, sendForgotPasswordOtp } from "@utils/email";
 import type { SafeUser, AuthResult, RefreshResult } from "@interfaces/auth.types";
 import type { UserWithRoles } from "@interfaces/user.types";
-import type { RegisterInput, LoginInput } from "@validators/auth.schema";
+import type { RegisterInput } from "@validators/auth.schema";
 
 const MAX_FAILED_ATTEMPTS = 5;
 const LOGIN_COOLDOWN_MS = 15 * 60 * 1000; // temporary lockout after MAX_FAILED_ATTEMPTS wrong passwords
@@ -56,15 +54,6 @@ const roleOf = (user: UserWithRoles): string => user.roles[0]?.role.roleName ?? 
 const hashToken = (token: string): string =>
   createHash("sha256").update(token).digest("hex");
 
-// ─── Timing-safe login helper ────────────────────────────────────────────────
-// Cached dummy hash so an unknown-email login still spends ~one bcrypt compare,
-// keeping response time constant and preventing timing-based email enumeration.
-let dummyHash: string | undefined;
-const getDummyHash = async (): Promise<string> => {
-  if (!dummyHash) dummyHash = await hashPassword("__hoh_dummy_password__");
-  return dummyHash;
-};
-
 // ─── Session issuance ────────────────────────────────────────────────────────
 // Multi-device: a new login creates its own session and never touches the others.
 const issueSession = async (
@@ -81,12 +70,9 @@ const issueSession = async (
     return { accessToken, refreshToken };
   });
 
-// ─── Email verification (OTP) — unchanged flow ───────────────────────────────
+// ─── Email verification (OTP) ────────────────────────────────────────────────
 
 export const sendVerificationOtp = async (email: string): Promise<void> => {
-  const existing = await authRepo.findUserByEmail(email);
-  if (existing) throw Errors.EMAIL_ALREADY_REGISTERED();
-
   // Throttle resends to the same address (email-bombing / Resend quota protection).
   const record = await authRepo.findEmailVerification(email);
   if (withinResendCooldown(record?.lastOtpSentAt)) throw Errors.OTP_RESEND_COOLDOWN();
@@ -96,7 +82,12 @@ export const sendVerificationOtp = async (email: string): Promise<void> => {
   await sendOtpEmail(email, otp);
 };
 
-export const verifyRegistrationOtp = async (email: string, otp: number): Promise<void> => {
+export const verifyRegistrationOtp = async (
+  email: string,
+  otp: number,
+  ipAddress: string | null = null,
+  userAgent: string | null = null,
+): Promise<{ user?: SafeUser; accessToken?: string; refreshToken?: string; isVerified?: boolean }> => {
   const record = await authRepo.findEmailVerification(email);
   if (!record) throw Errors.OTP_NOT_FOUND();
   if (record.isVerified) throw Errors.EMAIL_ALREADY_VERIFIED();
@@ -108,11 +99,24 @@ export const verifyRegistrationOtp = async (email: string, otp: number): Promise
     );
   }
 
+  const existingUser = await authRepo.findUserByEmail(email);
+  if (existingUser) {
+    await authRepo.deleteEmailVerification(email);
+    const { accessToken, refreshToken } = await issueSession(
+      existingUser.userId,
+      roleOf(existingUser),
+      ipAddress,
+      userAgent,
+    );
+    return { user: safeUser(existingUser), accessToken, refreshToken };
+  }
+
   // Verified state is only good for a limited window — register must complete before it.
   await authRepo.markEmailVerified(email, new Date(Date.now() + VERIFIED_STATE_TTL_MS));
+  return { isVerified: true };
 };
 
-// ─── Register / Login / Refresh / Logout ─────────────────────────────────────
+// ─── Register / Refresh / Logout ─────────────────────────────────────
 
 export const register = async (
   data: RegisterInput,
@@ -124,62 +128,9 @@ export const register = async (
   // Verified state expires — forces a re-verify so a stale verified email can't be claimed.
   if (verification.expiresAt < new Date()) throw Errors.EMAIL_VERIFICATION_EXPIRED();
 
-  const hashed = await hashPassword(data.password);
-  const user = await authRepo.createUser(data.email, hashed, data.fullName, data.mobile);
+  const user = await authRepo.createUser(data.email, data.fullName, data.mobile);
 
   await authRepo.deleteEmailVerification(data.email);
-
-  const { accessToken, refreshToken } = await issueSession(
-    user.userId,
-    roleOf(user),
-    ipAddress,
-    userAgent,
-  );
-
-  return { user: safeUser(user), accessToken, refreshToken };
-};
-
-export const login = async (
-  data: LoginInput,
-  ipAddress: string | null,
-  userAgent: string | null,
-): Promise<AuthResult> => {
-  const user = await authRepo.findUserByEmail(data.email);
-
-  if (!user) {
-    // Spend one bcrypt compare so timing matches a real failed login — no enumeration.
-    await bcrypt.compare(data.password, await getDummyHash());
-    throw Errors.INVALID_CREDENTIALS();
-  }
-
-  // Admin ban — permanent, only an admin can lift it.
-  if (user.locked) throw Errors.ACCOUNT_LOCKED();
-
-  // Temporary cooldown after too many wrong passwords. Rejected BEFORE the password is
-  // checked, so it also throttles brute-force (max MAX_FAILED_ATTEMPTS guesses per window).
-  // It auto-expires, and a password reset clears it.
-  const now = new Date();
-  if (user.lockedUntil && user.lockedUntil > now) {
-    const minutes = Math.ceil((user.lockedUntil.getTime() - now.getTime()) / 60_000);
-    throw Errors.LOGIN_COOLDOWN(minutes);
-  }
-
-  const isValid = await comparePassword(data.password, user.password);
-
-  if (!isValid) {
-    // If a previous cooldown has just expired, this is a fresh run of attempts.
-    const cooldownExpired = user.lockedUntil != null && user.lockedUntil <= now;
-    const attempts = (cooldownExpired ? 0 : user.failedLoginAttempts) + 1;
-    const lockedUntil =
-      attempts >= MAX_FAILED_ATTEMPTS ? new Date(now.getTime() + LOGIN_COOLDOWN_MS) : null;
-
-    await authRepo.recordLoginFailure(user.userId, attempts, lockedUntil);
-
-    if (lockedUntil) throw Errors.LOGIN_COOLDOWN(Math.ceil(LOGIN_COOLDOWN_MS / 60_000));
-    throw Errors.INVALID_CREDENTIALS();
-  }
-
-  await authRepo.resetFailedAttempts(user.userId);
 
   const { accessToken, refreshToken } = await issueSession(
     user.userId,
@@ -267,28 +218,4 @@ export const verifyForgotPasswordOtp = async (email: string, otp: number): Promi
   }
 };
 
-export const changePassword = async (
-  email: string,
-  otp: number,
-  newPassword: string,
-): Promise<void> => {
-  const user = await authRepo.findUserByEmail(email);
-  if (!user) throw Errors.ACCOUNT_NOT_FOUND();
 
-  const record = await authRepo.findForgotPassword(user.userId);
-  if (!record) throw Errors.OTP_NOT_REQUESTED();
-  if (record.expiresAt < new Date()) throw Errors.OTP_EXPIRED();
-  if (record.otp !== otp) {
-    await rejectOtp(
-      () => authRepo.incrementForgotPasswordAttempts(user.userId),
-      () => authRepo.deleteForgotPassword(user.userId),
-    );
-  }
-
-  const hashed = await hashPassword(newPassword);
-  await authRepo.updateUserPassword(user.userId, hashed);
-  await authRepo.deleteForgotPassword(user.userId);
-
-  // Password changed → force every existing session to re-authenticate.
-  await authRepo.revokeAllUserSessions(prisma, user.userId);
-};

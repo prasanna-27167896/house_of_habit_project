@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import styles from './Header.module.css';
 import Popup from '../../common/Popup/AuthPopup';
 import SearchPanel from './SearchPanel/SearchPanel';
@@ -16,7 +17,13 @@ import MenuIcon from "../../../assets/icons/MenuIcon.svg?react";
 const Logo = () => {
   const navigate = useNavigate();
   return (
-    <div className={styles.logo} onClick={() => navigate("/")}>
+    <div
+      className={styles.logo}
+      onClick={() => {
+        navigate("/");
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      }}
+    >
       <LogoIcon />
     </div>
   );
@@ -30,12 +37,12 @@ const NAV_ICONS = [
 ];
 
 const Header = ({ openPanel, setOpenPanel }) => {
-  // Track scroll state
+  const navigate = useNavigate();
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      // If the user scrolls down more than 10px, trigger the state
       if (window.scrollY > 10) {
         setIsScrolled(true);
       } else {
@@ -48,15 +55,28 @@ const Header = ({ openPanel, setOpenPanel }) => {
   }, []);
 
   const handleIconClick = (label) => {
-    if (label === "Account") setOpenPanel("profile");
+    if (label === "Account") {
+      if (isAuthenticated) {
+        navigate('/account');
+      } else {
+        setOpenPanel("profile");
+      }
+    }
     if (label === "Search") setOpenPanel("search");
     if (label === "Menu") setOpenPanel("menu");
     if (label === "Cart") setOpenPanel("cart");
   };
 
+  const handleMobileProfile = () => {
+    if (isAuthenticated) {
+      navigate('/account');
+    } else {
+      setOpenPanel("profile");
+    }
+  };
+
   return (
     <>
-      {/* Apply the scrolled class conditionally */}
       <header
         className={`${styles.header} ${isScrolled ? styles.scrolled : ""}`}
       >
@@ -83,7 +103,7 @@ const Header = ({ openPanel, setOpenPanel }) => {
         isOpen={openPanel === 'menu'}
         onClose={() => setOpenPanel(null)}
         onOpenCart={() => setOpenPanel('cart')}
-        onOpenProfile={() => setOpenPanel('profile')}
+        onOpenProfile={handleMobileProfile}
       />
       <CartPanel isOpen={openPanel === 'cart'} onClose={() => setOpenPanel(null)} />
     </>
