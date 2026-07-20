@@ -7,14 +7,14 @@
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  padding: 10rem;
+  padding: 1rem;
 }
 
 .container {
   background: #ffffff;
   border-radius: 1.2rem;
   width: 100%;
-  max-width: 300px;
+  max-width: 280px;
   padding: max(1rem, 1dvw);
   display: flex;
   flex-direction: column;
@@ -36,14 +36,14 @@
 }
 
 .iconCircle {
-  width: 60px;
-  height: 60px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
-  background: #ffebe0;
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
 }
 
 .title {
@@ -64,39 +64,42 @@
 .actions {
   width: 100%;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   gap: 0.8rem;
 }
 
-.confirmBtn {
-  width: 100%;
-  padding: 0.75rem 0;
-  background: #FF5F15;
-  color: #ffffff;
-  border: none;
+.deleteBtn {
+  flex: 1;
+  padding: 0.5rem 0;
+  background: #ffffff;
+  color: #FF5F15;
+  border: 1px solid #FF5F15;
   border-radius: 0.6rem;
   font-size: max(0.85rem, 0.85dvw);
-  font-weight: 400;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.deleteBtn:hover {
+  background: #fff5f0;
+}
+
+.cancelBtn {
+  flex: 1;
+  padding: 0.5rem 0;
+  background: #FF5F15;
+  color: #ffffff;
+  border-radius: 0.6rem;
+  font-size: max(0.85rem, 0.85dvw);
+  font-weight: 500;
   cursor: pointer;
   transition: background 0.2s ease;
 }
 
-.confirmBtn:hover {
+.cancelBtn:hover {
   background: #e05e10;
-}
-
-.stayBtn {
-  background: none;
-  border: none;
-  color: #FF5F15;
-  font-size: max(0.85rem, 0.85dvw);
-  font-weight: 500;
-  cursor: pointer;
-  padding: 0.3rem 0.6rem;
-  transition: opacity 0.2s ease;
-}
-
-.stayBtn:hover {
-  opacity: 0.8;
+  border-color: #e05e10;
 }

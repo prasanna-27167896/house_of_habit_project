@@ -40,6 +40,20 @@ userRouter.get("/", userController.getProfile);
  */
 userRouter.put("/update", userController.updateProfile);
 
+/**
+ * @openapi
+ * /user/delete:
+ *   delete:
+ *     tags: [User]
+ *     summary: Delete my account
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { $ref: '#/components/responses/Success' }
+ *       401: { $ref: '#/components/responses/Unauthorized' }
+ */
+userRouter.delete("/delete", userController.deleteAccount);
+
+
 
 
 // ── Admin (manage users) ───────────────────────────────────────────────────────

@@ -166,23 +166,25 @@ const AuthPopup = ({ isOpen, onClose, mode: initialMode = MODES.LOGIN }) => {
 
   return (
     <div className={styles.overlay} onClick={handleClose}>
-      <button
-        className={styles.closeBtn}
-        onClick={handleClose}
-        aria-label="Close"
-      >
-        &#x2715;
-      </button>
-      <div className={styles.container} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.leftPanel}>
-          <div className={styles.leftContent}>
-            <LogoWhite className={styles.logo} />
-            <p className={styles.welcomeText}>
-              Welcome! Register to avail the deals!
-            </p>
+      <div className={styles.modalWrapper} onClick={(e) => e.stopPropagation()}>
+        <button
+          className={styles.closeBtn}
+          onClick={handleClose}
+          aria-label="Close"
+        >
+          &#x2715;
+        </button>
+        <div className={styles.container}>
+          <div className={styles.leftPanel}>
+            <div className={styles.leftContent}>
+              <LogoWhite className={styles.logo} />
+              <p className={styles.welcomeText}>
+                Welcome! Register to avail the deals!
+              </p>
+            </div>
           </div>
+          <div className={styles.rightPanel}>{renderStep()}</div>
         </div>
-        <div className={styles.rightPanel}>{renderStep()}</div>
       </div>
     </div>
   );

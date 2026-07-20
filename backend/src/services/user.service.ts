@@ -72,3 +72,10 @@ export const toggleLock = async (
   );
   return { userId: updated.userId, locked: updated.locked };
 };
+
+export const deleteAccount = async (userId: string): Promise<void> => {
+  const user = await userRepo.findUserById(userId);
+  if (!user) throw Errors.USER_NOT_FOUND();
+  await userRepo.deleteUser(userId);
+};
+

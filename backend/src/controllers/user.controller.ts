@@ -17,6 +17,11 @@ export const updateProfile = asyncHandler(async (req: Request, res: Response) =>
   sendSuccess(res, user);
 });
 
+export const deleteAccount = asyncHandler(async (req: Request, res: Response) => {
+  await userService.deleteAccount(req.user!.userId);
+  sendSuccess(res, { message: "Account deleted successfully." });
+});
+
 
 
 // ── Admin ──────────────────────────────────────────────────────────────────────

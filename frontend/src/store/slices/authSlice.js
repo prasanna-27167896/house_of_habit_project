@@ -87,6 +87,20 @@ export const logoutUser = createAsyncThunk(
   }
 );
 
+export const deleteUserAccount = createAsyncThunk(
+  "auth/deleteUserAccount",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.delete("/user/delete");
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to delete account. Please try again."
+      );
+    }
+  }
+);
+
 const initialState = {
   user: JSON.parse(localStorage.getItem("hoh_user")) || null,
   accessToken: localStorage.getItem("hoh_token") || null,
@@ -201,6 +215,15 @@ const authSlice = createSlice({
       })
       // Logout
       .addCase(logoutUser.fulfilled, (state) => {
+        state.user = null;
+        state.accessToken = null;
+        state.isAuthenticated = false;
+        state.error = null;
+        localStorage.removeItem("hoh_user");
+        localStorage.removeItem("hoh_token");
+      })
+      // Delete Account
+      .addCase(deleteUserAccount.fulfilled, (state) => {
         state.user = null;
         state.accessToken = null;
         state.isAuthenticated = false;

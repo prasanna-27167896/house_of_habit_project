@@ -27,7 +27,7 @@
 .avatarWrapper {
   display: flex;
   align-items: flex-end;
-  gap: max(0.4rem, 0.4dvw);
+  gap: max(0.5rem, 0.5dvw);
 }
 
 .avatar {
@@ -51,32 +51,50 @@
   color: var(--text-color);
 }
 
-.emailText {
-  font-size: max(0.65rem, 0.65dvw);
+.nameText {
+  font-size: max(0.7rem, 0.7dvw);
   color: #686868;
-}
-
-.editBtn {
-  background: none;
-  border: none;
-  color: #ff5f15;
-  font-size: max(0.8rem, 0.8dvw);
-  font-weight: 500;
-  cursor: pointer;
-  padding: 0;
-  padding-bottom: max(0.4rem, 0.4dvw);
-  text-decoration: underline;
-  transition: opacity var(--transition-fast);
-}
-
-.editBtn:hover {
-  opacity: 0.75;
 }
 
 /* ── Info fields ── */
 .infoGrid {
   display: grid;
-  grid-template-columns: 2fr;
+  grid-template-columns: 1fr 1fr;
   gap: max(1.4rem, 1.4dvw);
   padding: max(0.4rem, 0.4dvw);
+}
+
+.fullWidthField {
+  grid-column: 1 / -1;
+}
+
+/* ── Security Section ── */
+.securitySection {
+  margin-top: max(2.5rem, 2.5dvw);
+  padding: max(0.4rem, 0.4dvw);
+}
+
+.securityTitle {
+  font-size: max(0.9rem, 0.9dvw);
+  font-weight: 500;
+  color: #8e8e93;
+  margin-bottom: max(0.8rem, 0.8dvw);
+}
+
+.deleteAccountBtn {
+  display: flex;
+  align-items: center;
+  gap: max(0.5rem, 0.5dvw);
+  background: none;
+  border: none;
+  padding: 0;
+  color: #ff3b30;
+  font-size: max(0.85rem, 0.85dvw);
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.deleteAccountBtn:hover {
+  opacity: 0.75;
 }

@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import styles from './AccountSidebar.module.css';
-import { logoutUser } from '../../../store/slices/authSlice';
+import { logout } from '../../../store/slices/authSlice';
+import api from '../../../utils/axiosInstance';
 import useAuthStore from '../../../store/useAuthStore';
 import LogoutPopup from '../../../components/common/Popup/LogoutPopup';
 
@@ -40,13 +41,14 @@ const AccountSidebar = ({ activeTab, onTabChange }) => {
   const handleConfirmLogout = async () => {
     setIsLoggingOut(true);
     try {
-      await dispatch(logoutUser());
+      await api.post('/auth/logout').catch(() => {});
+      navigate('/', { replace: true });
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      dispatch(logout());
       zustandLogout();
     } finally {
       setIsLoggingOut(false);
       setShowLogoutModal(false);
-      navigate('/');
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     }
   };
 

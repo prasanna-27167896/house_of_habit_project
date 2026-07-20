@@ -27,8 +27,8 @@ export const updateUserProfile = (userId: string, data: UpdateProfileInput): Pro
     },
   });
 
-export const updateUserPassword = (userId: string, password: string): Promise<User> =>
-  prisma.user.update({ where: { userId }, data: { password } });
+// export const updateUserPassword = (userId: string, password: string): Promise<User> =>
+//   prisma.user.update({ where: { userId }, data: { password } });
 
 export const findAllUsers = (skip: number, take: number): Promise<UserListItem[]> =>
   prisma.user.findMany({
@@ -53,3 +53,10 @@ export const toggleUserLock = (userId: string, locked: boolean, failedLoginAttem
     where: { userId },
     data: { locked, failedLoginAttempts },
   });
+
+export const deleteUser = (userId: string): Promise<User> =>
+  prisma.$transaction(async (tx) => {
+    await tx.order.deleteMany({ where: { userId } });
+    return tx.user.delete({ where: { userId } });
+  });
+

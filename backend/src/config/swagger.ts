@@ -141,7 +141,7 @@ const options: swaggerJsdoc.Options = {
         OtpInput: {
           type: "object",
           required: ["otp"],
-          properties: { otp: { type: "integer", example: 123456, minimum: 100000, maximum: 999999 } },
+          properties: { otp: { type: "integer", example: 1234, minimum: 1000, maximum: 9999 } },
         },
         ForgotMailInput: {
           type: "object",
@@ -152,7 +152,7 @@ const options: swaggerJsdoc.Options = {
           type: "object",
           required: ["otp", "newPassword"],
           properties: {
-            otp: { type: "integer", example: 123456 },
+            otp: { type: "integer", example: 1234 },
             newPassword: { type: "string", minLength: 8, example: "NewPass1" },
           },
         },

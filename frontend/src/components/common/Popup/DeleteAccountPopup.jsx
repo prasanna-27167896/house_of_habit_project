@@ -1,9 +1,9 @@
 import { useEffect } from "react";
-import styles from "./LogoutPopup.module.css";
+import styles from "./DeleteAccountPopup.module.css";
 import Loader from "../Loader/Loader";
-import LogoutPopupIcon from "../../../assets/icons/logout-popup-icon.svg?react";
+import DeletePopupIcon from "../../../assets/icons/delete-popup-icon.svg?react";
 
-const LogoutPopup = ({ isOpen, onClose, onConfirm, isLoggingOut = false }) => {
+const DeleteAccountPopup = ({ isOpen, onClose, onConfirm, isDeleting = false }) => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -18,27 +18,27 @@ const LogoutPopup = ({ isOpen, onClose, onConfirm, isLoggingOut = false }) => {
   if (!isOpen) return null;
 
   return (
-    <div className={styles.overlay} onClick={isLoggingOut ? undefined : onClose}>
+    <div className={styles.overlay} onClick={isDeleting ? undefined : onClose}>
       <div className={styles.container} onClick={(e) => e.stopPropagation()}>
         <div className={styles.iconCircle}>
-          <LogoutPopupIcon width={60} height={60} />
+          <DeletePopupIcon width={60} height={60} />
         </div>
-        <h3 className={styles.title}>Leaving so soon?</h3>
+        <h3 className={styles.title}>Delete Account</h3>
         <p className={styles.subtext}>
-          Do you really want to log out from your account?
+          Are you sure you want to delete your account?
         </p>
 
-        {isLoggingOut ? (
+        {isDeleting ? (
           <div style={{ padding: "0.8rem 0", display: "flex", justifyContent: "center" }}>
-            <Loader loadingText="Logging out..." />
+            <Loader loadingText="Deleting account..." />
           </div>
         ) : (
           <div className={styles.actions}>
-            <button className={styles.confirmBtn} onClick={onConfirm}>
-              Yes, Log out
+            <button className={styles.deleteBtn} onClick={onConfirm}>
+              Delete
             </button>
-            <button className={styles.stayBtn} onClick={onClose}>
-              No, I am staying
+            <button className={styles.cancelBtn} onClick={onClose}>
+              Cancel
             </button>
           </div>
         )}
@@ -47,4 +47,4 @@ const LogoutPopup = ({ isOpen, onClose, onConfirm, isLoggingOut = false }) => {
   );
 };
 
-export default LogoutPopup;
+export default DeleteAccountPopup;
