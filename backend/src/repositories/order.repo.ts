@@ -485,7 +485,7 @@ export const failPendingPayment = (
 // ─── Stats ────────────────────────────────────────────────────────────────────
 
 export const getOrderStats = async (): Promise<OrderStats> => {
-  const [grouped, revenueResult] = await prisma.$transaction([
+  const [grouped, revenueResult] = await Promise.all([
     prisma.order.groupBy({
       by: ["orderStatus"],
       _count: { orderId: true },

@@ -3,6 +3,7 @@
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: max(1.4rem, 1.4dvw);
+  padding: 0 max(1rem, 1dvw);
 }
 
 /* ── Gallery Column ── */
@@ -53,46 +54,77 @@
 .rating {
   display: flex;
   align-items: center;
-  gap: max(0.3rem, 0.3dvw);
+  gap: max(0.4rem, 0.4dvw);
   margin-bottom: max(1rem, 1dvw);
 }
 
 .ratingText {
-  font-size: max(0.7rem, 0.7dvw);
+  font-size: max(0.85rem, 0.85dvw);
   color: #28282b;
   font-weight: 500;
 }
 
 /* ── Price ── */
 .price {
-  font-size: max(1.2rem, 1.2dvw);
-  font-weight: 600;
+  font-size: max(1.4rem, 1.4dvw);
+  font-weight: 700;
   color: #28282b;
   line-height: 1.2;
-  margin-bottom: max(0.4rem, 0.4dvw);
+  margin-bottom: max(0.2rem, 0.2dvw);
 }
 
 .taxNote {
-  font-size: max(0.7rem, 0.7dvw);
+  font-size: max(0.75rem, 0.75dvw);
   color: #ff5f15;
-  font-weight: 300;
-  margin-bottom: max(0.8rem, 0.8dvw);
+  font-weight: 400;
+  margin-bottom: max(1rem, 1dvw);
 }
 
 /* ── Action Buttons ── */
-.actions {
+.actionsContainer {
   display: flex;
-  gap: max(0.8rem, 0.8dvw);
-  margin: max(1rem, 1dvw) 0;
+  flex-direction: column;
+  gap: max(0.6rem, 0.6dvw);
+  margin: max(1.2rem, 1.2dvw) 0;
 }
 
-.buyNowBtn {
-  flex: 1;
-  justify-content: center;
-  border-radius: max(0.4rem, 0.4dvw);
-  padding: max(0.8rem, 0.8dvw) max(1.4rem, 1.4dvw);
-  font-size: max(0.9rem, 0.9dvw);
-  font-weight: 400;
+.rowOne {
+  display: flex;
+  align-items: center;
+  gap: max(0.8rem, 0.8dvw);
+}
+
+.quantitySelector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1.5px solid #e0e0e0;
+  border-radius: max(0.5rem, 0.5dvw);
+  padding: max(0.55rem, 0.55dvw) max(0.8rem, 0.8dvw);
+  min-width: max(6.5rem, 6.5dvw);
+  background: #ffffff;
+}
+
+.qtyBtn,
+.qtyBtnPlus {
+  background: none;
+  border: none;
+  font-size: max(1.1rem, 1.1dvw);
+  font-weight: 500;
+  cursor: pointer;
+  color: #555555;
+  padding: 0 max(0.2rem, 0.2dvw);
+  line-height: 1;
+}
+
+.qtyBtnPlus {
+  color: #ff5f15;
+}
+
+.qtyValue {
+  font-size: max(0.95rem, 0.95dvw);
+  font-weight: 500;
+  color: #28282b;
 }
 
 .addToBagBtn {
@@ -100,23 +132,46 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: max(0.375rem, 0.375dvw);
+  gap: max(0.4rem, 0.4dvw);
   font-size: max(0.9rem, 0.9dvw);
-  font-weight: 400;
+  font-weight: 500;
   cursor: pointer;
-  border: 1.5px solid var(--secondary-color);
-  border-radius: max(0.4rem, 0.4dvw);
-  background: #ffffff;
-  color: var(--secondary-color);
-  padding: 0 max(1.4rem, 1.4dvw);
+  border: none;
+  border-radius: max(0.5rem, 0.5dvw);
+  background: #ff5f15;
+  color: #ffffff;
+  padding: max(0.7rem, 0.7dvw) max(1.4rem, 1.4dvw);
   transition: all var(--transition-fast);
   white-space: nowrap;
 }
 
-.buyNowBtn:hover,
-.addToBagBtn:hover {
+.addToBagBtn svg {
+  color: #ffffff;
+  fill: currentColor;
+}
+
+.buyNowBtn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: max(0.9rem, 0.9dvw);
+  font-weight: 500;
+  cursor: pointer;
+  border: 1.5px solid #ff5f15;
+  border-radius: max(0.5rem, 0.5dvw);
+  background: #ffffff;
+  color: #ff5f15;
+  padding: max(0.7rem, 0.7dvw) max(1.4rem, 1.4dvw);
+  transition: all var(--transition-fast);
+}
+
+.addToBagBtn:hover,
+.buyNowBtn:hover {
+  opacity: 0.92;
   transform: translateY(-1px);
 }
+
 
 /* ── Related Products ── */
 .related {

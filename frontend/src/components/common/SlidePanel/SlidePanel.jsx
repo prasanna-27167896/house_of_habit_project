@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import styles from './SlidePanel.module.css';
+import { lenis } from '../../../utils/lenis';
 
 
 const SlidePanel = ({ isOpen, onClose, children, duration = 600, className = '', overlayClassName = '' }) => {
@@ -8,12 +9,15 @@ const SlidePanel = ({ isOpen, onClose, children, duration = 600, className = '',
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      if (lenis) lenis.stop();
       setIsClosing(false);
     } else {
       document.body.style.overflow = '';
+      if (lenis) lenis.start();
     }
     return () => {
       document.body.style.overflow = '';
+      if (lenis) lenis.start();
     };
   }, [isOpen]);
 
@@ -41,6 +45,7 @@ const SlidePanel = ({ isOpen, onClose, children, duration = 600, className = '',
       <div
         className={`${styles.panel} ${isClosing ? styles.closing : ''} ${className}`}
         style={{ '--slide-duration': `${duration}ms` }}
+        data-lenis-prevent
         onClick={(e) => e.stopPropagation()}
       >
         {resolvedChildren}

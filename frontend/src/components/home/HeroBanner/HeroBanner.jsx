@@ -15,26 +15,36 @@ const RatingWidget = () => (
   </div>
 );
 
-const HeroBanner = () => (
-  <section className={styles.hero}>
-    <div className={styles.overlay} />
-    <div className={styles.content}>
-      <Button variant='light' size='sm'>
-        Shop Now
-      </Button>
-      <div className={styles.textBlock}>
-        <h1 className={styles.heading}>Wear Your Identity</h1>
-        <div className={styles.subBlock}>
-          <p className={styles.sub}>
-            Contemporary clothing crafted for
-            <br />
-            everyday confidence.
-          </p>
-          <RatingWidget />
+const HeroBanner = () => {
+  const handleShopNow = () => {
+    const el = document.getElementById('collections');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <section className={styles.hero}>
+      <div className={styles.overlay} />
+      <div className={styles.content}>
+        <Button variant='light' size='sm' onClick={handleShopNow}>
+          Shop Now
+        </Button>
+        <div className={styles.textBlock}>
+          <h1 className={styles.heading}>Wear Your Identity</h1>
+          <div className={styles.subBlock}>
+            <p className={styles.sub}>
+              Contemporary clothing crafted for
+              <br />
+              everyday confidence.
+            </p>
+            <RatingWidget />
+          </div>
         </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
+
 
 export default HeroBanner;

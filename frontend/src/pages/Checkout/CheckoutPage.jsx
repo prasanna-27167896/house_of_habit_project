@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './CheckoutPage.module.css';
 import ProductSummaryHeader from '../../components/checkout/ProductSummaryHeader/ProductSummaryHeader';
@@ -8,6 +8,7 @@ import PaymentOptions from '../../components/checkout/PaymentOptions/PaymentOpti
 import DebitCardForm from '../../components/checkout/DebitCardForm/DebitCardForm';
 import AddressModal from '../../components/checkout/AddressModal/AddressModal';
 import { MOCK_CART_ITEMS, MOCK_ADDRESS } from '../../data/checkoutData';
+import { getAddresses, createAddress } from '../../services/addressService';
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -15,6 +16,30 @@ const CheckoutPage = () => {
   const [addressModalOpen, setAddressModalOpen] = useState(false);
   const [address, setAddress] = useState(MOCK_ADDRESS);
   const cartItems = MOCK_CART_ITEMS;
+
+  useEffect(() => {
+    const fetchDefaultAddress = async () => {
+      try {
+        const addresses = await getAddresses();
+        if (addresses && addresses.length > 0) {
+          const def = addresses.find((a) => a.isDefault) || addresses[0];
+          setAddress({
+            name: def.fullName,
+            addressLine1: def.addressLine1,
+            addressLine2: def.addressLine2 || `${def.city}, ${def.pincode}`,
+            phone: def.phone,
+            email: MOCK_ADDRESS.email,
+            pincode: def.pincode,
+            city: def.city,
+            state: def.state,
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load user addresses:', err);
+      }
+    };
+    fetchDefaultAddress();
+  }, []);
 
   const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -39,17 +64,43 @@ const CheckoutPage = () => {
     navigate('/order-success');
   };
 
-  const handleAddressSubmit = (newAddress) => {
-    setAddress({
-      name: newAddress.name,
-      addressLine1: `${newAddress.address1}`,
-      addressLine2: `${newAddress.city}, ${newAddress.pincode}`,
-      phone: `+91 ${newAddress.mobile}`,
-      email: MOCK_ADDRESS.email,
-      pincode: newAddress.pincode,
+  const handleAddressSubmit = async (newAddress) => {
+    const payload = {
+      fullName: newAddress.name,
+      phone: newAddress.mobile,
+      addressLine1: newAddress.address1,
+      addressLine2: newAddress.address2 || undefined,
       city: newAddress.city,
       state: newAddress.state,
-    });
+      pincode: newAddress.pincode,
+      isDefault: true,
+    };
+    try {
+      const savedAddress = await createAddress(payload);
+      setAddress({
+        name: savedAddress.fullName,
+        addressLine1: savedAddress.addressLine1,
+        addressLine2: savedAddress.addressLine2 || `${savedAddress.city}, ${savedAddress.pincode}`,
+        phone: savedAddress.phone,
+        email: MOCK_ADDRESS.email,
+        pincode: savedAddress.pincode,
+        city: savedAddress.city,
+        state: savedAddress.state,
+      });
+    } catch (err) {
+      console.error('Failed to save checkout address:', err);
+      // Fallback local state setting if API fails or user is not logged in
+      setAddress({
+        name: newAddress.name,
+        addressLine1: `${newAddress.address1}`,
+        addressLine2: `${newAddress.city}, ${newAddress.pincode}`,
+        phone: `+91 ${newAddress.mobile}`,
+        email: MOCK_ADDRESS.email,
+        pincode: newAddress.pincode,
+        city: newAddress.city,
+        state: newAddress.state,
+      });
+    }
   };
 
   return (

@@ -38,7 +38,7 @@ contactRouter.post("/", contactController.submitContact);
  *       200: { $ref: '#/components/responses/Success' }
  *       403: { $ref: '#/components/responses/Forbidden' }
  */
-contactRouter.get("/admin/all", authenticate, requireRole("ROLE_ADMIN"), contactController.adminGetAllContacts);
+contactRouter.get("/admin/all", authenticate, contactController.adminGetAllContacts);
 
 /**
  * @openapi

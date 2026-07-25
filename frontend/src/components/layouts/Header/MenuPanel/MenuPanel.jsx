@@ -7,6 +7,7 @@ import TwitterIcon from '../../../../assets/icons/twitter-icon.svg?react';
 import LinkedInIcon from '../../../../assets/icons/linkedin-icon.svg?react';
 import InstagramIcon from '../../../../assets/icons/instagram-icon.svg?react';
 import { useEffect, useState } from 'react';
+import { lenis } from '../../../../utils/lenis';
 
 const SOCIAL_ICONS = [
   { icon: FacebookIcon, label: 'Facebook' },
@@ -34,12 +35,15 @@ const MenuPanel = ({ isOpen, onClose }) => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      if (lenis) lenis.stop();
       setIsClosing(false);
     } else {
       document.body.style.overflow = '';
+      if (lenis) lenis.start();
     }
     return () => {
       document.body.style.overflow = '';
+      if (lenis) lenis.start();
     };
   }, [isOpen]);
 
@@ -72,7 +76,11 @@ const MenuPanel = ({ isOpen, onClose }) => {
 
   return (
     <div className={`${styles.overlay} ${slidePanelStyles.desktopOnly}`} onClick={handleClose}>
-      <div className={`${styles.panel} ${isClosing ? styles.closing : ''}`} onClick={(e) => e.stopPropagation()}>
+      <div
+        className={`${styles.panel} ${isClosing ? styles.closing : ''}`}
+        data-lenis-prevent
+        onClick={(e) => e.stopPropagation()}
+      >
         <button className={styles.closeBtn} onClick={handleClose} aria-label='Close'>
           &#x2715;
         </button>

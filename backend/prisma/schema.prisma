@@ -562,8 +562,6 @@ model ContactMessage {
   contactId    String    @id @default(uuid())
   name         String
   email        String
-  phone        String?
-  subject      String
   message      String    @db.Text
   isResolved   Boolean   @default(false)
   replyMessage String?   @db.Text // what the admin replied (stored, not just emailed)

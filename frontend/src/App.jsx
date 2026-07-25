@@ -1,11 +1,31 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+
 import Header from './components/layouts/Header/Header';
 import Footer from './components/layouts/Footer/Footer';
 import MobileNavBar from './components/layouts/MobileNavBar/MobileNavBar';
 import AppRoutes from './routes/AppRoutes';
 import { fetchUserProfile } from './store/slices/authSlice';
+
+import { lenis } from './utils/lenis';
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    if (lenis) {
+      lenis.scrollTo(0, { immediate: true });
+    }
+  }, [pathname]);
+
+  return null;
+};
+
+
 
 const AppContent = () => {
   const [openPanel, setOpenPanel] = useState(null);
@@ -20,6 +40,7 @@ const AppContent = () => {
 
   return (
     <>
+      <ScrollToTop />
       <Header
         openPanel={openPanel}
         setOpenPanel={setOpenPanel}
@@ -30,6 +51,7 @@ const AppContent = () => {
     </>
   );
 };
+
 
 const App = () => {
   return (

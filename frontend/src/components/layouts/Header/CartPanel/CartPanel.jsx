@@ -9,6 +9,7 @@ import SavingsBadge from '../../../checkout/SavingsBadge/SavingsBadge';
 import OrderSummary from '../../../checkout/OrderSummary/OrderSummary';
 import AddressModal from '../../../checkout/AddressModal/AddressModal';
 import Button from '../../../common/Button/Button';
+import { lenis } from '../../../../utils/lenis';
 import { MOCK_CART_ITEMS } from '../../../../data/checkoutData';
 
 const CartPanel = ({ isOpen, onClose }) => {
@@ -20,12 +21,15 @@ const CartPanel = ({ isOpen, onClose }) => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      if (lenis) lenis.stop();
       setIsClosing(false);
     } else {
       document.body.style.overflow = '';
+      if (lenis) lenis.start();
     }
     return () => {
       document.body.style.overflow = '';
+      if (lenis) lenis.start();
     };
   }, [isOpen]);
 
@@ -75,7 +79,11 @@ const CartPanel = ({ isOpen, onClose }) => {
 
   return (
     <div className={styles.overlay} onClick={handleClose}>
-      <div className={`${styles.panel} ${isClosing ? styles.closing : ''}`} onClick={(e) => e.stopPropagation()}>
+      <div
+        className={`${styles.panel} ${isClosing ? styles.closing : ''}`}
+        data-lenis-prevent
+        onClick={(e) => e.stopPropagation()}
+      >
         <button className={styles.closeBtn} onClick={handleClose} aria-label='Close'>
           &#x2715;
         </button>

@@ -51,7 +51,7 @@ export const findVisibleProduct = (productId: string): Promise<Product | null> =
 
 export const findAllActiveProducts = async (query: ProductListQuery): Promise<ProductListResult> => {
   const skip = (query.page - 1) * query.limit;
-  const [products, total] = await prisma.$transaction([
+  const [products, total] = await Promise.all([
     prisma.product.findMany({ where: activeWhere, orderBy: buildSortOrder(query.sortBy), skip, take: query.limit, include: productInclude }),
     prisma.product.count({ where: activeWhere }),
   ]);
@@ -61,7 +61,7 @@ export const findAllActiveProducts = async (query: ProductListQuery): Promise<Pr
 export const findProductsByCategory = async (categoryId: string, query: ProductListQuery): Promise<ProductListResult> => {
   const skip = (query.page - 1) * query.limit;
   const where = { ...activeWhere, categoryId };
-  const [products, total] = await prisma.$transaction([
+  const [products, total] = await Promise.all([
     prisma.product.findMany({ where, orderBy: buildSortOrder(query.sortBy), skip, take: query.limit, include: productInclude }),
     prisma.product.count({ where }),
   ]);
@@ -93,7 +93,7 @@ export const searchProductsDb = async (query: ProductSearchQuery): Promise<Produ
     }),
   };
 
-  const [products, total] = await prisma.$transaction([
+  const [products, total] = await Promise.all([
     prisma.product.findMany({ where, orderBy: buildSortOrder(sortBy), skip, take: limit, include: productInclude }),
     prisma.product.count({ where }),
   ]);

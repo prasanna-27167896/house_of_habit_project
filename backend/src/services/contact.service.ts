@@ -22,8 +22,6 @@ export const submitContact = (input: SubmitContactInput): Promise<ContactMessage
   contactRepo.createContactMessage({
     name: input.name,
     email: input.email,
-    phone: input.phone ?? null,
-    subject: input.subject,
     message: input.message,
   });
 
@@ -49,7 +47,7 @@ export const adminReplyToContact = async (
   // Send first — if the email fails, we don't store the reply or mark it resolved,
   // so the admin knows it didn't reach the customer and can retry.
   try {
-    await sendContactReplyEmail(contact.email, contact.name, contact.subject, input.replyMessage);
+    await sendContactReplyEmail(contact.email, contact.name, "your query", input.replyMessage);
   } catch {
     throw Errors.CONTACT_REPLY_EMAIL_FAILED();
   }

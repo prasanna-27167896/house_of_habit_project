@@ -3,11 +3,7 @@ import { z } from "zod";
 export const submitContactSchema = z.object({
   name: z.string().min(1).max(100),
   email: z.string().email(),
-  phone: z.string().max(20).optional(),
-  subject: z.string().min(1).max(200),
   message: z.string().min(1).max(3000),
-  // Honeypot: a hidden field real users leave empty. If a bot fills it, we drop
-  // the submission (see controller). Accepted, not validated, so the bot can't tell.
   website: z.string().optional(),
 });
 

@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import styles from './ContactPage.module.css';
 import { contactFaqs } from '../../data/contactData';
+import { fetchFaqs } from '../../services/faqService';
+import { submitContactMessage } from '../../services/contactService';
 import Button from '../../components/common/Button/Button';
 import ArrowIconWhite from '../../assets/icons/arrow-icon-white.svg?react';
 import { Hero } from '../../components/common/Hero/Hero';
@@ -52,18 +54,40 @@ const ContactIllustration = () => (
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(null);
+  const [error, setError] = useState(null);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+      setError('Please fill in all fields.');
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      await submitContactMessage(formData);
+      setSuccess("Thanks for reaching out. We'll get back to you soon.");
+      setFormData({ name: '', email: '', message: '' });
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to send message. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
       <h2 className={styles.formTitle}>How can we help you today?</h2>
+
+      {success && <div className={styles.successMessage}>{success}</div>}
+      {error && <div className={styles.errorMessage}>{error}</div>}
 
       <label className={styles.label}>Your Full Name</label>
       <input
@@ -73,6 +97,7 @@ const ContactForm = () => {
         className={styles.input}
         value={formData.name}
         onChange={handleChange}
+        required
       />
 
       <label className={styles.label}>Your Email</label>
@@ -83,6 +108,7 @@ const ContactForm = () => {
         className={styles.input}
         value={formData.email}
         onChange={handleChange}
+        required
       />
 
       <label className={styles.label}>Message</label>
@@ -93,11 +119,12 @@ const ContactForm = () => {
         rows={5}
         value={formData.message}
         onChange={handleChange}
+        required
       />
 
       <div className={styles.formAction}>
-        <Button bgColor={'#1e1e1e'} pillColor={'#ff5f15'} type='submit'>
-          Send Message
+        <Button bgColor={'#1e1e1e'} pillColor={'#ff5f15'} type='submit' disabled={loading}>
+          {loading ? 'Sending...' : 'Send Message'}
         </Button>
       </div>
     </form>
@@ -132,34 +159,64 @@ const FaqItem = ({ question, answer, defaultOpen = false }) => {
   );
 };
 
-const ContactPage = () => (
-  <main>
-    <div className='container'>
-      <Hero
-        title='Contact us'
-        image={ContactIcon}
-        subtitle="We're here for you — reach out about orders, sizing, collaborations, or anything else on your mind."
-      />
+const ContactPage = () => {
+  const [faqs, setFaqs] = useState([]);
 
-      <section className={styles.contactSection}>
-        <ContactIllustration />
-        <ContactForm />
-      </section>
+  useEffect(() => {
+    let active = true;
+    const loadFaqs = async () => {
+      try {
+        const response = await fetchFaqs();
+        if (active) {
+          const faqData = response.data || response;
+          if (Array.isArray(faqData) && faqData.length > 0) {
+            setFaqs(faqData);
+          } else {
+            setFaqs(contactFaqs);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load FAQs from backend, using fallback:', err);
+        if (active) {
+          setFaqs(contactFaqs);
+        }
+      }
+    };
+    loadFaqs();
+    return () => {
+      active = false;
+    };
+  }, []);
 
-      <section className={styles.faqSection}>
-        <h2 className={styles.faqTitle}>
-          Frequently
-          <br />
-          asked questions
-        </h2>
-        <div className={styles.faqList}>
-          {contactFaqs.map((faq, i) => (
-            <FaqItem key={i} question={faq.question} answer={faq.answer} defaultOpen={i === 0} />
-          ))}
-        </div>
-      </section>
-    </div>
-  </main>
-);
+  return (
+    <main>
+      <div className='container'>
+        <Hero
+          title='Contact us'
+          image={ContactIcon}
+          subtitle="We're here for you — reach out about orders, sizing, collaborations, or anything else on your mind."
+        />
+
+        <section className={styles.contactSection}>
+          <ContactIllustration />
+          <ContactForm />
+        </section>
+
+        <section className={styles.faqSection}>
+          <h2 className={styles.faqTitle}>
+            Frequently
+            <br />
+            asked questions
+          </h2>
+          <div className={styles.faqList}>
+            {faqs.map((faq, i) => (
+              <FaqItem key={faq.faqId || i} question={faq.question} answer={faq.answer} defaultOpen={i === 0} />
+            ))}
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+};
 
 export default ContactPage;

@@ -206,3 +206,32 @@
   justify-content: flex-end;
   margin-top: max(8rem, 8dvw);
 }
+
+/* ── Error message ── */
+.errorMessage {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: var(--border-radius-sm);
+  padding: max(0.6rem, 0.6dvw) max(1rem, 1dvw);
+  margin: max(0.5rem, 0.5dvw) max(1.2rem, 1.2dvw);
+  font-size: max(0.85rem, 0.85dvw);
+}
+
+/* ── Set as default button ── */
+.setDefaultBtn {
+  background: none;
+  border: 1px solid #ff5f15;
+  color: #ff5f15;
+  border-radius: var(--border-radius-sm);
+  padding: max(0.3rem, 0.3dvw) max(0.8rem, 0.8dvw);
+  font-size: max(0.8rem, 0.8dvw);
+  cursor: pointer;
+  margin-top: max(0.5rem, 0.5dvw);
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.setDefaultBtn:hover {
+  background: #ff5f15;
+  color: #ffffff;
+}

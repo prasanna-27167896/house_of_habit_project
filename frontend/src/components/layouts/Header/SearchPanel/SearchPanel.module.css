@@ -5,6 +5,7 @@
   z-index: 200;
   background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(4px);
+  overflow: hidden;
 }
 
 /* ── Panel — slides down from top ── */
@@ -13,6 +14,8 @@
   top: 0;
   left: 0;
   right: 0;
+  height: 100vh;
+  overflow-y: auto;
   background: #fff;
   padding: max(6.2rem, 6.2dvw) max(4rem, 4dvw) max(2rem, 2dvw);
   animation: slideDown 0.6s cubic-bezier(0.4, 0, 0.2, 1);
@@ -181,4 +184,77 @@
   font-size: max(0.95rem, 0.95dvw);
   font-weight: 700;
   color: #28282b;
+}
+
+/* ── Status / Loading / No-results ── */
+.statusMessage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: max(0.8rem, 0.8dvw);
+  padding: max(3rem, 3dvw) 0;
+  color: #28282b;
+  font-size: max(1.1rem, 1.1dvw);
+  font-weight: 300;
+}
+
+.noResultsText {
+  font-size: max(1.15rem, 1.15dvw);
+  font-weight: 400;
+  color: #666;
+}
+
+/* ── Skeleton Loading ── */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeletonCard {
+  display: flex;
+  flex-direction: column;
+}
+
+.skeletonImage {
+  aspect-ratio: 4 / 5;
+  border-radius: max(0.6rem, 0.6dvw);
+  margin-bottom: max(0.2rem, 0.2dvw);
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.skeletonName {
+  height: max(0.9rem, 0.9dvw);
+  width: 80%;
+  border-radius: 4px;
+  margin-top: max(0.4rem, 0.4dvw);
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.skeletonPrice {
+  height: max(0.95rem, 0.95dvw);
+  width: 40%;
+  border-radius: 4px;
+  margin-top: max(0.3rem, 0.3dvw);
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.skeletonTitle {
+  height: max(1.25rem, 1.25dvw);
+  width: max(10rem, 10dvw);
+  border-radius: 4px;
+  margin: max(1.2rem, 1.2dvw) 0;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
 }
