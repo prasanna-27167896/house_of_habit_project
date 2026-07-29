@@ -60,7 +60,7 @@
   border: none;
   padding: max(0.85rem, 0.85dvw) max(1.2rem, 1.2dvw);
   border-radius: max(0.8rem, 0.8dvw);
-  font-size: max(0.7rem, 0.7dvw);
+  font-size: max(0.95rem, 0.95dvw);
   font-weight: 500;
   cursor: pointer;
   margin-top: max(0.7rem, 0.7dvw);
@@ -88,7 +88,7 @@
 
   .payButton {
     padding: max(0.85rem, 0.85dvw) max(1.2rem, 1.2dvw);
-    font-size: max(0.9rem, 0.9dvw);
+    font-size: max(0.9rem, 0.9dvw)
   }
 }
 

@@ -73,7 +73,6 @@
   justify-content: center;
   background: transparent;
   cursor: pointer;
-  padding: 0;
   color: #ff5f15;
   transition: transform var(--transition-fast);
 }

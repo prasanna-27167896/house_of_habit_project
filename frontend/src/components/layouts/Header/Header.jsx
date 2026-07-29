@@ -39,6 +39,7 @@ const NAV_ICONS = [
 const Header = ({ openPanel, setOpenPanel }) => {
   const navigate = useNavigate();
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const { totalItems = 0 } = useSelector((state) => state.cart);
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -91,6 +92,9 @@ const Header = ({ openPanel, setOpenPanel }) => {
                 onClick={() => handleIconClick(label)}
               >
                 <Icon width={32} height={32} />
+                {label === "Cart" && totalItems > 0 && (
+                  <span className={styles.badge}>{totalItems}</span>
+                )}
               </button>
             ))}
           </nav>

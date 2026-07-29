@@ -3,7 +3,7 @@ import styles from './CartDrawerItem.module.css';
 import QuantitySelector from '../QuantitySelector/QuantitySelector';
 import DeleteIcon from '../../../assets/icons/delete-icon-cart.svg?react';
 
-const CartDrawerItem = ({ item, onQuantityChange, onRemove }) => {
+const CartDrawerItem = ({ item, onQuantityChange, onRemove, isDeleting }) => {
   const [size, setSize] = useState(item.size || 'S');
 
   return (
@@ -36,9 +36,21 @@ const CartDrawerItem = ({ item, onQuantityChange, onRemove }) => {
           <button
             className={styles.deleteBtn}
             onClick={() => onRemove(item.id)}
+            disabled={isDeleting}
             aria-label="Remove item"
+            style={{ position: 'relative' }}
           >
-            <DeleteIcon />
+            <DeleteIcon 
+              style={{ 
+                visibility: isDeleting ? 'hidden' : 'visible', 
+                opacity: isDeleting ? 0 : 1 
+              }} 
+            />
+            {isDeleting && (
+              <span className="absolute-loader">
+                <span className="simple-spinner" style={{ color: '#ff5f15', width: '1.4rem', height: '1.4rem' }}></span>
+              </span>
+            )}
           </button>
         </div>
       </div>
@@ -49,7 +61,7 @@ const CartDrawerItem = ({ item, onQuantityChange, onRemove }) => {
         )}
         <span className={styles.salePrice}>₹{item.price.toLocaleString('en-IN')}</span>
         {item.discount > 0 && (
-          <span className={styles.discount}>({item.discount}% Off)</span>
+          <span className={styles.discount}>({item.discount}% Offf)</span>
         )}
       </div>
     </div>

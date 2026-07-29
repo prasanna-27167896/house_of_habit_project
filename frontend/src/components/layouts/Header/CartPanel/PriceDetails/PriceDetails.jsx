@@ -2,8 +2,8 @@ import styles from './PriceDetails.module.css';
 
 const PriceDetails = ({ items, onPayment }) => {
   // Calculate totals
-  const bagTotal = items.reduce((sum, item) => sum + item.price, 0);
-  const originalTotal = items.reduce((sum, item) => sum + (item.originalPrice || item.price), 0);
+  const bagTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const originalTotal = items.reduce((sum, item) => sum + (item.originalPrice || item.price) * item.quantity, 0);
   const discount = originalTotal - bagTotal;
   const shippingCharge = 55; // Fixed shipping charge
   const grandTotal = bagTotal + shippingCharge;
@@ -15,7 +15,7 @@ const PriceDetails = ({ items, onPayment }) => {
 
         <div className={styles.row}>
           <span className={styles.label}>Bag Total</span>
-          <span className={styles.value}>₹{bagTotal}</span>
+          <span className={styles.value}>₹{originalTotal}</span>
         </div>
 
         {discount > 0 && (

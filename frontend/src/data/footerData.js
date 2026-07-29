@@ -10,7 +10,14 @@ export const footerData = {
 
   shop: ['Polo T-shirts', 'Hoodies', 'Sweatshirt'],
 
-  policies: ['Privacy Policy', 'Return Policy', 'Terms & Condition'],
+  policies: [
+    'Privacy Policy',
+    'Return Policy',
+    'Terms & Conditions',
+    'Refund Policy',
+    'Shipping Policy',
+    'Cancellation Policy'
+  ],
 
   help: ['FAQs', 'Contact Us'],
 

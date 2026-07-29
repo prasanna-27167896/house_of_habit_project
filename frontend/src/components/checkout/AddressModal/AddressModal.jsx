@@ -23,14 +23,36 @@ const AddressModal = ({ isOpen, onClose, onSubmit }) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handlePincodeSubmit = () => {
+  const handlePincodeSubmit = async () => {
     if (!form.pincode || form.pincode.length < 6) return;
     setStep(2);
-    // Simulate API lookup
-    setTimeout(() => {
-      setForm((prev) => ({ ...prev, city: 'Bangalore', state: 'Katakana' }));
+    try {
+      const response = await fetch(`https://api.postalpincode.in/pincode/${form.pincode}`);
+      const data = await response.json();
+      if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
+        const { Block, State } = data[0].PostOffice[0];
+        setForm((prev) => ({
+          ...prev,
+          city: Block || '',
+          state: State || '',
+        }));
+      } else {
+        setForm((prev) => ({
+          ...prev,
+          city: '',
+          state: '',
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching pincode details:', error);
+      setForm((prev) => ({
+        ...prev,
+        city: '',
+        state: '',
+      }));
+    } finally {
       setStep(3);
-    }, 1500);
+    }
   };
 
   const handleFullSubmit = () => {

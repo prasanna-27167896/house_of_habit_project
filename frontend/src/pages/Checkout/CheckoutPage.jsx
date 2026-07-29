@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import styles from './CheckoutPage.module.css';
 import ProductSummaryHeader from '../../components/checkout/ProductSummaryHeader/ProductSummaryHeader';
 import DeliveryCard from '../../components/checkout/DeliveryCard/DeliveryCard';
@@ -15,7 +16,8 @@ const CheckoutPage = () => {
   const [view, setView] = useState('main'); // 'main' | 'card'
   const [addressModalOpen, setAddressModalOpen] = useState(false);
   const [address, setAddress] = useState(MOCK_ADDRESS);
-  const cartItems = MOCK_CART_ITEMS;
+  const { items: reduxCartItems } = useSelector((state) => state.cart);
+  const cartItems = reduxCartItems.length > 0 ? reduxCartItems : MOCK_CART_ITEMS;
 
   useEffect(() => {
     const fetchDefaultAddress = async () => {

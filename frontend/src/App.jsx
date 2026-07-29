@@ -7,6 +7,7 @@ import Footer from './components/layouts/Footer/Footer';
 import MobileNavBar from './components/layouts/MobileNavBar/MobileNavBar';
 import AppRoutes from './routes/AppRoutes';
 import { fetchUserProfile } from './store/slices/authSlice';
+import { fetchCart } from './store/slices/cartSlice';
 
 import { lenis } from './utils/lenis';
 
@@ -35,8 +36,15 @@ const AppContent = () => {
   useEffect(() => {
     if (isAuthenticated) {
       dispatch(fetchUserProfile());
+      dispatch(fetchCart());
     }
   }, [isAuthenticated, dispatch]);
+
+  useEffect(() => {
+    const handleOpenAuth = () => setOpenPanel('profile');
+    window.addEventListener('open-auth-panel', handleOpenAuth);
+    return () => window.removeEventListener('open-auth-panel', handleOpenAuth);
+  }, []);
 
   return (
     <>

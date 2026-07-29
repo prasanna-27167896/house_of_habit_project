@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import styles from './Footer.module.css';
 import { footerData } from '../../../data/footerData';
 import Button from '../../common/Button/Button';
@@ -15,6 +16,27 @@ const SOCIAL_ICONS = {
   Instagram: InstagramIcon,
 };
 
+const POLICY_PATHS = {
+  'Privacy Policy': '/privacy-policy',
+  'Return Policy': '/return-policy',
+  'Terms & Conditions': '/terms-conditions',
+  'Terms & Condition': '/terms-conditions',
+  'Refund Policy': '/refund-policy',
+  'Shipping Policy': '/shipping-policy',
+  'Cancellation Policy': '/cancellation-policy',
+};
+
+const SHOP_PATHS = {
+  'Polo T-shirts': '/shop/polo',
+  'Hoodies': '/shop/hoodies',
+  'Sweatshirt': '/shop/sweatshirt',
+};
+
+const HELP_PATHS = {
+  'FAQs': '#',
+  'Contact Us': '/contact',
+};
+
 const FooterLogo = () => (
   <div className={styles.logoMark}>
     <LogoIcon />
@@ -27,9 +49,11 @@ function Footer() {
       {/* CTA Section */}
       <div className={styles.cta}>
         <h2>{footerData.cta.title}</h2>
-        <Button variant='light' size='sm'>
-          Contact Us
-        </Button>
+        <Link to="/contact">
+          <Button variant='light' size='sm'>
+            Contact Us
+          </Button>
+        </Link>
       </div>
 
       {/* Main Footer */}
@@ -42,31 +66,44 @@ function Footer() {
           <div className={styles.gridAddress}>
             <h4 className={styles.gridTitle}>Address</h4>
             {footerData.address.map((item, i) => (
-              <>
-                <p key={i}>{item}</p>
-              </>
+              <p key={i}>{item}</p>
             ))}
           </div>
           <div className={styles.grid}>
             <div className={styles.gridContent}>
               <h4 className={styles.gridTitle}>Shop</h4>
-              {footerData.shop.map((item, i) => (
-                <p key={i}>{item}</p>
-              ))}
+              {footerData.shop.map((item, i) => {
+                const path = SHOP_PATHS[item] || '#';
+                return (
+                  <Link key={i} to={path}>
+                    {item}
+                  </Link>
+                );
+              })}
             </div>
 
             <div className={styles.gridContent}>
               <h4 className={styles.gridTitle}>Policies</h4>
-              {footerData.policies.map((item, i) => (
-                <p key={i}>{item}</p>
-              ))}
+              {footerData.policies.map((item, i) => {
+                const path = POLICY_PATHS[item] || '#';
+                return (
+                  <Link key={i} to={path}>
+                    {item}
+                  </Link>
+                );
+              })}
             </div>
 
             <div className={styles.gridContent}>
               <h4 className={styles.gridTitle}>Help</h4>
-              {footerData.help.map((item, i) => (
-                <p key={i}>{item}</p>
-              ))}
+              {footerData.help.map((item, i) => {
+                const path = HELP_PATHS[item] || '#';
+                return (
+                  <Link key={i} to={path}>
+                    {item}
+                  </Link>
+                );
+              })}
             </div>
 
             <div className={styles.gridContent}>

@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import styles from './MobileNavBar.module.css';
 
 import HomeIcon from '../../../assets/icons/HomeIconNav.svg?react';
@@ -20,6 +21,7 @@ const NAV_ITEMS = [
 const MobileNavBar = ({ activePanel, onAction }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { totalItems = 0 } = useSelector((state) => state.cart);
 
   const handleTap = (item) => {
     if (item.action && onAction) {
@@ -64,6 +66,9 @@ const MobileNavBar = ({ activePanel, onAction }) => {
                 >
                   <span className={styles.iconWrap}>
                     <Icon />
+                    {id === 'cart' && totalItems > 0 && (
+                      <span className={styles.badge}>{totalItems}</span>
+                    )}
                   </span>
                   <span className={styles.label}>{label}</span>
                 </button>

@@ -1,7 +1,9 @@
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import styles from './ProductCard.module.css';
 import CartIcon from '../../../assets/icons/cart-add.svg?react';
 import DummyImage from '../../../assets/images/dummy-model.png';
+import { addToCart } from '../../../store/slices/cartSlice';
 
 const getCategorySlug = (category, categoryTitle, categorySlug) => {
   if (categorySlug) return categorySlug;
@@ -27,6 +29,7 @@ const ProductCard = ({
   categorySlug,
   onClick,
   skeleton,
+  variants,
 }) => {
   const navigate = useNavigate();
 
@@ -52,6 +55,12 @@ const ProductCard = ({
   const displayImage = imageUrl || image || DummyImage;
   const slug = getCategorySlug(category, categoryTitle, categorySlug);
 
+  const dispatch = useDispatch();
+  const { addingVariants = [] } = useSelector((state) => state.cart);
+
+  const matchedVariant = (variants || []).find((v) => v.stock > 0) || (variants || [])[0];
+  const isAdding = matchedVariant ? addingVariants.includes(matchedVariant.variantId) : false;
+
   const handleCardClick = (e) => {
     if (onClick) {
       onClick(e);
@@ -64,7 +73,13 @@ const ProductCard = ({
 
   const handleCartClick = (e) => {
     e.stopPropagation();
-    // Add to cart functionality if needed in future
+    if (!matchedVariant) {
+      if (pId) {
+        navigate(`/shop/${slug}/${pId}`);
+      }
+      return;
+    }
+    dispatch(addToCart({ variantId: matchedVariant.variantId, quantity: 1 }));
   };
 
   return (
@@ -79,8 +94,22 @@ const ProductCard = ({
           <p className={styles.price}>₹ {formattedPrice}</p>
         </div>
 
-        <button type="button" className={styles.cartBtn} onClick={handleCartClick} aria-label="Add to cart">
-          <CartIcon />
+        <button 
+          type="button" 
+          className={`${styles.cartBtn} ${isAdding ? styles.loading : ''}`} 
+          onClick={handleCartClick} 
+          disabled={isAdding}
+          aria-label="Add to cart"
+        >
+          {isAdding ? (
+            <div className={styles.dots}>
+              <span className={styles.dot}></span>
+              <span className={styles.dot}></span>
+              <span className={styles.dot}></span>
+            </div>
+          ) : (
+            <CartIcon />
+          )}
         </button>
       </div>
     </div>

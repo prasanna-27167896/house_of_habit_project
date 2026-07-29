@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './ProductDetailsPage.module.css';
 import { slugToCategory } from '../../data/productsData';
@@ -11,11 +11,12 @@ import DeliveryCheck from '../../components/product/DeliveryCheck/DeliveryCheck'
 import Accordion from '../../components/product/Accordion/Accordion';
 import ProductCard from '../../components/common/ProductCard/ProductCard';
 import Button from '../../components/common/Button/Button';
-import Loader from '../../components/common/Loader/Loader';
+import ProductDetailsSkeleton from '../../components/product/ProductDetailsSkeleton/ProductDetailsSkeleton';
 import DummyImage from '../../assets/images/dummy-model.png';
 import ShareIcon from '../../assets/icons/share-icon.svg?react';
 import CartIcon from '../../assets/icons/cart-add.svg?react';
 import { fetchProductDetail, fetchHomeProducts, clearProductDetail } from '../../store/slices/productSlice';
+import { addToCart } from '../../store/slices/cartSlice';
 
 const DEFAULT_SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
 
@@ -28,13 +29,26 @@ const DEFAULT_COLORS = [
 
 const ProductDetailsPage = () => {
   const { category, productId } = useParams();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { productDetail, productDetailLoading, homeShuffledProducts } = useSelector((state) => state.product);
+  const { addingVariants = [] } = useSelector((state) => state.cart);
 
   const [selectedSize, setSelectedSize] = useState('S');
   const [selectedColor, setSelectedColor] = useState('Black');
   const [quantity, setQuantity] = useState(1);
+  const [isBuying, setIsBuying] = useState(false);
+
+  const matchedVariant =
+    productDetail?.variants?.find(
+      (v) =>
+        (!selectedSize || v.size === selectedSize) &&
+        (!selectedColor || v.color === selectedColor)
+    ) || productDetail?.variants?.[0];
+
+  const isAdding = matchedVariant ? addingVariants.includes(matchedVariant.variantId) : false;
+  const isPending = isAdding || isBuying;
 
   const categoryKey = slugToCategory[category] || productDetail?.category?.categoryTitle || 'Polo T-Shirts';
 
@@ -89,15 +103,46 @@ const ProductDetailsPage = () => {
     }
   }, [availableSizes, availableColors]);
 
-  if (productDetailLoading && !productDetail) {
-    return (
-      <main>
-        <div className='container' style={{ padding: '6rem 0', minHeight: '65vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Loader loadingText='Loading Product Details...' />
-        </div>
-      </main>
+  const handleAddToCart = () => {
+    if (!productDetail) return;
+    const variantsList = productDetail.variants || [];
+    const matchedVariant =
+      variantsList.find(
+        (v) =>
+          (!selectedSize || v.size === selectedSize) &&
+          (!selectedColor || v.color === selectedColor)
+      ) || variantsList[0];
 
-    );
+    if (matchedVariant) {
+      dispatch(addToCart({ variantId: matchedVariant.variantId, quantity }));
+    }
+  };
+
+  const handleBuyNow = async () => {
+    if (!productDetail || isBuying) return;
+    const variantsList = productDetail.variants || [];
+    const matchedVariant =
+      variantsList.find(
+        (v) =>
+          (!selectedSize || v.size === selectedSize) &&
+          (!selectedColor || v.color === selectedColor)
+      ) || variantsList[0];
+
+    if (matchedVariant) {
+      setIsBuying(true);
+      try {
+        await dispatch(addToCart({ variantId: matchedVariant.variantId, quantity }));
+        navigate('/checkout');
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsBuying(false);
+      }
+    }
+  };
+
+  if (productDetailLoading && !productDetail) {
+    return <ProductDetailsSkeleton />;
   }
 
   if (!productDetail && !productDetailLoading) {
@@ -149,29 +194,73 @@ const ProductDetailsPage = () => {
             <p className={styles.price}>&#8377;{formattedPrice}</p>
             <p className={styles.taxNote}>inclusive of all taxes</p>
 
-            <ColorSelector colors={availableColors} activeColor={selectedColor} onSelect={setSelectedColor} />
+            {/* <ColorSelector colors={availableColors} activeColor={selectedColor} onSelect={setSelectedColor} /> */}
             <SizeSelector sizes={availableSizes} activeSize={selectedSize} onSelect={setSelectedSize} />
 
             <div className={styles.actionsContainer}>
               <div className={styles.rowOne}>
                 <div className={styles.quantitySelector}>
-                  <button type="button" className={styles.qtyBtn} onClick={() => setQuantity((q) => Math.max(1, q - 1))}>
+                  <button
+                    type="button"
+                    className={styles.qtyBtn}
+                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                    disabled={isPending}
+                  >
                     &minus;
                   </button>
                   <span className={styles.qtyValue}>{quantity}</span>
-                  <button type="button" className={styles.qtyBtnPlus} onClick={() => setQuantity((q) => q + 1)}>
+                  <button
+                    type="button"
+                    className={styles.qtyBtnPlus}
+                    onClick={() => setQuantity((q) => q + 1)}
+                    disabled={isPending}
+                  >
                     &#43;
                   </button>
                 </div>
 
-                <button type="button" className={styles.addToBagBtn}>
-                  <CartIcon width={18} height={18} />
-                  Add To Bag
+                <button
+                  type="button"
+                  className={styles.addToBagBtn}
+                  onClick={handleAddToCart}
+                  disabled={isPending}
+                  style={{ position: 'relative' }}
+                >
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'inherit', visibility: isAdding ? 'hidden' : 'visible', opacity: isAdding ? 0 : 1 }}>
+                    <CartIcon width={24} height={24} />
+                    Add To Bag
+                  </span>
+                  {isAdding && (
+                    <div className="absolute-loader">
+                      <div className="dots-loading">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                      </div>
+                    </div>
+                  )}
                 </button>
               </div>
 
-              <button type="button" className={styles.buyNowBtn}>
-                Buy Now
+              <button
+                type="button"
+                className={styles.buyNowBtn}
+                onClick={handleBuyNow}
+                disabled={isPending}
+                style={{ position: 'relative' }}
+              >
+                <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', visibility: isBuying ? 'hidden' : 'visible', opacity: isBuying ? 0 : 1 }}>
+                  Buy Now
+                </span>
+                {isBuying && (
+                  <div className="absolute-loader" style={{ color: '#ff5f15' }}>
+                    <div className="dots-loading">
+                      <span></span>
+                      <span></span>
+                      <span></span>
+                    </div>
+                  </div>
+                )}
               </button>
             </div>
 

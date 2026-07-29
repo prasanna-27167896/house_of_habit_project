@@ -59,6 +59,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .iconBtn:hover {
@@ -98,9 +99,13 @@
 }
 
 @media (max-width: 480px) {
-  .logoBadge {
-    width: max(2rem, 2dvw);
-    height: max(2rem, 2dvh);
+  .inner {
+    padding: 0 max(0.25rem, 0.25dvw);
+  }
+
+  .logo svg {
+    width: max(5.2rem, 5.2dvw);
+    height: max(5.2rem, 5.2dvh);
   }
 
   /* Hide user + wishlist on very small screens */
@@ -108,4 +113,23 @@
   .iconBtn:nth-child(3) {
     display: none;
   }
+}
+
+.badge {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  background-color: #ff5f15;
+  color: #ffffff;
+  font-size: max(0.65rem, 0.65dvw);
+  font-weight: 700;
+  border-radius: 50%;
+  min-width: max(1.1rem, 1.1dvw);
+  height: max(1.1rem, 1.1dvw);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 max(0.2rem, 0.2dvw);
+  border: 1.5px solid #ffffff;
+  pointer-events: none;
 }

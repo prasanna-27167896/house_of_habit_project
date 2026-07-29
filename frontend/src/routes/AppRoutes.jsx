@@ -10,6 +10,7 @@ import ReturnItemPage from '../pages/Account/ReturnItemPage';
 import SizeExchangePage from '../pages/Account/SizeExchangePage';
 import CheckoutPage from '../pages/Checkout/CheckoutPage';
 import OrderSuccessPage from '../pages/Checkout/OrderSuccessPage';
+import PolicyPage from '../pages/PolicyPage/PolicyPage';
 
 const AppRoutes = () => (
   <Routes>
@@ -24,6 +25,15 @@ const AppRoutes = () => (
     <Route path='/order-success' element={<OrderSuccessPage />} />
     <Route path='/shop/:category' element={<ShopPage />} />
     <Route path='/shop/:category/:productId' element={<ProductDetailsPage />} />
+    
+    {/* Policy Routes */}
+    <Route path='/terms-conditions' element={<PolicyPage slug="terms-conditions" />} />
+    <Route path='/privacy-policy' element={<PolicyPage slug="privacy-policy" />} />
+    <Route path='/return-policy' element={<PolicyPage slug="return-policy" />} />
+    <Route path='/refund-policy' element={<PolicyPage slug="refund-policy" />} />
+    <Route path='/shipping-policy' element={<PolicyPage slug="shipping-policy" />} />
+    <Route path='/cancellation-policy' element={<PolicyPage slug="cancellation-policy" />} />
+
     <Route path='*' element={<Navigate to='/' replace />} />
   </Routes>
 );

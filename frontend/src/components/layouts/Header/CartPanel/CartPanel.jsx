@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import styles from './CartPanel.module.css';
 import CartItem from './CartItem/CartItem';
 import PriceDetails from './PriceDetails/PriceDetails';
@@ -10,11 +11,12 @@ import OrderSummary from '../../../checkout/OrderSummary/OrderSummary';
 import AddressModal from '../../../checkout/AddressModal/AddressModal';
 import Button from '../../../common/Button/Button';
 import { lenis } from '../../../../utils/lenis';
-import { MOCK_CART_ITEMS } from '../../../../data/checkoutData';
+import { fetchCart, removeFromCart, updateCartItem } from '../../../../store/slices/cartSlice';
 
 const CartPanel = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
-  const [cartItems, setCartItems] = useState(MOCK_CART_ITEMS);
+  const dispatch = useDispatch();
+  const { items: cartItems, deletingItems = [] } = useSelector((state) => state.cart);
   const [isClosing, setIsClosing] = useState(false);
   const [addressModalOpen, setAddressModalOpen] = useState(false);
 
@@ -23,6 +25,7 @@ const CartPanel = ({ isOpen, onClose }) => {
       document.body.style.overflow = 'hidden';
       if (lenis) lenis.stop();
       setIsClosing(false);
+      dispatch(fetchCart());
     } else {
       document.body.style.overflow = '';
       if (lenis) lenis.start();
@@ -31,7 +34,7 @@ const CartPanel = ({ isOpen, onClose }) => {
       document.body.style.overflow = '';
       if (lenis) lenis.start();
     };
-  }, [isOpen]);
+  }, [isOpen, dispatch]);
 
   const handleClose = () => {
     setIsClosing(true);
@@ -39,14 +42,12 @@ const CartPanel = ({ isOpen, onClose }) => {
   };
 
   const handleRemoveItem = (itemId) => {
-    setCartItems(cartItems.filter((item) => item.id !== itemId));
+    dispatch(removeFromCart(itemId));
   };
 
   const handleQuantityChange = (itemId, newQty) => {
     if (newQty < 1) return;
-    setCartItems(cartItems.map((item) =>
-      item.id === itemId ? { ...item, quantity: newQty } : item
-    ));
+    dispatch(updateCartItem({ cartItemId: itemId, quantity: newQty }));
   };
 
   const handleStartShopping = () => {
@@ -113,7 +114,12 @@ const CartPanel = ({ isOpen, onClose }) => {
             <div className={styles.content}>
               <div className={styles.itemsList}>
                 {cartItems.map((item) => (
-                  <CartItem key={item.id} item={item} onRemove={handleRemoveItem} />
+                  <CartItem 
+                    key={item.id} 
+                    item={item} 
+                    onRemove={handleRemoveItem} 
+                    isDeleting={deletingItems.includes(item.id)}
+                  />
                 ))}
               </div>
               <div className={styles.sidebar}>
@@ -130,6 +136,7 @@ const CartPanel = ({ isOpen, onClose }) => {
                     item={item}
                     onQuantityChange={handleQuantityChange}
                     onRemove={handleRemoveItem}
+                    isDeleting={deletingItems.includes(item.id)}
                   />
                 ))}
               </div>

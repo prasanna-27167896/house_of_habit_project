@@ -1,0 +1,112 @@
+.pageContainer {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--space-xxl) var(--container-padding);
+  color: var(--text-color);
+  font-family: var(--font-family);
+  line-height: 1.6;
+}
+
+.headerSection {
+  margin-bottom: var(--space-lg);
+  text-align: left;
+}
+
+.mainTitle {
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 700;
+  color: var(--header-text-color);
+  margin-bottom: var(--space-sm);
+  letter-spacing: -0.02em;
+}
+
+.highlight {
+  font-weight: 300;
+  color: #a0a0a0;
+}
+
+.subtitle {
+  font-size: var(--font-md);
+  color: var(--text-light);
+  max-width: 700px;
+  margin-bottom: var(--space-sm);
+}
+
+.lastUpdated {
+  font-size: var(--font-sm);
+  color: var(--text-light);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+}
+
+.divider {
+  height: 1px;
+  background-color: var(--border-color);
+  margin: var(--space-lg) 0 var(--space-xl) 0;
+}
+
+.contentBody {
+  font-size: var(--font-md);
+}
+
+.intro {
+  font-size: calc(var(--font-md) * 1.05);
+  font-weight: 500;
+  margin-bottom: var(--space-xl);
+  color: var(--text-color);
+}
+
+.section {
+  margin-bottom: var(--space-xl);
+}
+
+.sectionTitle {
+  font-size: var(--font-lg);
+  font-weight: 600;
+  color: var(--header-text-color);
+  margin-bottom: var(--space-md);
+  letter-spacing: -0.01em;
+  border-bottom: 2px solid transparent;
+  padding-bottom: 4px;
+}
+
+.sectionContent {
+  color: var(--text-color);
+  opacity: 0.95;
+}
+
+.paragraph {
+  margin-bottom: var(--space-md);
+}
+
+.list {
+  margin: 0 0 var(--space-md) var(--space-md);
+  padding-left: var(--space-sm);
+  list-style-type: none;
+}
+
+.listItem {
+  position: relative;
+  margin-bottom: var(--space-xs);
+  padding-left: var(--space-md);
+}
+
+.listItem::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .pageContainer {
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-xl);
+  }
+  .mainTitle {
+    margin-bottom: var(--space-xs);
+  }
+}

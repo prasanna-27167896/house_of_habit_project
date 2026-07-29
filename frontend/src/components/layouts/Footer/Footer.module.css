@@ -116,6 +116,17 @@
   transition: color var(--transition-fast);
 }
 
+.gridContent a {
+  font-size: var(--font-sm);
+  color: #ccc;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.gridContent a:hover {
+  color: var(--primary-color);
+}
+
 /* SOCIAL */
 
 .social {
@@ -177,6 +188,7 @@
   }
 
   .gridContent p,
+  .gridContent a,
   .gridAddress p {
     font-size: max(0.95rem, 0.95dvw);
   }

@@ -83,9 +83,26 @@ const AddressCard = ({ address, onEdit, onDelete, onSetDefault }) => (
 const AddressForm = ({ onBack, onSave, initialData, saving }) => {
   const [form, setForm] = useState(initialData || EMPTY_FORM);
 
-  const handleChange = (e) => {
+  const handleChange = async (e) => {
     const { name, value, type, checked } = e.target;
     setForm((prev) => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
+
+    if (name === 'pincode' && value.length === 6) {
+      try {
+        const response = await fetch(`https://api.postalpincode.in/pincode/${value}`);
+        const data = await response.json();
+        if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
+          const { Block, State } = data[0].PostOffice[0];
+          setForm((prev) => ({
+            ...prev,
+            locality: Block || prev.locality,
+            state: State || prev.state,
+          }));
+        }
+      } catch (error) {
+        console.error('Error fetching pincode details:', error);
+      }
+    }
   };
 
   const handleSave = (e) => {
