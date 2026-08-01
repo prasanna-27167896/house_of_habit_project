@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './CartPanel.module.css';
 import CartItem from './CartItem/CartItem';
 import PriceDetails from './PriceDetails/PriceDetails';
 import CartDrawerItem from '../../../cart/CartDrawerItem/CartDrawerItem';
 import CouponSection from '../../../cart/CouponSection/CouponSection';
-import SavingsBadge from '../../../cart/SavingsBadge/SavingsBadge';
 import OrderSummary from '../../../cart/OrderSummary/OrderSummary';
 import Button from '../../../common/Button/Button';
 import { lenis } from '../../../../utils/lenis';
@@ -14,6 +13,7 @@ import { fetchCart, removeFromCart, updateCartItem } from '../../../../store/sli
 
 const CartPanel = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const { items: cartItems, deletingItems = [] } = useSelector((state) => state.cart);
   const [isClosing, setIsClosing] = useState(false);
@@ -58,7 +58,11 @@ const CartPanel = ({ isOpen, onClose }) => {
   };
 
   const handleProceedToCheckout = () => {
-    console.log('Checkout flow is currently disabled');
+    setIsClosing(true);
+    setTimeout(() => {
+      navigate('/checkout', { state: { backgroundLocation: location } });
+      onClose();
+    }, 600);
   };
 
   if (!isOpen) return null;
@@ -104,10 +108,10 @@ const CartPanel = ({ isOpen, onClose }) => {
             <div className={styles.content}>
               <div className={styles.itemsList}>
                 {cartItems.map((item) => (
-                  <CartItem 
-                    key={item.id} 
-                    item={item} 
-                    onRemove={handleRemoveItem} 
+                  <CartItem
+                    key={item.id}
+                    item={item}
+                    onRemove={handleRemoveItem}
                     isDeleting={deletingItems.includes(item.id)}
                   />
                 ))}
@@ -134,7 +138,6 @@ const CartPanel = ({ isOpen, onClose }) => {
               <CouponSection variant="drawer" />
 
               <div className={styles.mobileBottom}>
-                <SavingsBadge amount={totalSavings} />
                 <OrderSummary total={totalPrice} onProceed={handleProceedToCheckout} />
               </div>
             </div>

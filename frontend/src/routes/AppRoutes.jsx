@@ -10,8 +10,8 @@ import ReturnItemPage from '../pages/Account/ReturnItemPage';
 import SizeExchangePage from '../pages/Account/SizeExchangePage';
 import PolicyPage from '../pages/PolicyPage/PolicyPage';
 
-const AppRoutes = () => (
-  <Routes>
+const AppRoutes = ({ location }) => (
+  <Routes location={location}>
     <Route path='/' element={<Home />} />
     <Route path='/contact' element={<ContactPage />} />
     <Route path='/account' element={<AccountPage />} />
@@ -19,6 +19,7 @@ const AppRoutes = () => (
     <Route path='/account/order/:orderId/cancel' element={<CancelOrderPage />} />
     <Route path='/account/order/:orderId/return' element={<ReturnItemPage />} />
     <Route path='/account/order/:orderId/size-exchange' element={<SizeExchangePage />} />
+    <Route path='/checkout' element={null} />
     <Route path='/shop/:category' element={<ShopPage />} />
     <Route path='/shop/:category/:productId' element={<ProductDetailsPage />} />
     

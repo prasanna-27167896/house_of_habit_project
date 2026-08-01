@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './ProductDetailsPage.module.css';
 import { slugToCategory } from '../../data/productsData';
@@ -30,6 +30,7 @@ const DEFAULT_COLORS = [
 const ProductDetailsPage = () => {
   const { category, productId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
 
   const { productDetail, productDetailLoading, homeShuffledProducts } = useSelector((state) => state.product);
@@ -115,6 +116,29 @@ const ProductDetailsPage = () => {
 
     if (matchedVariant) {
       dispatch(addToCart({ variantId: matchedVariant.variantId, quantity }));
+    }
+  };
+
+  const handleBuyNow = async () => {
+    if (!productDetail || isBuying) return;
+    const variantsList = productDetail.variants || [];
+    const matchedVariant =
+      variantsList.find(
+        (v) =>
+          (!selectedSize || v.size === selectedSize) &&
+          (!selectedColor || v.color === selectedColor)
+      ) || variantsList[0];
+
+    if (matchedVariant) {
+      setIsBuying(true);
+      try {
+        await dispatch(addToCart({ variantId: matchedVariant.variantId, quantity }));
+        navigate('/checkout', { state: { backgroundLocation: location } });
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsBuying(false);
+      }
     }
   };
 
@@ -224,6 +248,7 @@ const ProductDetailsPage = () => {
               <button
                 type="button"
                 className={styles.buyNowBtn}
+                onClick={handleBuyNow}
                 disabled={isPending}
                 style={{ position: 'relative' }}
               >

@@ -6,6 +6,7 @@ import Header from './components/layouts/Header/Header';
 import Footer from './components/layouts/Footer/Footer';
 import MobileNavBar from './components/layouts/MobileNavBar/MobileNavBar';
 import AppRoutes from './routes/AppRoutes';
+import CheckoutModal from './components/checkout/CheckoutModal/CheckoutModal';
 import { fetchUserProfile } from './store/slices/authSlice';
 import { fetchCart } from './store/slices/cartSlice';
 
@@ -31,7 +32,11 @@ const ScrollToTop = () => {
 const AppContent = () => {
   const [openPanel, setOpenPanel] = useState(null);
   const dispatch = useDispatch();
+  const location = useLocation();
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+
+  const isCheckoutRoute = location.pathname === '/checkout';
+  const backgroundLocation = location.state?.backgroundLocation || (isCheckoutRoute ? { pathname: '/' } : null);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -53,8 +58,9 @@ const AppContent = () => {
         openPanel={openPanel}
         setOpenPanel={setOpenPanel}
       />
-      <AppRoutes />
-      <Footer />
+      <AppRoutes location={backgroundLocation || location} />
+      {isCheckoutRoute && <CheckoutModal />}
+      {!isCheckoutRoute && <Footer />}
       <MobileNavBar activePanel={openPanel} onAction={setOpenPanel} />
     </>
   );

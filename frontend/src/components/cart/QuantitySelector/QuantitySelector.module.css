@@ -1,8 +1,8 @@
 .wrapper {
   display: inline-flex;
   align-items: center;
-  border: 2px solid #28282b;
-  border-radius: max(0.5rem, 0.5dvw);
+  border: 1px solid #28282B;
+  border-radius: max(0.4rem, 0.4dvw);
   overflow: hidden;
   height: max(2rem, 2dvw);
 }
@@ -11,27 +11,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: max(1.8rem, 1.8dvw);
+  width: max(1.5rem, 1.5dvw);
   height: 100%;
-  background: #28282b;
-  color: #ffffff;
-  font-size: max(0.9rem, 0.9dvw);
-  font-weight: 600;
+  color: #28282B;
+  font-size: max(1.2rem, 1.2dvw);
+  font-weight: 400;
   cursor: pointer;
-  transition: opacity var(--transition-fast);
   border: none;
   padding: 0;
   line-height: 1;
 }
 
-.btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.btn:not(:disabled):hover {
-  opacity: 0.8;
-}
 
 .value {
   display: flex;
@@ -40,7 +30,6 @@
   min-width: max(1.8rem, 1.8dvw);
   height: 100%;
   font-size: max(0.85rem, 0.85dvw);
-  font-weight: 600;
+  font-weight: 400;
   color: #28282b;
-  user-select: none;
 }

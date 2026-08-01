@@ -1,0 +1,361 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.modal {
+  position: relative;
+  background: #FFFFFF;
+  border-radius: max(1.4rem, 1.4dvw);
+  width: min(42rem, 42dvw);
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+}
+
+.title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #28282b;
+  margin: 0;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #28282b;
+  cursor: pointer;
+  padding: 0.2rem;
+  transition: opacity var(--transition-fast, 0.2s);
+}
+
+.closeBtn:hover {
+  opacity: 0.7;
+}
+
+/* ── Scrollable Body ── */
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0rem 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.scrollableContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: #28282b;
+}
+
+.itemsList {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1.2rem;
+  padding-bottom: 1.4rem;
+}
+
+/* ── Product Card ── */
+.productCard {
+  display: flex;
+  gap: 1rem;
+  padding: max(1.1rem, 1.1dvw);
+  background: #FAFAFA;
+  border-radius: 1.5rem;
+  align-items: flex-start;
+}
+
+.imageWrapper {
+  width: 6.5rem;
+  height: 6.5rem;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: #eeeeee;
+  flex-shrink: 0;
+}
+
+.productImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.productDetails {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.productName {
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: #28282b;
+  margin: 0;
+  line-height: 1.3;
+}
+
+/* Size Select */
+.sizeDropdownWrapper {
+  position: relative;
+  display: inline-flex;
+  width: fit-content;
+}
+
+.sizeSelect {
+  appearance: none;
+  background: #ffffff;
+  border: none;
+  border-radius: 0.4rem;
+  padding: 0.2rem 0.8rem 0.2rem 0.5rem;
+  font-size: 0.8rem;
+  font-family: inherit;
+  color: #28282b;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='10' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2328282b' stroke-width='1.7' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 0.6rem;
+}
+
+.actionsRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: auto;
+}
+
+.deleteBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem;
+  transition: transform var(--transition-fast, 0.2s);
+}
+
+.deleteBtn:hover {
+  transform: scale(1.1);
+}
+
+.deleteIcon {
+  color: #ff5f15;
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+
+/* Pricing Section */
+.pricingSection {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  white-space: nowrap;
+}
+
+.originalPrice {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  color: #9C9C9D;
+  text-decoration: line-through;
+  font-weight: 500;
+}
+
+.salePrice {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #28282b;
+}
+
+.discountBadge {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ff5f15;
+}
+
+/* ── Coupon Card ── */
+.couponCard {
+  background: #fafafa;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.couponInputWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #ffffff;
+  border: 1px solid #eaeaea;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+}
+
+.couponIcon {
+  font-size: 1.1rem;
+}
+
+.couponInput {
+  border: none;
+  outline: none;
+  flex: 1;
+  font-size: 0.85rem;
+  color: #28282b;
+}
+
+.couponInput::placeholder {
+  color: #b9b9b9;
+}
+
+.viewOffersBtn {
+  background: transparent;
+  border: none;
+  color: #ff5f15;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  transition: opacity var(--transition-fast, 0.2s);
+}
+
+.viewOffersBtn:hover {
+  opacity: 0.8;
+}
+
+.arrow {
+  font-size: 1rem;
+}
+
+/* ── Sticky Bottom Footer ── */
+.footer {
+  position: relative;
+}
+
+.savingsBadge {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #28282b;
+  color: #ffffff;
+  border-radius: 0 0 0.9rem 0.9rem;
+  padding: 0.2rem 1.5rem;
+  font-size: 0.7rem;
+  font-weight: 400;
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+}
+
+.summarySection {
+  background: #FAFAFA;
+  border-radius: 1rem;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.summaryTitle {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #28282b;
+  margin: 0.5rem 0;
+  padding: max(0.5rem, 0.5dvw) 0;
+  border-bottom: 1px solid #EAEAEA;
+}
+
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #EAEAEA;
+}
+
+.totalLabel {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #28282b;
+  font-family: 'Outfit', sans-serif;
+}
+
+.totalValue {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #28282b;
+}
+
+.checkoutBtn {
+  width: 100%;
+  background: #ff5f15;
+  color: #ffffff;
+  border: none;
+  padding: 0.8rem;
+  border-radius: 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 400;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity var(--transition-fast, 0.2s), transform var(--transition-fast, 0.2s);
+  text-align: center;
+}
+
+.checkoutBtn:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+}
+
+.checkoutBtn:active {
+  transform: translateY(0);
+}

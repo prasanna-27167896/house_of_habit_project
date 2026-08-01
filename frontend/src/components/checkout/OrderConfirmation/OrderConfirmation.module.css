@@ -1,0 +1,230 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.2rem;
+}
+
+/* ── Success Header ── */
+.successBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.confettiWrapper {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.25rem;
+}
+
+.checkCard {
+  background: linear-gradient(135deg, #00D100 0%, #00A300 100%);
+  width: 52px;
+  height: 52px;
+  border-radius: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(0, 209, 0, 0.25);
+  z-index: 5;
+}
+
+/* Confetti Triangles and Rectangles */
+.confetti {
+  position: absolute;
+  border-radius: 1px;
+}
+
+.confetti1 {
+  width: 5px;
+  height: 10px;
+  background: #FFCC00;
+  transform: rotate(45deg);
+  top: 15px;
+  left: 15px;
+}
+
+.confetti2 {
+  width: 8px;
+  height: 8px;
+  background: #00D100;
+  transform: rotate(-25deg);
+  top: 20px;
+  right: 15px;
+}
+
+.confetti3 {
+  width: 10px;
+  height: 5px;
+  background: #FF3B30;
+  transform: rotate(60deg);
+  bottom: 20px;
+  left: 10px;
+}
+
+.confetti4 {
+  width: 7px;
+  height: 7px;
+  background: #FF9500;
+  transform: rotate(15deg);
+  bottom: 15px;
+  right: 20px;
+}
+
+.confetti5 {
+  width: 5px;
+  height: 9px;
+  background: #007AFF;
+  transform: rotate(-45deg);
+  top: 45px;
+  left: 80px;
+}
+
+.title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: #28282b;
+  margin: 0.6rem 0 0.4rem 0;
+}
+
+.message {
+  font-size: 0.85rem;
+  color: #9C9C9D;
+  font-weight: 400;
+  margin: 0;
+  max-width: 100%;
+  line-height: 1.4;
+}
+
+.divider {
+  height: 1px;
+  background: #E9E9E9;
+  margin: 1.2rem 0;
+}
+
+/* ── Details Table ── */
+.detailsTable {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 0 0.25rem;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.label {
+  font-size: 0.85rem;
+  color: #9C9C9D;
+  font-weight: 400;
+}
+
+.value {
+  font-size: 0.85rem;
+  color: #28282B;
+  font-weight: 500;
+}
+
+.dottedDivider {
+  border-top: 1.5px dashed #E9E9E9;
+  margin: 0.5rem 0;
+  width: 100%;
+}
+
+.amountRow {
+  margin-top: 0.1rem;
+}
+
+.amountLabel {
+  font-size: 0.85rem;
+  color: #28282B;
+  font-weight: 500;
+}
+
+.amountValue {
+  font-size: 1rem;
+  color: #28282B;
+  font-weight: 700;
+}
+
+/* ── Note ── */
+.appreciateNote {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  color: #28282B;
+  font-weight: 400;
+  text-align: center;
+  margin: 1.8rem 0 1.2rem 0;
+}
+
+/* ── Footer Buttons ── */
+.footerRow {
+  display: flex;
+  gap: 0.85rem;
+  margin-top: auto;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.footerRow button {
+  flex: 1;
+  padding: 0.8rem;
+  border-radius: 0.6rem;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 400;
+  cursor: pointer;
+  transition: transform 0.1s ease, opacity 0.2s ease;
+  text-align: center;
+}
+
+.trackBtn {
+  background: #ffffff;
+  color: #ff5f15;
+  border: 1.5px solid #ff5f15;
+}
+
+.trackBtn:hover {
+  background-color: #fffbf9;
+}
+
+.continueBtn {
+  background: #ff5f15;
+  color: #ffffff;
+  border: none;
+}
+
+.continueBtn:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+}
+
+.continueBtn:active {
+  transform: translateY(0);
+}
+
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 3rem;
+}
+
+.body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.body::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 2px;
+}
