@@ -3,6 +3,7 @@
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }
@@ -58,7 +59,6 @@
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: max(1.4rem, 1.4dvw);
-  padding: 0 max(1rem, 1dvw);
 }
 
 /* ── Gallery Column ── */

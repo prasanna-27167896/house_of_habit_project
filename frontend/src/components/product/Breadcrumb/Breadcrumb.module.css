@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   gap: max(0.8rem, 0.8dvw);
-  padding: max(1rem, 1dvw) max(2rem, 2dvw);
+  padding: max(1rem, 1dvw);
   font-size: max(0.9rem, 0.9dvw);
 }
 

@@ -4,11 +4,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import styles from './CartPanel.module.css';
 import CartItem from './CartItem/CartItem';
 import PriceDetails from './PriceDetails/PriceDetails';
-import CartDrawerItem from '../../../checkout/CartDrawerItem/CartDrawerItem';
-import CouponSection from '../../../checkout/CouponSection/CouponSection';
-import SavingsBadge from '../../../checkout/SavingsBadge/SavingsBadge';
-import OrderSummary from '../../../checkout/OrderSummary/OrderSummary';
-import AddressModal from '../../../checkout/AddressModal/AddressModal';
+import CartDrawerItem from '../../../cart/CartDrawerItem/CartDrawerItem';
+import CouponSection from '../../../cart/CouponSection/CouponSection';
+import SavingsBadge from '../../../cart/SavingsBadge/SavingsBadge';
+import OrderSummary from '../../../cart/OrderSummary/OrderSummary';
 import Button from '../../../common/Button/Button';
 import { lenis } from '../../../../utils/lenis';
 import { fetchCart, removeFromCart, updateCartItem } from '../../../../store/slices/cartSlice';
@@ -18,7 +17,7 @@ const CartPanel = ({ isOpen, onClose }) => {
   const dispatch = useDispatch();
   const { items: cartItems, deletingItems = [] } = useSelector((state) => state.cart);
   const [isClosing, setIsClosing] = useState(false);
-  const [addressModalOpen, setAddressModalOpen] = useState(false);
+
 
   useEffect(() => {
     if (isOpen) {
@@ -59,16 +58,7 @@ const CartPanel = ({ isOpen, onClose }) => {
   };
 
   const handleProceedToCheckout = () => {
-    setAddressModalOpen(true);
-  };
-
-  const handleAddressSubmit = () => {
-    setAddressModalOpen(false);
-    setIsClosing(true);
-    setTimeout(() => {
-      navigate('/checkout');
-      onClose();
-    }, 600);
+    console.log('Checkout flow is currently disabled');
   };
 
   if (!isOpen) return null;
@@ -151,13 +141,6 @@ const CartPanel = ({ isOpen, onClose }) => {
           </>
         )}
       </div>
-
-      {/* ── Address Modal ── */}
-      <AddressModal
-        isOpen={addressModalOpen}
-        onClose={() => setAddressModalOpen(false)}
-        onSubmit={handleAddressSubmit}
-      />
     </div>
   );
 };

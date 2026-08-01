@@ -8,8 +8,6 @@ import OrderDetailPage from '../pages/Account/OrderDetailPage';
 import CancelOrderPage from '../pages/Account/CancelOrderPage';
 import ReturnItemPage from '../pages/Account/ReturnItemPage';
 import SizeExchangePage from '../pages/Account/SizeExchangePage';
-import CheckoutPage from '../pages/Checkout/CheckoutPage';
-import OrderSuccessPage from '../pages/Checkout/OrderSuccessPage';
 import PolicyPage from '../pages/PolicyPage/PolicyPage';
 
 const AppRoutes = () => (
@@ -21,8 +19,6 @@ const AppRoutes = () => (
     <Route path='/account/order/:orderId/cancel' element={<CancelOrderPage />} />
     <Route path='/account/order/:orderId/return' element={<ReturnItemPage />} />
     <Route path='/account/order/:orderId/size-exchange' element={<SizeExchangePage />} />
-    <Route path='/checkout' element={<CheckoutPage />} />
-    <Route path='/order-success' element={<OrderSuccessPage />} />
     <Route path='/shop/:category' element={<ShopPage />} />
     <Route path='/shop/:category/:productId' element={<ProductDetailsPage />} />
     

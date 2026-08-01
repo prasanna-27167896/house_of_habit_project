@@ -19,7 +19,7 @@ const ProductDetailsSkeleton = () => {
           <div className={styles.galleryCol}>
             <div className={styles.gallery}>
               <div className={styles.thumbnails}>
-                {Array.from({ length: 4 }).map((_, i) => (
+                {Array.from({ length: 3 }).map((_, i) => (
                   <div key={i} className={`${styles.thumb} ${styles.shimmer}`} />
                 ))}
               </div>

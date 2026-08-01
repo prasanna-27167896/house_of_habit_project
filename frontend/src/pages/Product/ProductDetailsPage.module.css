@@ -98,9 +98,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border: 1.5px solid #e0e0e0;
+  border: 1.5px solid #FF5F15;
   border-radius: max(0.5rem, 0.5dvw);
-  padding: max(0.55rem, 0.55dvw) max(0.8rem, 0.8dvw);
+  padding: max(0.5rem, 0.5dvw) max(0.8rem, 0.8dvw);
   min-width: max(6.5rem, 6.5dvw);
   background: #ffffff;
 }
@@ -109,17 +109,14 @@
 .qtyBtnPlus {
   background: none;
   border: none;
-  font-size: max(1.1rem, 1.1dvw);
-  font-weight: 500;
+  font-size: max(1.2rem, 1.2dvw);
+  font-weight: 400;
   cursor: pointer;
-  color: #555555;
+  color: #FF5F15;
   padding: 0 max(0.2rem, 0.2dvw);
   line-height: 1;
 }
 
-.qtyBtnPlus {
-  color: #ff5f15;
-}
 
 .qtyValue {
   font-size: max(0.95rem, 0.95dvw);
@@ -132,23 +129,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: max(0.4rem, 0.4dvw);
   font-size: max(0.9rem, 0.9dvw);
-  font-weight: 500;
+  font-weight: 400;
   cursor: pointer;
   border: none;
-  border-radius: max(0.5rem, 0.5dvw);
   background: #ff5f15;
   color: #ffffff;
-  padding: max(0.7rem, 0.7dvw) max(1.4rem, 1.4dvw);
-  transition: all var(--transition-fast);
-  white-space: nowrap;
+  border-radius: max(0.5rem, 0.5dvw);
+  padding: max(0.4rem, 0.4dvw) max(0.8rem, 0.8dvw);
 }
 
-.addToBagBtn svg {
-  color: #ffffff;
-  fill: currentColor;
-}
 
 .buyNowBtn {
   width: 100%;
@@ -156,13 +146,13 @@
   align-items: center;
   justify-content: center;
   font-size: max(0.9rem, 0.9dvw);
-  font-weight: 500;
+  font-weight: 400;
   cursor: pointer;
   border: 1.5px solid #ff5f15;
   border-radius: max(0.5rem, 0.5dvw);
   background: #ffffff;
   color: #ff5f15;
-  padding: max(0.7rem, 0.7dvw) max(1.4rem, 1.4dvw);
+  padding: max(0.6rem, 0.6dvw) max(0.8rem, 0.8dvw);
   transition: all var(--transition-fast);
 }
 

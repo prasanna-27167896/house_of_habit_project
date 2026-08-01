@@ -76,7 +76,7 @@ const ProductDetailsPage = () => {
     productDetail?.imageUrl3,
   ].filter(Boolean);
 
-  const imagesToDisplay = galleryImages.length > 0 ? galleryImages : [DummyImage, DummyImage, DummyImage];
+  const imagesToDisplay = (galleryImages.length > 0 ? galleryImages : [DummyImage, DummyImage, DummyImage]).slice(0, 3);
 
   // Extract sizes and colors from variants
   const variants = productDetail?.variants || [];
@@ -118,28 +118,7 @@ const ProductDetailsPage = () => {
     }
   };
 
-  const handleBuyNow = async () => {
-    if (!productDetail || isBuying) return;
-    const variantsList = productDetail.variants || [];
-    const matchedVariant =
-      variantsList.find(
-        (v) =>
-          (!selectedSize || v.size === selectedSize) &&
-          (!selectedColor || v.color === selectedColor)
-      ) || variantsList[0];
 
-    if (matchedVariant) {
-      setIsBuying(true);
-      try {
-        await dispatch(addToCart({ variantId: matchedVariant.variantId, quantity }));
-        navigate('/checkout');
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setIsBuying(false);
-      }
-    }
-  };
 
   if (productDetailLoading && !productDetail) {
     return <ProductDetailsSkeleton />;
@@ -227,7 +206,7 @@ const ProductDetailsPage = () => {
                   style={{ position: 'relative' }}
                 >
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'inherit', visibility: isAdding ? 'hidden' : 'visible', opacity: isAdding ? 0 : 1 }}>
-                    <CartIcon width={24} height={24} />
+                    <CartIcon width={32} height={32} />
                     Add To Bag
                   </span>
                   {isAdding && (
@@ -245,7 +224,6 @@ const ProductDetailsPage = () => {
               <button
                 type="button"
                 className={styles.buyNowBtn}
-                onClick={handleBuyNow}
                 disabled={isPending}
                 style={{ position: 'relative' }}
               >
