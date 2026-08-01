@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import styles from './OrderOverview.module.css';
 import DummyImage from '../../../assets/images/dummy-model.png';
+import LocationIcon from '../../../assets/icons/location-icon.svg?react';
+import ShippingIcon from '../../../assets/icons/shipping-icon.svg?react';
+import OnlinePayIcon from '../../../assets/icons/online-pay-icon.svg?react';
+import CodPayIcon from '../../../assets/icons/cod-pay-icon.svg?react';
 
 const OrderOverview = ({ onBack, onChangeAddress, addressData, totalPrice = 999, onPaymentSelect }) => {
   const displayAddress = addressData || {
@@ -46,11 +50,7 @@ const OrderOverview = ({ onBack, onChangeAddress, addressData, totalPrice = 999,
           <div className={styles.card}>
             <div className={styles.addressRow}>
               <div className={styles.iconContainer}>
-                {/* Pin Icon */}
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff5f15" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                  <circle cx="12" cy="10" r="3"></circle>
-                </svg>
+                <LocationIcon width="24" height="24" />
               </div>
               <div className={styles.addressContent}>
                 <h5 className={styles.recipientName}>Delivery to {displayAddress.name}</h5>
@@ -71,13 +71,7 @@ const OrderOverview = ({ onBack, onChangeAddress, addressData, totalPrice = 999,
 
             <div className={styles.shippingRow}>
               <div className={styles.iconContainer}>
-                {/* Shipping Truck Icon */}
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff5f15" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="1" y="3" width="15" height="13"></rect>
-                  <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
-                  <circle cx="5.5" cy="18.5" r="2.5"></circle>
-                  <circle cx="18.5" cy="18.5" r="2.5"></circle>
-                </svg>
+                <ShippingIcon width="24" height="24" />
               </div>
               <div className={styles.shippingContent}>
                 <h5 className={styles.shippingTitle}>Shipping</h5>
@@ -125,10 +119,7 @@ const OrderOverview = ({ onBack, onChangeAddress, addressData, totalPrice = 999,
             {/* Button 1: Online Payment */}
             <button className={styles.paymentBtn} onClick={onPaymentSelect} type="button">
               <div className={styles.paymentLeft}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect>
-                  <line x1="2" y1="10" x2="22" y2="10"></line>
-                </svg>
+                <OnlinePayIcon width="24" height="24" />
                 <span className={styles.paymentLabel}>Online Payment</span>
               </div>
               <div className={styles.paymentRight}>
@@ -146,12 +137,7 @@ const OrderOverview = ({ onBack, onChangeAddress, addressData, totalPrice = 999,
               </div>
               <button className={`${styles.paymentBtn} ${styles.codBtn}`} onClick={onPaymentSelect} type="button">
                 <div className={styles.paymentLeft}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="1" y="3" width="15" height="13"></rect>
-                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
-                    <circle cx="5.5" cy="18.5" r="2.5"></circle>
-                    <circle cx="18.5" cy="18.5" r="2.5"></circle>
-                  </svg>
+                  <CodPayIcon width="24" height="24" />
                   <span className={styles.paymentLabel}>Cash on Delivery</span>
                 </div>
                 <div className={styles.paymentRight}>

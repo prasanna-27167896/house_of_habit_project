@@ -198,7 +198,11 @@ const CheckoutModal = () => {
               {panelView === 'select' && (
                 <SelectAddress
                   onAddNew={() => setPanelView('add')}
-                  onContinue={() => console.log('Continue button clicked inside Address Panel')}
+                  onContinue={(selectedAddress) => {
+                    console.log('Selected address:', selectedAddress);
+                    setAddressData(selectedAddress);
+                    setPanelView('overview');
+                  }}
                 />
               )}
               {panelView === 'add' && (

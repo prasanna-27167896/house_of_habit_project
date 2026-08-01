@@ -137,6 +137,7 @@
   display: flex;
   gap: 0.65rem;
   position: relative;
+  padding: 0;
 }
 
 .iconContainer {

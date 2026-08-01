@@ -14,77 +14,11 @@
   margin-top: 0.5rem;
 }
 
-.confettiWrapper {
-  position: relative;
-  width: 90px;
-  height: 90px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 0.25rem;
-}
-
-.checkCard {
-  background: linear-gradient(135deg, #00D100 0%, #00A300 100%);
-  width: 52px;
-  height: 52px;
-  border-radius: 0.95rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 6px 20px rgba(0, 209, 0, 0.25);
-  z-index: 5;
-}
-
-/* Confetti Triangles and Rectangles */
-.confetti {
-  position: absolute;
-  border-radius: 1px;
-}
-
-.confetti1 {
-  width: 5px;
-  height: 10px;
-  background: #FFCC00;
-  transform: rotate(45deg);
-  top: 15px;
-  left: 15px;
-}
-
-.confetti2 {
-  width: 8px;
-  height: 8px;
-  background: #00D100;
-  transform: rotate(-25deg);
-  top: 20px;
-  right: 15px;
-}
-
-.confetti3 {
-  width: 10px;
-  height: 5px;
-  background: #FF3B30;
-  transform: rotate(60deg);
-  bottom: 20px;
-  left: 10px;
-}
-
-.confetti4 {
-  width: 7px;
-  height: 7px;
-  background: #FF9500;
-  transform: rotate(15deg);
-  bottom: 15px;
-  right: 20px;
-}
-
-.confetti5 {
-  width: 5px;
-  height: 9px;
-  background: #007AFF;
-  transform: rotate(-45deg);
-  top: 45px;
-  left: 80px;
+.successGif {
+  width: 140px;
+  height: auto;
+  margin-bottom: 0.5rem;
+  object-fit: contain;
 }
 
 .title {

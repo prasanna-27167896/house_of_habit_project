@@ -1,4 +1,5 @@
 import styles from './OrderConfirmation.module.css';
+import SuccessGif from '../../../assets/images/order-confirmation-success.gif';
 
 const OrderConfirmation = ({ onContinueShopping, onTrackOrder, totalPrice = 999 }) => {
   return (
@@ -6,21 +7,7 @@ const OrderConfirmation = ({ onContinueShopping, onTrackOrder, totalPrice = 999 
       <div className={styles.body} data-lenis-prevent>
         {/* Success Illustration Block */}
         <div className={styles.successBlock}>
-          <div className={styles.confettiWrapper}>
-            {/* Confetti decorations */}
-            <span className={`${styles.confetti} ${styles.confetti1}`}></span>
-            <span className={`${styles.confetti} ${styles.confetti2}`}></span>
-            <span className={`${styles.confetti} ${styles.confetti3}`}></span>
-            <span className={`${styles.confetti} ${styles.confetti4}`}></span>
-            <span className={`${styles.confetti} ${styles.confetti5}`}></span>
-            
-            {/* Green Check Box */}
-            <div className={styles.checkCard}>
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-            </div>
-          </div>
+          <img src={SuccessGif} alt="Order Successful" className={styles.successGif} />
           
           <h3 className={styles.title}>Your Order Is On Its Way</h3>
           <p className={styles.message}>

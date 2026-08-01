@@ -5,8 +5,8 @@ import DeleteIcon from '../../../assets/icons/delete-icon.svg?react';
 
 const SelectAddress = ({ onContinue, onAddNew }) => {
   const [selectedId, setSelectedId] = useState(1);
-
-  const mockAddresses = [
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [addresses, setAddresses] = useState([
     {
       id: 1,
       name: 'Rahul Sharma',
@@ -24,8 +24,78 @@ const SelectAddress = ({ onContinue, onAddNew }) => {
       phone: '9876543210',
       payOnDeliveryAvailable: true,
       isDefault: false,
+    },
+    {
+      id: 3,
+      name: 'Siddu',
+      addressLine1: '8/21 chandra layout vijayanagar, bangalore',
+      addressLine2: 'karnataka, 560040',
+      phone: '+91 9620099167',
+      payOnDeliveryAvailable: true,
+      isDefault: false,
     }
-  ];
+  ]);
+
+  const handleSelectAddress = (id) => {
+    if (isAnimating) return;
+    setSelectedId(id);
+    
+    const index = addresses.findIndex(addr => addr.id === id);
+    if (index === 0) return;
+
+    // Retrieve active DOM nodes for FLIP animation
+    const card0 = document.querySelector(`[data-address-id="${addresses[0].id}"]`);
+    const cardI = document.querySelector(`[data-address-id="${id}"]`);
+
+    if (card0 && cardI) {
+      setIsAnimating(true);
+      
+      const rect0 = card0.getBoundingClientRect();
+      const rectI = cardI.getBoundingClientRect();
+      const deltaY = rect0.top - rectI.top;
+
+      // Apply transition style
+      card0.style.transition = 'transform 0.8s cubic-bezier(0.25, 1, 0.5, 1)';
+      cardI.style.transition = 'transform 0.8s cubic-bezier(0.25, 1, 0.5, 1)';
+
+      card0.style.transform = `translateY(${-deltaY}px)`;
+      cardI.style.transform = `translateY(${deltaY}px)`;
+
+      // Complete layout updates after translation completes
+      setTimeout(() => {
+        card0.style.transition = 'none';
+        cardI.style.transition = 'none';
+        card0.style.transform = 'none';
+        cardI.style.transform = 'none';
+
+        setAddresses(prev => {
+          const updated = [...prev];
+          const temp = updated[0];
+          updated[0] = updated[index];
+          updated[index] = temp;
+          return updated;
+        });
+
+        setIsAnimating(false);
+      }, 800);
+    } else {
+      // Fallback update
+      setAddresses(prev => {
+        const updated = [...prev];
+        const temp = updated[0];
+        updated[0] = updated[index];
+        updated[index] = temp;
+        return updated;
+      });
+    }
+  };
+
+  const handleContinue = () => {
+    const selectedAddress = addresses.find(addr => addr.id === selectedId);
+    if (onContinue && selectedAddress) {
+      onContinue(selectedAddress);
+    }
+  };
 
   return (
     <div className={styles.wrapper}>
@@ -42,13 +112,14 @@ const SelectAddress = ({ onContinue, onAddNew }) => {
         <h4 className={styles.subtitle}>Default Address</h4>
 
         <div className={styles.addressList}>
-          {mockAddresses.map((addr) => {
+          {addresses.map((addr) => {
             const isSelected = selectedId === addr.id;
             return (
               <div
                 key={addr.id}
+                data-address-id={addr.id}
                 className={`${styles.card} ${isSelected ? styles.selectedCard : ''}`}
-                onClick={() => setSelectedId(addr.id)}
+                onClick={() => handleSelectAddress(addr.id)}
               >
                 <div className={styles.cardHeader}>
                   <div className={styles.leftGroup}>
@@ -91,7 +162,7 @@ const SelectAddress = ({ onContinue, onAddNew }) => {
 
       {/* Footer Continue Button */}
       <div className={styles.footer}>
-        <button className={styles.continueBtn} onClick={onContinue} type="button">
+        <button className={styles.continueBtn} onClick={handleContinue} type="button">
           Continue
         </button>
       </div>

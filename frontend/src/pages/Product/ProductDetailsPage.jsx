@@ -40,6 +40,7 @@ const ProductDetailsPage = () => {
   const [selectedColor, setSelectedColor] = useState('Black');
   const [quantity, setQuantity] = useState(1);
   const [isBuying, setIsBuying] = useState(false);
+  const [localIsAdding, setLocalIsAdding] = useState(false);
 
   const matchedVariant =
     productDetail?.variants?.find(
@@ -48,8 +49,7 @@ const ProductDetailsPage = () => {
         (!selectedColor || v.color === selectedColor)
     ) || productDetail?.variants?.[0];
 
-  const isAdding = matchedVariant ? addingVariants.includes(matchedVariant.variantId) : false;
-  const isPending = isAdding || isBuying;
+  const isPending = localIsAdding || isBuying;
 
   const categoryKey = slugToCategory[category] || productDetail?.category?.categoryTitle || 'Polo T-Shirts';
 
@@ -104,8 +104,8 @@ const ProductDetailsPage = () => {
     }
   }, [availableSizes, availableColors]);
 
-  const handleAddToCart = () => {
-    if (!productDetail) return;
+  const handleAddToCart = async () => {
+    if (!productDetail || localIsAdding) return;
     const variantsList = productDetail.variants || [];
     const matchedVariant =
       variantsList.find(
@@ -115,7 +115,14 @@ const ProductDetailsPage = () => {
       ) || variantsList[0];
 
     if (matchedVariant) {
-      dispatch(addToCart({ variantId: matchedVariant.variantId, quantity }));
+      setLocalIsAdding(true);
+      try {
+        await dispatch(addToCart({ variantId: matchedVariant.variantId, quantity }));
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLocalIsAdding(false);
+      }
     }
   };
 
@@ -229,11 +236,11 @@ const ProductDetailsPage = () => {
                   disabled={isPending}
                   style={{ position: 'relative' }}
                 >
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'inherit', visibility: isAdding ? 'hidden' : 'visible', opacity: isAdding ? 0 : 1 }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'inherit', visibility: localIsAdding ? 'hidden' : 'visible', opacity: localIsAdding ? 0 : 1 }}>
                     <CartIcon width={32} height={32} />
                     Add To Bag
                   </span>
-                  {isAdding && (
+                  {localIsAdding && (
                     <div className="absolute-loader">
                       <div className="dots-loading">
                         <span></span>
