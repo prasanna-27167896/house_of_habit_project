@@ -61,7 +61,7 @@ export const addToCart = createAsyncThunk(
     try {
       const response = await cartService.addToCart(variantId, quantity);
       // Re-fetch cart to update full cart state and subtotal
-      dispatch(fetchCart());
+      await dispatch(fetchCart()).unwrap();
       return response.data || response;
     } catch (err) {
       return rejectWithValue(
@@ -77,7 +77,7 @@ export const updateCartItem = createAsyncThunk(
   async ({ cartItemId, quantity }, { dispatch, rejectWithValue }) => {
     try {
       const response = await cartService.updateCartItem(cartItemId, quantity);
-      dispatch(fetchCart());
+      await dispatch(fetchCart()).unwrap();
       return response.data || response;
     } catch (err) {
       return rejectWithValue(
@@ -93,7 +93,7 @@ export const removeFromCart = createAsyncThunk(
   async (cartItemId, { dispatch, rejectWithValue }) => {
     try {
       const response = await cartService.removeFromCart(cartItemId);
-      dispatch(fetchCart());
+      await dispatch(fetchCart()).unwrap();
       return response.data || response;
     } catch (err) {
       return rejectWithValue(
@@ -109,7 +109,7 @@ export const clearCart = createAsyncThunk(
   async (_, { dispatch, rejectWithValue }) => {
     try {
       const response = await cartService.clearCart();
-      dispatch(fetchCart());
+      await dispatch(fetchCart()).unwrap();
       return response.data || response;
     } catch (err) {
       return rejectWithValue(

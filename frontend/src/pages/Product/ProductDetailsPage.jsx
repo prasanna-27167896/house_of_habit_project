@@ -137,15 +137,20 @@ const ProductDetailsPage = () => {
       ) || variantsList[0];
 
     if (matchedVariant) {
-      setIsBuying(true);
-      try {
-        await dispatch(addToCart({ variantId: matchedVariant.variantId, quantity }));
-        navigate('/checkout', { state: { backgroundLocation: location } });
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setIsBuying(false);
-      }
+      navigate('/checkout', { 
+        state: { 
+          backgroundLocation: location,
+          buyNowItem: {
+            variantId: matchedVariant.variantId,
+            quantity,
+            size: selectedSize || matchedVariant.size || 'S',
+            price: priceVal,
+            originalPrice: productDetail.price || priceVal,
+            name: productDetail.title,
+            image: productDetail.imageUrl || (productDetail.images && productDetail.images[0]) || DummyImage
+          }
+        } 
+      });
     }
   };
 

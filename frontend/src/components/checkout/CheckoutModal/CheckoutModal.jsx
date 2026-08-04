@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import styles from './CheckoutModal.module.css';
 import QuantitySelector from '../../cart/QuantitySelector/QuantitySelector';
 import DeleteIcon from '../../../assets/icons/delete-icon-cart.svg?react';
@@ -8,109 +9,148 @@ import { lenis } from '../../../utils/lenis';
 import SlideUpPanel from '../SlideUpPanel/SlideUpPanel';
 import SelectAddress from '../SelectAddress/SelectAddress';
 import AddAddress from '../AddAddress/AddAddress';
-import Loading from '../Loading/Loading';
 import FillAddress from '../FillAddress/FillAddress';
 import OrderOverview from '../OrderOverview/OrderOverview';
 import OrderConfirmation from '../OrderConfirmation/OrderConfirmation';
+import Loading from '../Loading/Loading';
+import * as addressService from '../../../services/addressService';
+import { fetchCart, updateCartItem, removeFromCart } from '../../../store/slices/cartSlice';
+import loaderStyles from '../../common/Loader/Loader.module.css';
 
 const CheckoutModal = () => {
   const navigate = useNavigate();
-  // panelView: null | 'select' | 'add' | 'loading' | 'fill'
+  const location = useLocation();
+  const dispatch = useDispatch();
+  
+  // Parse Buy Now mode indicators
+  const initialBuyNowItem = location.state?.buyNowItem;
+  const [localBuyNowItem, setLocalBuyNowItem] = useState(initialBuyNowItem || null);
+
+  // panelView: null | 'select' | 'add' | 'fill' | 'loading'
   const [panelView, setPanelView] = useState(null);
   const [enteredPincode, setEnteredPincode] = useState('560040');
   const [addressData, setAddressData] = useState(null);
+  const [orderData, setOrderData] = useState(null);
+  const [editingAddress, setEditingAddress] = useState(null);
 
+  // Loading screen states
+  const [targetView, setTargetView] = useState(null);
+  const [loadingTitle, setLoadingTitle] = useState('Please Wait...');
+  const [loadingMessage, setLoadingMessage] = useState('Processing...');
+
+  // State to track which item is currently calling API update/delete
+  const [updatingItemId, setUpdatingItemId] = useState(null);
+
+  // Sync cart items from store on checkout start (only if not in Buy Now flow)
   useEffect(() => {
-    if (panelView === 'loading') {
+    if (!initialBuyNowItem) {
+      dispatch(fetchCart());
+    }
+
+    // Pre-load default address from database on mount if it exists
+    const fetchDefaultAddress = async () => {
+      try {
+        const list = await addressService.getAddresses();
+        if (list && list.length > 0) {
+          const defaultAddr = list.find(a => a.isDefault) || list[0];
+          setAddressData({
+            ...defaultAddr,
+            addressId: defaultAddr.addressId || defaultAddr.id,
+            name: defaultAddr.fullName
+          });
+        }
+      } catch (err) {
+        console.error('Failed to pre-fetch default address:', err);
+      }
+    };
+    fetchDefaultAddress();
+  }, [dispatch, initialBuyNowItem]);
+
+  const dbCartItems = useSelector((state) => state.cart.items) || [];
+
+  // Filter items in Buy Now mode or full cart checkout
+  const cartItems = initialBuyNowItem
+    ? (localBuyNowItem ? [localBuyNowItem] : [])
+    : dbCartItems;
+
+  // Handles transitional loading screens before rendering next view
+  useEffect(() => {
+    if (panelView === 'loading' && targetView) {
       const timer = setTimeout(() => {
-        setPanelView('fill');
+        setPanelView(targetView);
+        setTargetView(null);
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [panelView]);
-
-  // Local state initialized with mockup data matching the reference image exactly
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: 'Solid Muscle Fit Polo shirt',
-      image: DummyImage,
-      size: 'S',
-      quantity: 1,
-      price: 999,
-      originalPrice: 1899,
-      discount: 47,
-    },
-    {
-      id: 2,
-      name: 'Solid Muscle Fit Polo shirt',
-      image: DummyImage,
-      size: 'S',
-      quantity: 1,
-      price: 999,
-      originalPrice: 1899,
-      discount: 47,
-    },
-    {
-      id: 2,
-      name: 'Solid Muscle Fit Polo shirt',
-      image: DummyImage,
-      size: 'S',
-      quantity: 1,
-      price: 999,
-      originalPrice: 1899,
-      discount: 47,
-    }
-  ]);
-
-
+  }, [panelView, targetView]);
 
   const handleClose = () => {
     navigate(-1); // Go back
   };
 
-  const handleQuantityChange = (itemId, newQty) => {
+  const handleQuantityChange = async (itemId, newQty) => {
     if (newQty < 1) return;
-    setCartItems(prevItems =>
-      prevItems.map(item =>
-        item.id === itemId ? { ...item, quantity: newQty } : item
-      )
-    );
+    if (initialBuyNowItem) {
+      setLocalBuyNowItem(prev => ({ ...prev, quantity: newQty }));
+    } else {
+      setUpdatingItemId(itemId);
+      try {
+        await dispatch(updateCartItem({ cartItemId: itemId, quantity: newQty })).unwrap();
+      } catch (err) {
+        console.error('Failed to update cart item quantity:', err);
+      } finally {
+        setUpdatingItemId(null);
+      }
+    }
   };
 
-  const handleRemoveItem = (itemId) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== itemId));
+  const handleRemoveItem = async (itemId) => {
+    if (initialBuyNowItem) {
+      setLocalBuyNowItem(null);
+    } else {
+      setUpdatingItemId(itemId);
+      try {
+        await dispatch(removeFromCart(itemId)).unwrap();
+      } catch (err) {
+        console.error('Failed to remove cart item:', err);
+      } finally {
+        setUpdatingItemId(null);
+      }
+    }
   };
 
   const handleSizeChange = (itemId, newSize) => {
-    setCartItems(prevItems =>
-      prevItems.map(item =>
-        item.id === itemId ? { ...item, size: newSize } : item
-      )
-    );
+    if (initialBuyNowItem) {
+      setLocalBuyNowItem(prev => ({ ...prev, size: newSize }));
+    } else {
+      console.log('Size changes locally inside checkout popup context:', itemId, newSize);
+    }
   };
 
   const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-
-  // To match the mockup image exactly:
-  // When quantity is 1, totalSavings is 1600.00. We scale it with quantity.
-  const totalSavings = cartItems.reduce((sum, item) => sum + 1600 * item.quantity, 0);
+  const totalSavings = cartItems.reduce((sum, item) => sum + (item.originalPrice - item.price) * item.quantity, 0);
 
   return (
     <div className={styles.overlay} onClick={handleClose}>
       <div className={styles.modal} data-lenis-prevent onClick={(e) => e.stopPropagation()}>
         {panelView === 'overview' ? (
-          <OrderOverview 
+          <OrderOverview
             addressData={addressData}
-            onBack={() => setPanelView('fill')}
+            onBack={() => setPanelView('select')}
             onChangeAddress={() => setPanelView('select')}
             totalPrice={totalPrice}
-            onPaymentSelect={() => setPanelView('confirmation')}
+            buyNowItem={localBuyNowItem}
+            cartItems={cartItems}
+            onPaymentSelect={(confirmedOrder) => {
+              setOrderData(confirmedOrder);
+              setPanelView('confirmation');
+            }}
           />
         ) : panelView === 'confirmation' ? (
-          <OrderConfirmation 
+          <OrderConfirmation
             totalPrice={totalPrice}
+            orderData={orderData}
             onContinueShopping={handleClose}
             onTrackOrder={() => console.log('Track order clicked')}
           />
@@ -138,6 +178,7 @@ const CheckoutModal = () => {
                       <ProductCard
                         key={item.id}
                         item={item}
+                        isUpdating={updatingItemId === item.id}
                         onQuantityChange={handleQuantityChange}
                         onRemove={handleRemoveItem}
                         onSizeChange={handleSizeChange}
@@ -185,23 +226,34 @@ const CheckoutModal = () => {
               isOpen={panelView !== null && panelView !== 'overview' && panelView !== 'confirmation'}
               onClose={() => {
                 if (panelView === 'fill') {
-                  setPanelView('add');
-                } else if (panelView === 'loading') {
-                  setPanelView('add');
+                  if (editingAddress) {
+                    setPanelView('select');
+                    setEditingAddress(null);
+                  } else {
+                    setPanelView('add');
+                  }
                 } else if (panelView === 'add') {
                   setPanelView('select');
                 } else {
                   setPanelView(null);
+                  setEditingAddress(null);
                 }
               }}
             >
               {panelView === 'select' && (
                 <SelectAddress
                   onAddNew={() => setPanelView('add')}
+                  onEdit={(address) => {
+                    setEditingAddress(address);
+                    setPanelView('fill');
+                  }}
                   onContinue={(selectedAddress) => {
                     console.log('Selected address:', selectedAddress);
                     setAddressData(selectedAddress);
-                    setPanelView('overview');
+                    setLoadingTitle('Select Delivery Address');
+                    setLoadingMessage('Please Wait...');
+                    setTargetView('overview');
+                    setPanelView('loading');
                   }}
                 />
               )}
@@ -209,20 +261,70 @@ const CheckoutModal = () => {
                 <AddAddress onContinue={(pincode) => {
                   console.log('Add address pincode continue clicked:', pincode);
                   setEnteredPincode(pincode);
+                  setLoadingTitle('Add Delivery Address');
+                  setLoadingMessage('Please Wait...');
+                  setTargetView('fill');
                   setPanelView('loading');
                 }} />
               )}
               {panelView === 'loading' && (
-                <Loading title="Add Delivery Address" message="Please Wait..." />
+                <Loading title={loadingTitle} message={loadingMessage} />
               )}
               {panelView === 'fill' && (
-                <FillAddress 
+                <FillAddress
+                  initialAddress={editingAddress}
                   initialPincode={enteredPincode}
-                  onContinue={(address) => {
+                  onContinue={async (address) => {
                     console.log('Address form submitted:', address);
-                    setAddressData(address);
-                    setPanelView('overview');
-                  }} 
+                    const isEdit = !!editingAddress;
+                    setLoadingTitle('Saving Delivery Address');
+                    setLoadingMessage('Please Wait...');
+                    setPanelView('loading');
+                    
+                    try {
+                      const cleanPhone = address.phone.replace(/\D/g, '').slice(-10);
+                      const payload = {
+                        fullName: address.name,
+                        phone: cleanPhone,
+                        addressLine1: address.addressLine1,
+                        addressLine2: address.addressLine2 || undefined,
+                        city: address.city,
+                        state: address.state,
+                        pincode: address.pincode,
+                        isDefault: editingAddress ? editingAddress.isDefault : true,
+                      };
+                      let savedAddress;
+                      if (isEdit) {
+                        const addrId = editingAddress.addressId || editingAddress.id;
+                        savedAddress = await addressService.updateAddress(addrId, payload);
+                        console.log('Address updated in backend successfully:', savedAddress);
+                      } else {
+                        savedAddress = await addressService.createAddress(payload);
+                        console.log('Address saved to backend successfully:', savedAddress);
+                      }
+                      
+                      const resolvedAddress = {
+                        ...savedAddress,
+                        addressId: savedAddress.addressId || savedAddress.id,
+                        name: savedAddress.fullName
+                      };
+                      setAddressData(resolvedAddress);
+                      setEditingAddress(null);
+                      
+                      // Transition to overview panel view only after addressData has been resolved
+                      setTimeout(() => {
+                        setPanelView('overview');
+                      }, 500);
+                    } catch (err) {
+                      console.error(isEdit ? 'Failed to update address on backend:' : 'Failed to create address on backend:', err);
+                      // Graceful fallback to avoid blocking the user flow
+                      setAddressData(address);
+                      setEditingAddress(null);
+                      setTimeout(() => {
+                        setPanelView('overview');
+                      }, 500);
+                    }
+                  }}
                 />
               )}
             </SlideUpPanel>
@@ -233,9 +335,14 @@ const CheckoutModal = () => {
   );
 };
 
-const ProductCard = ({ item, onQuantityChange, onRemove, onSizeChange }) => {
+const ProductCard = ({ item, onQuantityChange, onRemove, onSizeChange, isUpdating }) => {
   return (
     <div className={styles.productCard}>
+      {isUpdating && (
+        <div className={styles.cardLoaderOverlay}>
+          <span className={loaderStyles.loader} style={{ width: '24px', height: '24px', borderWidth: '2px' }} aria-label="Loading"></span>
+        </div>
+      )}
       <div className={styles.imageWrapper}>
         <img src={item.image} alt={item.name} className={styles.productImage} />
       </div>
@@ -248,6 +355,7 @@ const ProductCard = ({ item, onQuantityChange, onRemove, onSizeChange }) => {
             value={item.size}
             onChange={(e) => onSizeChange(item.id, e.target.value)}
             className={styles.sizeSelect}
+            disabled={isUpdating}
           >
             {['S', 'M', 'L', 'XL', 'XXL'].map((s) => (
               <option key={s} value={s}>{s}</option>
@@ -260,12 +368,14 @@ const ProductCard = ({ item, onQuantityChange, onRemove, onSizeChange }) => {
             quantity={item.quantity}
             onIncrement={() => onQuantityChange(item.id, item.quantity + 1)}
             onDecrement={() => onQuantityChange(item.id, item.quantity - 1)}
+            disabled={isUpdating}
           />
 
           <button
             className={styles.deleteBtn}
             onClick={() => onRemove(item.id)}
             aria-label="Remove item"
+            disabled={isUpdating}
           >
             <DeleteIcon className={styles.deleteIcon} />
           </button>

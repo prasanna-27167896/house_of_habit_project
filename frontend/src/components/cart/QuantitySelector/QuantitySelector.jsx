@@ -1,12 +1,12 @@
 import styles from './QuantitySelector.module.css';
 
-const QuantitySelector = ({ quantity = 1, onIncrement, onDecrement, min = 1, max = 10 }) => {
+const QuantitySelector = ({ quantity = 1, onIncrement, onDecrement, min = 1, max = 10, disabled = false }) => {
   return (
     <div className={styles.wrapper}>
       <button
         className={styles.btn}
         onClick={onDecrement}
-        disabled={quantity <= min}
+        disabled={disabled || quantity <= min}
         aria-label="Decrease quantity"
       >
         −
@@ -15,7 +15,7 @@ const QuantitySelector = ({ quantity = 1, onIncrement, onDecrement, min = 1, max
       <button
         className={styles.btn}
         onClick={onIncrement}
-        disabled={quantity >= max}
+        disabled={disabled || quantity >= max}
         aria-label="Increase quantity"
       >
         +

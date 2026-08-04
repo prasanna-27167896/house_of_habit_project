@@ -1,45 +1,56 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './SelectAddress.module.css';
 import EditIcon from '../../../assets/icons/edit-icon.svg?react';
 import DeleteIcon from '../../../assets/icons/delete-icon.svg?react';
+import * as addressService from '../../../services/addressService';
+import loaderStyles from '../../common/Loader/Loader.module.css';
 
-const SelectAddress = ({ onContinue, onAddNew }) => {
-  const [selectedId, setSelectedId] = useState(1);
+const SelectAddress = ({ onContinue, onAddNew, onEdit }) => {
+  const [selectedId, setSelectedId] = useState(null);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [addresses, setAddresses] = useState([
-    {
-      id: 1,
-      name: 'Rahul Sharma',
-      addressLine1: '#45, 2nd Floor, MG Road,',
-      addressLine2: 'BANGALORE, Karnataka 560001',
-      phone: '9876543210',
-      payOnDeliveryAvailable: false,
-      isDefault: true,
-    },
-    {
-      id: 2,
-      name: 'Rahul Sharma',
-      addressLine1: '#123, 5th Cross, Indiranagar,',
-      addressLine2: 'BANGALORE, Karnataka 560038',
-      phone: '9876543210',
-      payOnDeliveryAvailable: true,
-      isDefault: false,
-    },
-    {
-      id: 3,
-      name: 'Siddu',
-      addressLine1: '8/21 chandra layout vijayanagar, bangalore',
-      addressLine2: 'karnataka, 560040',
-      phone: '+91 9620099167',
-      payOnDeliveryAvailable: true,
-      isDefault: false,
+  const [addresses, setAddresses] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
+
+  const fetchAddresses = async () => {
+    setLoading(true);
+    try {
+      const data = await addressService.getAddresses();
+      // Format backend response to match UI format
+      const formatted = data.map(addr => ({
+        id: addr.addressId || addr.id,
+        name: addr.fullName,
+        addressLine1: addr.addressLine1,
+        addressLine2: `${addr.city}, ${addr.state} ${addr.pincode}`,
+        phone: addr.phone,
+        payOnDeliveryAvailable: true, // Backend allows COD for all verified addresses
+        isDefault: addr.isDefault,
+        raw: addr
+      }));
+      setAddresses(formatted);
+      
+      if (formatted.length > 0) {
+        // Default to the default address or the first one in the list
+        const defaultAddr = formatted.find(a => a.isDefault) || formatted[0];
+        setSelectedId(defaultAddr.id);
+      } else {
+        setSelectedId(null);
+      }
+    } catch (err) {
+      console.error('Failed to load addresses:', err);
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
+
+  useEffect(() => {
+    fetchAddresses();
+  }, []);
 
   const handleSelectAddress = (id) => {
-    if (isAnimating) return;
+    if (isAnimating || deletingId) return;
     setSelectedId(id);
-    
+
     const index = addresses.findIndex(addr => addr.id === id);
     if (index === 0) return;
 
@@ -49,7 +60,7 @@ const SelectAddress = ({ onContinue, onAddNew }) => {
 
     if (card0 && cardI) {
       setIsAnimating(true);
-      
+
       const rect0 = card0.getBoundingClientRect();
       const rectI = cardI.getBoundingClientRect();
       const deltaY = rect0.top - rectI.top;
@@ -90,10 +101,27 @@ const SelectAddress = ({ onContinue, onAddNew }) => {
     }
   };
 
+  const handleDeleteAddress = async (id) => {
+    if (deletingId) return;
+    setDeletingId(id);
+    try {
+      await addressService.deleteAddress(id);
+      await fetchAddresses();
+    } catch (err) {
+      console.error('Failed to delete address:', err);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const handleContinue = () => {
     const selectedAddress = addresses.find(addr => addr.id === selectedId);
     if (onContinue && selectedAddress) {
-      onContinue(selectedAddress);
+      onContinue({
+        ...selectedAddress.raw,
+        addressId: selectedAddress.id,
+        name: selectedAddress.name
+      });
     }
   };
 
@@ -102,7 +130,7 @@ const SelectAddress = ({ onContinue, onAddNew }) => {
       {/* Top Header */}
       <div className={styles.header}>
         <h3 className={styles.title}>Select Delivery Address</h3>
-        <button className={styles.addBtn} onClick={onAddNew} type="button">
+        <button className={styles.addBtn} onClick={onAddNew} disabled={loading || !!deletingId} type="button">
           Add New Address
         </button>
       </div>
@@ -111,58 +139,95 @@ const SelectAddress = ({ onContinue, onAddNew }) => {
       <div className={styles.body}>
         <h4 className={styles.subtitle}>Default Address</h4>
 
-        <div className={styles.addressList}>
-          {addresses.map((addr) => {
-            const isSelected = selectedId === addr.id;
-            return (
-              <div
-                key={addr.id}
-                data-address-id={addr.id}
-                className={`${styles.card} ${isSelected ? styles.selectedCard : ''}`}
-                onClick={() => handleSelectAddress(addr.id)}
-              >
-                <div className={styles.cardHeader}>
-                  <div className={styles.leftGroup}>
-                    {/* Custom Checkbox */}
-                    <div className={`${styles.checkbox} ${isSelected ? styles.checked : ''}`}>
-                      {isSelected && <span className={styles.checkmark}>✓</span>}
-                    </div>
-                    <span className={styles.name}>{addr.name}</span>
-                    {isSelected && (
-                      <span className={styles.badge}>Selected</span>
-                    )}
-                  </div>
-
-                  <div className={styles.rightGroup} onClick={(e) => e.stopPropagation()}>
-                    <button className={styles.editBtn} aria-label="Edit address">
-                      <EditIcon className={styles.editIcon} />
-                    </button>
-                    <button className={styles.deleteBtn} aria-label="Delete address">
-                      <DeleteIcon className={styles.deleteIcon} />
-                    </button>
-                  </div>
-                </div>
-
-                <div className={styles.cardBody}>
-                  <p className={styles.addressLine}>{addr.addressLine1}</p>
-                  <p className={styles.addressLine}>{addr.addressLine2}</p>
-                  <p className={styles.phone}>{addr.phone}</p>
-                  
-                  {!addr.payOnDeliveryAvailable && (
-                    <p className={styles.podNote}>
-                      <span className={styles.bullet}>•</span> Pay on delivery not available
-                    </p>
-                  )}
-                </div>
+        {loading && !deletingId ? (
+          <div className={styles.loadingContainer}>
+            <span className={loaderStyles.loader} aria-label="Loading"></span>
+          </div>
+        ) : (
+          <div className={styles.addressList}>
+            {addresses.length === 0 ? (
+              <div className={styles.emptyState}>
+                <p>No saved addresses found. Please add one to continue.</p>
               </div>
-            );
-          })}
-        </div>
+            ) : (
+              addresses.map((addr) => {
+                const isSelected = selectedId === addr.id;
+                const isDeleting = deletingId === addr.id;
+                return (
+                  <div
+                    key={addr.id}
+                    data-address-id={addr.id}
+                    className={`${styles.card} ${isSelected ? styles.selectedCard : ''}`}
+                    onClick={() => handleSelectAddress(addr.id)}
+                  >
+                    {isDeleting && (
+                      <div className={styles.cardLoaderOverlay}>
+                        <span className={loaderStyles.loader} style={{ width: '20px', height: '20px', borderWidth: '2px' }} aria-label="Loading"></span>
+                      </div>
+                    )}
+                    <div className={styles.cardHeader}>
+                      <div className={styles.leftGroup}>
+                        {/* Custom Checkbox */}
+                        <div className={`${styles.checkbox} ${isSelected ? styles.checked : ''}`}>
+                          {isSelected && <span className={styles.checkmark}>✓</span>}
+                        </div>
+                        <span className={styles.name}>{addr.name}</span>
+                        {isSelected && (
+                          <span className={styles.badge}>Selected</span>
+                        )}
+                      </div>
+
+                      <div className={styles.rightGroup} onClick={(e) => e.stopPropagation()}>
+                        <button
+                          className={styles.editBtn}
+                          aria-label="Edit address"
+                          disabled={!!deletingId}
+                          type="button"
+                          onClick={() => onEdit && onEdit(addr.raw)}
+                        >
+                          <EditIcon className={styles.editIcon} />
+                        </button>
+                        {!addr.isDefault && (
+                          <button 
+                            className={styles.deleteBtn} 
+                            aria-label="Delete address" 
+                            onClick={() => handleDeleteAddress(addr.id)}
+                            disabled={!!deletingId}
+                            type="button"
+                          >
+                            <DeleteIcon className={styles.deleteIcon} />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className={styles.cardBody}>
+                      <p className={styles.addressLine}>{addr.addressLine1}</p>
+                      <p className={styles.addressLine}>{addr.addressLine2}</p>
+                      <p className={styles.phone}>{addr.phone}</p>
+
+                      {!addr.payOnDeliveryAvailable && (
+                        <p className={styles.podNote}>
+                          <span className={styles.bullet}>•</span> Pay on delivery not available
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        )}
       </div>
 
       {/* Footer Continue Button */}
       <div className={styles.footer}>
-        <button className={styles.continueBtn} onClick={handleContinue} type="button">
+        <button 
+          className={styles.continueBtn} 
+          onClick={handleContinue} 
+          disabled={loading || !!deletingId || addresses.length === 0} 
+          type="button"
+        >
           Continue
         </button>
       </div>

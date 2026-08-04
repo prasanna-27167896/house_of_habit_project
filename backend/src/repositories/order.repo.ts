@@ -440,6 +440,9 @@ export const confirmPaymentTransaction = (
       },
       include: orderInclude,
     });
+  }, {
+    maxWait: 10000,
+    timeout: 15000,
   }) as Promise<OrderWithRelations>;
 
 // Mark a pending payment as failed — release any held stock back to inventory.

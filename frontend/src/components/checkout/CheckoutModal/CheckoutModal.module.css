@@ -97,6 +97,7 @@
 
 /* ── Product Card ── */
 .productCard {
+  position: relative;
   display: flex;
   gap: 1rem;
   padding: max(1.1rem, 1.1dvw);
@@ -358,4 +359,18 @@
 
 .checkoutBtn:active {
   transform: translateY(0);
+}
+
+.cardLoaderOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: 1.5rem;
 }
