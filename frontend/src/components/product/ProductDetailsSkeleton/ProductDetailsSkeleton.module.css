@@ -86,7 +86,7 @@
 .mainImage {
   flex: 1;
   border-radius: max(0.8rem, 0.8dvw);
-  height: max(43.2rem, 43.2dvw);
+  height: max(38.5rem, 38.5dvw);
 }
 
 /* ── Info Column ── */
@@ -264,17 +264,11 @@
 .relatedGrid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-md, 1.5rem);
+  gap: var(--space-md);
 }
 
 /* ── Responsive ── */
 @media (max-width: 1024px) {
-  .relatedGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 768px) {
   .productSection {
     grid-template-columns: 1fr;
     gap: 1.5rem;
@@ -282,25 +276,55 @@
 
   .gallery {
     flex-direction: column-reverse;
+    gap: 0.75rem;
   }
 
   .thumbnails {
     flex-direction: row;
-    overflow-x: auto;
+    gap: 0.75rem;
+    width: 100%;
   }
 
   .thumb {
-    width: 4rem;
-    height: 4.5rem;
+    flex: 1;
+    width: auto;
+    height: auto;
+    aspect-ratio: 3 / 4;
   }
 
   .mainImage {
     aspect-ratio: 3 / 4;
     height: auto;
+    max-height: 60dvh;
+  }
+
+  .related {
+    padding: max(2.2rem, 2.2dvw) 0;
   }
 
   .relatedGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .relatedGrid {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
+  }
+}
+
+@media (max-width: 340px) {
+  .rowOne {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .quantitySelector {
+    width: 100%;
+  }
+
+  .addToBagBtn {
+    width: 100%;
   }
 }

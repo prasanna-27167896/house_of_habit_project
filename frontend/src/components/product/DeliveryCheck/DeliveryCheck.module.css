@@ -52,3 +52,36 @@
   opacity: 0.88;
   transform: translateY(-1px);
 }
+
+@media (max-width: 768px) {
+  .wrapper {
+    margin-bottom: 1.2rem;
+  }
+
+  .fieldset {
+    padding: 0.3rem 0;
+  }
+
+  .label {
+    font-size: 0.9rem;
+  }
+
+  .inputGroup {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .input {
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 0.85rem;
+    padding: 0.7rem 0.6rem;
+  }
+
+  .checkBtn {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    font-size: 0.88rem;
+  }
+}

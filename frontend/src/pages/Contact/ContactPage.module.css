@@ -201,6 +201,16 @@
 }
 
 /* ── Responsive ── */
+@media (max-width: 1024px) {
+  .contactSection {
+    padding: max(0.4rem, 0.4dvw) max(2rem, 2dvw);
+  }
+
+  .faqSection {
+    padding: max(3rem, 3dvw) max(2rem, 2dvw);
+  }
+}
+
 @media (max-width: 768px) {
   .heroTitle {
     font-size: clamp(2rem, 6vw, 3rem);
@@ -214,16 +224,29 @@
   .contactSection {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+    padding: max(0.4rem, 0.4dvw) 0;
+  }
+
+  .illustrationWrapper {
+    order: 2;
+  }
+
+  .form {
+    order: 1;
   }
 
   .illustration {
-    max-width: 16rem;
+    display: none;
   }
 
   .supportRow {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
+  }
+
+  .faqSection {
+    padding: max(2rem, 2dvw) 0;
   }
 
   .faqTitle {

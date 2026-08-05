@@ -137,8 +137,8 @@ const ProductDetailsPage = () => {
       ) || variantsList[0];
 
     if (matchedVariant) {
-      navigate('/checkout', { 
-        state: { 
+      navigate('/checkout', {
+        state: {
           backgroundLocation: location,
           buyNowItem: {
             variantId: matchedVariant.variantId,
@@ -149,7 +149,7 @@ const ProductDetailsPage = () => {
             name: productDetail.title,
             image: productDetail.imageUrl || (productDetail.images && productDetail.images[0]) || DummyImage
           }
-        } 
+        }
       });
     }
   };
@@ -179,7 +179,7 @@ const ProductDetailsPage = () => {
 
   return (
     <main>
-      <div className='container'>
+      <div className={styles.container}>
         <Breadcrumb items={breadcrumbItems} />
 
         <section className={styles.productSection}>

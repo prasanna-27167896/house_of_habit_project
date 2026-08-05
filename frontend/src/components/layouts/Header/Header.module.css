@@ -68,18 +68,18 @@
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
-
   .header {
-
     border-radius: 0;
     border: none;
     top: 0;
     background: #fff;
+    margin: 0;
   }
 
   .inner {
     padding: 0 max(0.5rem, 0.5dvw);
     height: max(3rem, 3dvh);
+    justify-content: flex-start;
   }
 
   .actions {
@@ -92,7 +92,9 @@
     height: max(2.2rem, 2.2dvh);
   }
 
-  /* Hide wishlist icon on mobile to save space */
+  /* Hide search, account/user, and cart/bag icons on mobile to show only menu icon */
+  .iconBtn:nth-child(1),
+  .iconBtn:nth-child(2),
   .iconBtn:nth-child(3) {
     display: none;
   }
@@ -101,17 +103,12 @@
 @media (max-width: 480px) {
   .inner {
     padding: 0 max(0.25rem, 0.25dvw);
+    justify-content: flex-start;
   }
 
   .logo svg {
     width: max(5.2rem, 5.2dvw);
     height: max(5.2rem, 5.2dvh);
-  }
-
-  /* Hide user + wishlist on very small screens */
-  .iconBtn:nth-child(2),
-  .iconBtn:nth-child(3) {
-    display: none;
   }
 }
 
