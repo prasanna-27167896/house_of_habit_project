@@ -265,3 +265,30 @@
   z-index: 10;
   border-radius: 0.8rem;
 }
+
+@media (max-width: 480px) {
+  .wrapper {
+    height: 70vh;
+    height: 70dvh;
+    padding: 0.8rem;
+  }
+  .card {
+    padding: 0.8rem;
+  }
+  .leftGroup {
+    gap: 0.5rem;
+  }
+  .name {
+    font-size: 0.85rem;
+  }
+  .badge {
+    padding: 0.1rem 0.35rem;
+    font-size: 0.65rem;
+  }
+  .addressLine {
+    font-size: 0.8rem;
+  }
+  .phone {
+    font-size: 0.8rem;
+  }
+}

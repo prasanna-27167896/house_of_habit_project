@@ -40,7 +40,7 @@
   }
 
   .heroTitle {
-    font-size: max(2.6rem, 3.6dvw);
+    font-size: max(2.4rem, 2.4dvw);
   }
 
   .heroIcon {
@@ -48,13 +48,13 @@
   }
 
   .heroSub {
-    font-size: max(1rem, 1.6dvw);
+    font-size: max(0.95rem, 0.95dvw);
   }
 }
 
 @media (max-width: 480px) {
   .hero {
-    padding: 1.25rem 1rem;
+    padding: 1.25rem 0;
   }
 
   .heroLeft {
@@ -63,16 +63,14 @@
   }
 
   .heroTitle {
-    font-size: 1.6rem;
-    line-height: 1.15;
+    font-size: 2rem;
   }
 
   .heroIcon {
     width: 4.5rem;
-    margin-top: 0.5rem;
   }
 
   .heroSub {
-    font-size: 0.95rem;
+    font-size: 0.75rem;
   }
 }

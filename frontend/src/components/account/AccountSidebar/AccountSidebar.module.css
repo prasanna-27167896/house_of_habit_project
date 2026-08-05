@@ -44,14 +44,44 @@
   margin-top: max(0.5rem, 0.5dvw);
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .sidebar {
-    padding: max(0.4rem, 0.4dvw);
-    min-height: fit-content;
+    min-height: auto;
+    padding: 0;
+    border: none;
+    background: transparent;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .nav {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    overflow-x: auto;
+    width: 100%;
+    padding: 0.25rem 0.5rem;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .nav::-webkit-scrollbar {
+    display: none;
   }
 
   .navItem {
-    font-size: max(0.85rem, 0.85dvw);
-    padding: max(0.5rem, 0.5dvw);
+    flex: 0 0 auto;
+    width: auto;
+    white-space: nowrap;
+    padding: 0.5rem 0.8rem;
+    border-radius: max(0.6rem, 0.6dvw);
+    font-size: 0.85rem;
+    font-weight: 400;
+    justify-content: center;
+  }
+
+  .logout {
+    display: none;
   }
 }

@@ -132,3 +132,28 @@
 .continueBtn:active {
   transform: translateY(0);
 }
+
+@media (max-width: 480px) {
+  .wrapper {
+    height: 80vh;
+    height: 80dvh;
+    padding: 0.8rem;
+  }
+
+  .row {
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .formFields {
+    gap: 1.25rem;
+  }
+
+  .title {
+    margin: 0 0 1rem 0;
+  }
+
+  .sectionTitle {
+    margin: 0.5rem 0 0.25rem 0;
+  }
+}

@@ -5,13 +5,13 @@ import LocationIcon from '../../../assets/icons/location-icon.svg?react';
 import ShippingIcon from '../../../assets/icons/shipping-icon.svg?react';
 import OnlinePayIcon from '../../../assets/icons/online-pay-icon.svg?react';
 import CodPayIcon from '../../../assets/icons/cod-pay-icon.svg?react';
-import { 
-  initiatePayment, 
-  verifyPayment, 
-  placeCODOrder, 
-  getPaymentStatus, 
-  initiatePaymentSingle, 
-  placeCODOrderSingle 
+import {
+  initiatePayment,
+  verifyPayment,
+  placeCODOrder,
+  getPaymentStatus,
+  initiatePaymentSingle,
+  placeCODOrderSingle
 } from '../../../services/paymentService';
 import { addToCart as apiAddToCart } from '../../../services/cartService';
 import loaderStyles from '../../common/Loader/Loader.module.css';
@@ -40,6 +40,9 @@ const OrderOverview = ({ onBack, onChangeAddress, addressData, totalPrice = 999,
 
   const totalQuantity = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalOriginalPrice = cartItems.reduce((sum, item) => sum + item.originalPrice * item.quantity, 0);
+  const discountPercent = totalOriginalPrice > totalPrice
+    ? Math.round(((totalOriginalPrice - totalPrice) / totalOriginalPrice) * 100)
+    : 0;
 
   let headerImage = DummyImage;
   let headerName = 'Polo Shirts';
@@ -66,7 +69,7 @@ const OrderOverview = ({ onBack, onChangeAddress, addressData, totalPrice = 999,
       try {
         const statusRes = await getPaymentStatus(orderId);
         const currentStatus = statusRes.paymentStatus || statusRes.status;
-        
+
         if (currentStatus === 'COMPLETED' || currentStatus === 'PROCESSING') {
           clearInterval(interval);
           if (onPaymentSelect) {
@@ -117,17 +120,17 @@ const OrderOverview = ({ onBack, onChangeAddress, addressData, totalPrice = 999,
       }
 
       let rzpOrderData;
-      
+
       if (buyNowItem) {
         // Create the cart item database record immediately prior to online checkout initiation
         console.log('Buy Now flow: Adding item to cart behind the scenes...', buyNowItem);
         const addedItem = await apiAddToCart(buyNowItem.variantId, buyNowItem.quantity);
         const cartItemId = addedItem.data?.cartItemId || addedItem.data?.id || addedItem.cartItemId || addedItem.id;
-        
+
         if (!cartItemId) {
           throw new Error('Failed to prepare item for checkout.');
         }
-        
+
         rzpOrderData = await initiatePaymentSingle(cartItemId, requestPayload);
       } else {
         rzpOrderData = await initiatePayment(requestPayload);
@@ -224,13 +227,13 @@ const OrderOverview = ({ onBack, onChangeAddress, addressData, totalPrice = 999,
       }
 
       let codOrder;
-      
+
       if (buyNowItem) {
         // Create the cart item database record immediately prior to COD checkout placement
         console.log('Buy Now flow: Adding item to cart behind the scenes...', buyNowItem);
         const addedItem = await apiAddToCart(buyNowItem.variantId, buyNowItem.quantity);
         const cartItemId = addedItem.data?.cartItemId || addedItem.data?.id || addedItem.cartItemId || addedItem.id;
-        
+
         if (!cartItemId) {
           throw new Error('Failed to prepare item for checkout.');
         }
@@ -239,7 +242,7 @@ const OrderOverview = ({ onBack, onChangeAddress, addressData, totalPrice = 999,
       } else {
         codOrder = await placeCODOrder(requestPayload);
       }
-      
+
       if (onPaymentSelect) {
         onPaymentSelect({
           orderId: codOrder.orderId || codOrder.id,
@@ -283,6 +286,11 @@ const OrderOverview = ({ onBack, onChangeAddress, addressData, totalPrice = 999,
             <span className={styles.originalPrice}>₹{totalOriginalPrice.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
           )}
           <span className={styles.actualPrice}>₹{totalPrice.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+          {discountPercent > 0 && (
+            <span className={styles.discountBadge}>
+              ({discountPercent}% Off)
+            </span>
+          )}
         </div>
       </div>
 
@@ -344,9 +352,9 @@ const OrderOverview = ({ onBack, onChangeAddress, addressData, totalPrice = 999,
             )}
 
             {/* Button 1: Online Payment */}
-            <button 
-              className={styles.paymentBtn} 
-              onClick={handleOnlinePayment} 
+            <button
+              className={styles.paymentBtn}
+              onClick={handleOnlinePayment}
               disabled={loading || !addressData}
               type="button"
             >
@@ -373,9 +381,9 @@ const OrderOverview = ({ onBack, onChangeAddress, addressData, totalPrice = 999,
               <div className={styles.codBanner}>
                 ₹90 rs COD Charge Added
               </div>
-              <button 
-                className={`${styles.paymentBtn} ${styles.codBtn}`} 
-                onClick={handleCODOrder} 
+              <button
+                className={`${styles.paymentBtn} ${styles.codBtn}`}
+                onClick={handleCODOrder}
                 disabled={loading || !addressData}
                 type="button"
               >

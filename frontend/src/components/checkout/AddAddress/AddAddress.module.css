@@ -98,3 +98,12 @@ input[type="number"] {
 .continueBtn:active {
   transform: translateY(0);
 }
+
+@media (max-width: 480px) {
+  .wrapper {
+    padding: 0.8rem;
+  }
+  .title {
+    margin: 0 0 1rem 0;
+  }
+}

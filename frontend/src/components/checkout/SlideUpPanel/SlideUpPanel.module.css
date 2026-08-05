@@ -89,3 +89,10 @@
   visibility: visible;
   pointer-events: auto;
 }
+
+@media (max-width: 480px) {
+  .panel {
+    max-height: 85vh;
+    max-height: 85dvh;
+  }
+}

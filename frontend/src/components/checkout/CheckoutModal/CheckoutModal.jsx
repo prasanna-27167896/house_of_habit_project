@@ -391,9 +391,9 @@ const ProductCard = ({ item, onQuantityChange, onRemove, onSizeChange, isUpdatin
         <span className={styles.salePrice}>
           ₹{item.price.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
         </span>
-        {item.discount > 0 && (
+        {(item.discount > 0 || item.originalPrice > item.price) && (
           <span className={styles.discountBadge}>
-            ({item.discount}% Off)
+            ({item.discount || Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)}% Off)
           </span>
         )}
       </div>

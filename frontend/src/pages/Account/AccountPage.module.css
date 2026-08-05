@@ -15,32 +15,7 @@
   .layout {
     grid-template-columns: 1fr;
     gap: 1rem;
-    padding: 0 1rem 1.5rem;
-  }
-
-  .sidebar {
-    min-height: auto;
-    padding: 0.5rem 0;
-    border-radius: var(--border-radius-md);
-  }
-
-  .nav {
-    flex-direction: row;
-    gap: 0.5rem;
-    overflow-x: auto;
-    padding: 0 0.5rem;
-  }
-
-  .navItem {
-    flex: 0 0 auto;
-    white-space: nowrap;
-    padding: 0.5rem 0.9rem;
-    border-radius: 999px;
-    font-size: 0.95rem;
-  }
-
-  .navItem.logout {
-    display: none;
+    padding: 0;
   }
 
   .content {

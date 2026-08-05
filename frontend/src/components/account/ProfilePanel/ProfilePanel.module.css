@@ -98,3 +98,87 @@
 .deleteAccountBtn:hover {
   opacity: 0.75;
 }
+
+@media (max-width: 768px) {
+  .panel {
+    padding: 1rem;
+    min-height: 32rem;
+  }
+
+  .banner {
+    height: 6rem;
+  }
+
+  .profileHeader {
+    padding: 0 1rem 1rem;
+    margin-top: -2.2rem;
+  }
+
+
+  .avatar {
+    width: 4.4rem;
+    height: 4.4rem;
+    font-size: 2.2rem;
+  }
+
+  .greeting {
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .nameText {
+    font-size: 0.85rem;
+    word-break: break-all;
+  }
+
+  .infoGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0;
+  }
+
+  .securitySection {
+    margin-top: 2rem;
+    padding: 0;
+  }
+
+  .securityTitle {
+    font-size: 0.9rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .deleteAccountBtn {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .panel {
+    padding: 0.75rem;
+  }
+
+  .profileHeader {
+    padding: 0 0.5rem 0.8rem;
+    margin-top: -2rem;
+  }
+
+  .avatar {
+    width: 4rem;
+    height: 4rem;
+    font-size: 2rem;
+  }
+
+  .userInfo {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .greeting {
+    font-size: 0.8rem;
+    margin-bottom: -6px;
+  }
+
+  .nameText {
+    font-size: 0.75rem;
+  }
+}

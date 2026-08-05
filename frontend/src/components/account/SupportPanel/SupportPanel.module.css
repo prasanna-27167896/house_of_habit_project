@@ -46,3 +46,34 @@
 .link:hover {
   color: var(--secondary-color);
 }
+
+@media (max-width: 768px) {
+  .panel {
+    min-height: 32rem;
+  }
+  .body {
+    padding: 3rem 1.5rem;
+  }
+  .inner {
+    gap: 1rem;
+  }
+  .heading,
+  .item,
+  .note,
+  .link {
+    font-size: 0.95rem;
+  }
+  .icon {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .body {
+    padding: 2.5rem 1rem;
+  }
+  .link {
+    word-break: break-all;
+  }
+}
+

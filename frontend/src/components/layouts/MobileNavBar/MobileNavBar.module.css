@@ -5,7 +5,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 999;
   display: none;
   background: #2b2b2b;
   padding: 0 0 env(safe-area-inset-bottom, 0px);
@@ -212,4 +212,3 @@
   border: 1.5px solid #2b2b2b;
   pointer-events: none;
 }
-

@@ -91,6 +91,12 @@
   color: #28282b;
 }
 
+.discountBadge {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ff5f15;
+}
+
 /* ── Scrollable Body ── */
 .body {
   flex: 1;
@@ -395,4 +401,81 @@
   margin-bottom: 1rem;
   text-align: left;
   line-height: 1.4;
+}
+
+@media (max-width: 480px) {
+  .productHeader {
+    padding: 0.8rem;
+    gap: 0.5rem;
+  }
+
+  .productImg {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  .productName {
+    font-size: 0.85rem;
+  }
+
+  .metaBadge {
+    padding: 0.15rem 0.6rem;
+    font-size: 0.55rem;
+  }
+
+  .priceMeta {
+    align-items: flex-end;
+  }
+
+  .originalPrice {
+    font-size: 0.85rem;
+  }
+
+  .actualPrice {
+    font-size: 0.85rem;
+  }
+
+  .discountBadge {
+    font-size: 0.8rem;
+  }
+
+  .body {
+    padding: 0.8rem;
+    gap: 1rem;
+  }
+
+  .card {
+    padding: 0.8rem;
+  }
+
+  .sectionTitle {
+    font-size: 1rem;
+  }
+
+  .recipientName {
+    font-size: 0.88rem;
+  }
+
+  .addressText,
+  .contactText {
+    font-size: 0.78rem;
+  }
+
+  .shippingTitle {
+    font-size: 0.88rem;
+  }
+
+  .freeBadge {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .paymentBtn {
+    padding: 0.8rem;
+  }
+
+  .paymentLabel,
+  .paymentVal {
+    font-size: 0.88rem;
+  }
 }

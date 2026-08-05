@@ -102,7 +102,7 @@
 
 @media (max-width: 480px) {
   .inner {
-    padding: 0 max(0.25rem, 0.25dvw);
+    padding: 0 max(1rem, 1dvw);
     justify-content: flex-start;
   }
 

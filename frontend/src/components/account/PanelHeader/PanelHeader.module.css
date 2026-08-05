@@ -35,3 +35,36 @@
   color: #28282b;
   margin: 0;
 }
+
+@media (max-width: 768px) {
+  .header {
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 1.2rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .row {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .header {
+    padding: 0.85rem;
+  }
+
+  .title {
+    font-size: 1.15rem;
+  }
+
+  .subtitle {
+    font-size: 0.85rem;
+  }
+}

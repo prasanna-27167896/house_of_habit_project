@@ -4,12 +4,12 @@ import SuccessGif from '../../../assets/images/order-confirmation-success.gif';
 const OrderConfirmation = ({ onContinueShopping, onTrackOrder, totalPrice = 999, orderData }) => {
   const displayOrderId = orderData?.orderId || 'ORD987654';
 
-  const displayTime = orderData?.createdAt 
-    ? new Date(orderData.createdAt).toLocaleString('en-IN', { hour12: false }) 
+  const displayTime = orderData?.createdAt
+    ? new Date(orderData.createdAt).toLocaleString('en-IN', { hour12: false })
     : new Date().toLocaleString('en-IN', { hour12: false });
 
-  const displayMethod = orderData?.paymentMethod === 'COD' 
-    ? 'Cash on Delivery' 
+  const displayMethod = orderData?.paymentMethod === 'COD'
+    ? 'Cash on Delivery'
     : (orderData?.paymentMethod || 'Online Payment');
 
   const displayDate = orderData?.createdAt
@@ -17,8 +17,8 @@ const OrderConfirmation = ({ onContinueShopping, onTrackOrder, totalPrice = 999,
     : new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
 
   const displayEst = orderData?.createdAt
-    ? `${new Date(new Date(orderData.createdAt).getTime() + 4*24*60*60*1000).toLocaleDateString('en-GB', { day: '2-digit' })}-${new Date(new Date(orderData.createdAt).getTime() + 6*24*60*60*1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}`
-    : `${new Date(new Date().getTime() + 4*24*60*60*1000).toLocaleDateString('en-GB', { day: '2-digit' })}-${new Date(new Date().getTime() + 6*24*60*60*1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}`;
+    ? `${new Date(new Date(orderData.createdAt).getTime() + 4 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB', { day: '2-digit' })}-${new Date(new Date(orderData.createdAt).getTime() + 6 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}`
+    : `${new Date(new Date().getTime() + 4 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB', { day: '2-digit' })}-${new Date(new Date().getTime() + 6 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}`;
 
   const displayAmount = orderData?.totalAmount ?? totalPrice;
 
@@ -28,7 +28,7 @@ const OrderConfirmation = ({ onContinueShopping, onTrackOrder, totalPrice = 999,
         {/* Success Illustration Block */}
         <div className={styles.successBlock}>
           <img src={SuccessGif} alt="Order Successful" className={styles.successGif} />
-          
+
           <h3 className={styles.title}>Your Order Is On Its Way</h3>
           <p className={styles.message}>
             {orderData?.paymentMethod === 'COD'
