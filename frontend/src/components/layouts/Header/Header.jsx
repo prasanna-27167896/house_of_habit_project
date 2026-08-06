@@ -4,9 +4,12 @@ import { useSelector } from 'react-redux';
 import styles from './Header.module.css';
 import Popup from '../../common/Popup/AuthPopup';
 import SearchPanel from './SearchPanel/SearchPanel';
+import MobileSearchPanel from './SearchPanel/MobileSearchPanel/MobileSearchPanel';
 import MenuPanel from './MenuPanel/MenuPanel';
 import CartPanel from './CartPanel/CartPanel';
+import MobileCartPanel from './CartPanel/MobileCartPanel/MobileCartPanel';
 import MobileMenuPanel from './MenuPanel/MobileMenuPanel/MobileMenuPanel';
+import MobileCategoryPanel from './CategoryPanel/MobileCategoryPanel';
 
 import LogoIcon from "../../../assets/icons/hoh-logo.svg?react";
 import SearchIcon from "../../../assets/icons/searchIcon.svg?react";
@@ -102,6 +105,7 @@ const Header = ({ openPanel, setOpenPanel }) => {
       </header>
       <Popup isOpen={openPanel === 'profile'} onClose={() => setOpenPanel(null)} />
       <SearchPanel isOpen={openPanel === 'search'} onClose={() => setOpenPanel(null)} />
+      <MobileSearchPanel isOpen={openPanel === 'search'} onClose={() => setOpenPanel(null)} />
       <MenuPanel isOpen={openPanel === 'menu'} onClose={() => setOpenPanel(null)} />
       <MobileMenuPanel
         isOpen={openPanel === 'menu'}
@@ -110,6 +114,8 @@ const Header = ({ openPanel, setOpenPanel }) => {
         onOpenProfile={handleMobileProfile}
       />
       <CartPanel isOpen={openPanel === 'cart'} onClose={() => setOpenPanel(null)} />
+      <MobileCartPanel isOpen={openPanel === 'cart'} onClose={() => setOpenPanel(null)} />
+      <MobileCategoryPanel isOpen={openPanel === 'category'} onClose={() => setOpenPanel(null)} />
     </>
   );
 };

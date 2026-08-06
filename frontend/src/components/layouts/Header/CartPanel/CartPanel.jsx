@@ -4,12 +4,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import styles from './CartPanel.module.css';
 import CartItem from './CartItem/CartItem';
 import PriceDetails from './PriceDetails/PriceDetails';
-import CartDrawerItem from '../../../cart/CartDrawerItem/CartDrawerItem';
-import CouponSection from '../../../cart/CouponSection/CouponSection';
-import OrderSummary from '../../../cart/OrderSummary/OrderSummary';
 import Button from '../../../common/Button/Button';
 import { lenis } from '../../../../utils/lenis';
-import { fetchCart, removeFromCart, updateCartItem } from '../../../../store/slices/cartSlice';
+import { fetchCart, removeFromCart } from '../../../../store/slices/cartSlice';
 
 const CartPanel = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
@@ -44,11 +41,6 @@ const CartPanel = ({ isOpen, onClose }) => {
     dispatch(removeFromCart(itemId));
   };
 
-  const handleQuantityChange = (itemId, newQty) => {
-    if (newQty < 1) return;
-    dispatch(updateCartItem({ cartItemId: itemId, quantity: newQty }));
-  };
-
   const handleStartShopping = () => {
     setIsClosing(true);
     setTimeout(() => {
@@ -68,9 +60,6 @@ const CartPanel = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   const isEmpty = cartItems.length === 0;
-  const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const totalOriginal = cartItems.reduce((sum, item) => sum + (item.originalPrice || item.price) * item.quantity, 0);
-  const totalSavings = totalOriginal - totalPrice;
 
   return (
     <div className={styles.overlay} onClick={handleClose}>
@@ -103,45 +92,21 @@ const CartPanel = ({ isOpen, onClose }) => {
             </button>
           </div>
         ) : (
-          <>
-            {/* ── Desktop Layout ── */}
-            <div className={styles.content}>
-              <div className={styles.itemsList}>
-                {cartItems.map((item) => (
-                  <CartItem
-                    key={item.id}
-                    item={item}
-                    onRemove={handleRemoveItem}
-                    isDeleting={deletingItems.includes(item.id)}
-                  />
-                ))}
-              </div>
-              <div className={styles.sidebar}>
-                <PriceDetails items={cartItems} onPayment={handleProceedToCheckout} />
-              </div>
+          <div className={styles.content}>
+            <div className={styles.itemsList}>
+              {cartItems.map((item) => (
+                <CartItem
+                  key={item.id}
+                  item={item}
+                  onRemove={handleRemoveItem}
+                  isDeleting={deletingItems.includes(item.id)}
+                />
+              ))}
             </div>
-
-            {/* ── Mobile Layout ── */}
-            <div className={styles.mobileContent}>
-              <div className={styles.mobileItemsList}>
-                {cartItems.map((item) => (
-                  <CartDrawerItem
-                    key={item.id}
-                    item={item}
-                    onQuantityChange={handleQuantityChange}
-                    onRemove={handleRemoveItem}
-                    isDeleting={deletingItems.includes(item.id)}
-                  />
-                ))}
-              </div>
-
-              <CouponSection variant="drawer" />
-
-              <div className={styles.mobileBottom}>
-                <OrderSummary total={totalPrice} onProceed={handleProceedToCheckout} />
-              </div>
+            <div className={styles.sidebar}>
+              <PriceDetails items={cartItems} onPayment={handleProceedToCheckout} />
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>

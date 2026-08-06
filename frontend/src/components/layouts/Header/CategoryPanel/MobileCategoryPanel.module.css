@@ -1,0 +1,114 @@
+.panel {
+  background: #FAFAFA;
+  bottom: 64px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 14px;
+  background: #FAFAFA;
+  flex-shrink: 0;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo svg {
+  width: 90px;
+  height: auto;
+}
+
+.closeBtn {
+  background: transparent;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.closeBtn svg {
+  width: max(2.2rem, 2.2dvw);
+  height: max(2.2rem, 2.2dvw);
+}
+
+/* ── Body ── */
+.body {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: 0 20px 20px;
+}
+
+.body::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Title & Subtitle ── */
+.title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #28282b;
+  margin: 12px 0 6px;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: #555555;
+  font-weight: 400;
+  margin: 0 0 24px 0;
+  line-height: 1.4;
+}
+
+/* ── Category Cards ── */
+.cardsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  background: #e5e5e5;
+  transition: transform 0.2s ease;
+}
+
+.card:active {
+  transform: scale(0.98);
+}
+
+.cardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.cardOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardText {
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}

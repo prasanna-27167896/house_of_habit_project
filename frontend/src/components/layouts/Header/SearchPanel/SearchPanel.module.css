@@ -258,3 +258,11 @@
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
 }
+
+/* Hide desktop search panel on mobile — MobileSearchPanel handles it */
+@media (max-width: 768px) {
+  .overlay {
+    display: none;
+  }
+}
+

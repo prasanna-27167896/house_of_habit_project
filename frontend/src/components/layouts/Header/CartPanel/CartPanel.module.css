@@ -133,28 +133,6 @@
   top: max(2rem, 2dvw);
 }
 
-/* ── Mobile Content Layout ── */
-.mobileContent {
-  display: none;
-  flex-direction: column;
-  gap: max(1rem, 1dvw);
-  flex: 1;
-}
-
-.mobileItemsList {
-  display: flex;
-  flex-direction: column;
-  gap: max(0.8rem, 0.8dvw);
-}
-
-.mobileBottom {
-  display: flex;
-  flex-direction: column;
-  gap: max(0.8rem, 0.8dvw);
-  margin-top: auto;
-  padding-top: max(1rem, 1dvw);
-}
-
 /* ── Responsive ── */
 @media (max-width: 1200px) {
   .content {
@@ -167,39 +145,10 @@
   }
 }
 
+/* Hide desktop cart panel on mobile — MobileCartPanel handles it */
 @media (max-width: 768px) {
-  .panel {
-    padding: 1.5rem 1.2rem;
-  }
-
-  .closeBtn {
-    top: 1.2rem;
-    right: 1.2rem;
-    width: 2.2rem;
-    height: 2.2rem;
-    font-size: 1rem;
-    border-width: 2px;
-  }
-
-  .header {
-    margin-bottom: 1.2rem;
-  }
-
-  .title {
-    font-size: 1.2rem;
-    font-weight: 600;
-  }
-
-  /* Hide desktop, show mobile */
-  .content {
+  .overlay {
     display: none;
   }
-
-  .mobileContent {
-    display: flex;
-  }
-
-  .sidebar {
-    position: static;
-  }
 }
+

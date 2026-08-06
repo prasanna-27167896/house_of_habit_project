@@ -72,3 +72,32 @@
     display: block;
   }
 }
+
+/* ── Slide Up from Bottom ── */
+.panel.slideUp {
+  animation: slidePanelUpDir var(--slide-duration, 600ms) cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.panel.slideUp.closing {
+  animation: slidePanelDownDir var(--slide-duration, 600ms) cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes slidePanelUpDir {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slidePanelDownDir {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(100%);
+  }
+}

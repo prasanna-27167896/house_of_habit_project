@@ -2,10 +2,10 @@ import { useNavigate } from 'react-router-dom';
 import styles from './MenuPanel.module.css';
 import slidePanelStyles from '../../../common/SlidePanel/SlidePanel.module.css';
 import LogoIcon from '../../../../assets/icons/hoh-logo.svg?react';
-import FacebookIcon from '../../../../assets/icons/facebook-icon.svg?react';
-import TwitterIcon from '../../../../assets/icons/twitter-icon.svg?react';
-import LinkedInIcon from '../../../../assets/icons/linkedin-icon.svg?react';
-import InstagramIcon from '../../../../assets/icons/instagram-icon.svg?react';
+import FacebookIcon from '../../../../assets/icons/facebook-menu-icon.svg?react';
+import TwitterIcon from '../../../../assets/icons/twitter-menu-icon.svg?react';
+import LinkedInIcon from '../../../../assets/icons/linkedin-menu-icon.svg?react';
+import InstagramIcon from '../../../../assets/icons/instagram-menu-icon.svg?react';
 import { useEffect, useState } from 'react';
 import { lenis } from '../../../../utils/lenis';
 

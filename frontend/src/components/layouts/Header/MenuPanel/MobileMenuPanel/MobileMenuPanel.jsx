@@ -14,10 +14,10 @@ import LogoutIcon from "../../../../../assets/icons/logout-icon.svg?react"
 import UserIcon from '../../../../../assets/icons/nav-mobile-account-icon.svg?react';
 import CloseIcon from "../../../../../assets/icons/nav-mobile-close-icon.svg?react"
 
-import FacebookIcon from '../../../../../assets/icons/facebook-icon.svg?react';
-import TwitterIcon from '../../../../../assets/icons/twitter-icon.svg?react';
-import LinkedInIcon from '../../../../../assets/icons/linkedin-icon.svg?react';
-import InstagramIcon from '../../../../../assets/icons/instagram-icon.svg?react';
+import FacebookIcon from '../../../../../assets/icons/facebook-menu-icon.svg?react';
+import TwitterIcon from '../../../../../assets/icons/twitter-menu-icon.svg?react';
+import LinkedInIcon from '../../../../../assets/icons/linkedin-menu-icon.svg?react';
+import InstagramIcon from '../../../../../assets/icons/instagram-menu-icon.svg?react';
 
 /* ── Static data ─────────────────────────────────────────────────── */
 

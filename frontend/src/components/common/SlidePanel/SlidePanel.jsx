@@ -3,7 +3,7 @@ import styles from './SlidePanel.module.css';
 import { lenis } from '../../../utils/lenis';
 
 
-const SlidePanel = ({ isOpen, onClose, children, duration = 600, className = '', overlayClassName = '' }) => {
+const SlidePanel = ({ isOpen, onClose, children, duration = 600, className = '', overlayClassName = '', direction = 'down' }) => {
   const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
@@ -35,6 +35,8 @@ const SlidePanel = ({ isOpen, onClose, children, duration = 600, className = '',
   const resolvedChildren =
     typeof children === 'function' ? children({ animateClose }) : children;
 
+  const directionClass = direction === 'up' ? styles.slideUp : '';
+
   return (
     <div
       className={`${styles.overlay} ${overlayClassName}`}
@@ -43,7 +45,7 @@ const SlidePanel = ({ isOpen, onClose, children, duration = 600, className = '',
       role="dialog"
     >
       <div
-        className={`${styles.panel} ${isClosing ? styles.closing : ''} ${className}`}
+        className={`${styles.panel} ${directionClass} ${isClosing ? styles.closing : ''} ${className}`}
         style={{ '--slide-duration': `${duration}ms` }}
         data-lenis-prevent
         onClick={(e) => e.stopPropagation()}

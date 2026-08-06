@@ -18,10 +18,10 @@ const PriceDetails = ({ items, onPayment }) => {
           <span className={styles.value}>₹{originalTotal}</span>
         </div>
 
-        {discount > 0 && (
+        {discount < 0 && (
           <div className={styles.row}>
             <span className={styles.label}>Product Discount</span>
-            <span className={`${styles.value} ${styles.discount}`}>-₹{discount}</span>
+            <span className={`${styles.value} ${styles.discount}`}>-₹{-discount}</span>
           </div>
         )}
 

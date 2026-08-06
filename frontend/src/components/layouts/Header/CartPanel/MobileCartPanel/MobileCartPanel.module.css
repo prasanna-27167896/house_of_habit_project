@@ -1,0 +1,97 @@
+.panel {
+  background: #FAFAFA;
+  bottom: 64px;
+}
+
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 14px;
+  background: #FAFAFA;
+  flex-shrink: 0;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo svg {
+  width: 90px;
+  height: auto;
+}
+
+.closeBtn {
+  background: transparent;
+  cursor: pointer;
+}
+
+.closeBtn svg {
+  width: max(2.2rem, 2.2dvw);
+  height: max(2.2rem, 2.2dvw);
+}
+
+
+/* ── Title ── */
+.title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #28282b;
+  padding: 0 20px 12px;
+}
+
+
+/* ── Items Scrollable Area ── */
+.body {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.body::-webkit-scrollbar {
+  display: none;
+}
+
+
+/* ── Price Details Wrapper ── */
+.priceWrap {
+  flex-shrink: 0;
+  padding: 0 12px 12px;
+}
+
+
+/* ── Empty State ── */
+.emptyState {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  text-align: center;
+  padding: 3rem 1.5rem;
+}
+
+.emptyIcon {
+  width: 8rem;
+  height: 8rem;
+  color: #ff5f15;
+  opacity: 0.3;
+}
+
+.emptyMessage {
+  font-size: 0.95rem;
+  color: #28282b;
+  font-weight: 400;
+}
+
+.shopBtn {
+  width: fit-content;
+  background-color: transparent;
+}

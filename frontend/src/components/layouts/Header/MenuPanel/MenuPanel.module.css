@@ -143,12 +143,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
 }
 
 .socialBtn svg {
-  width: 28px;
-  height: 28px;
-  stroke: #28282b;
+  width: 24px;
+  height: 24px;
+}
+
+.socialName {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #28282b;
 }
 
 .footerRight {

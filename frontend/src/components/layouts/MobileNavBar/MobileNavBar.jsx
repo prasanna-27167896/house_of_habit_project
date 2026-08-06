@@ -12,7 +12,7 @@ import UserIcon from '../../../assets/icons/ProfileIconNav.svg?react';
 const NAV_ITEMS = [
   { id: 'home', icon: HomeIcon, label: 'Home', path: '/' },
   { id: 'cart', icon: BagIcon, label: 'Cart', action: 'cart' },
-  { id: 'categories', icon: CategoriesIcon, label: 'Categories', action: 'menu', center: true },
+  { id: 'categories', icon: CategoriesIcon, label: 'Categories', action: 'category', center: true },
   { id: 'search', icon: SearchIcon, label: 'Search', action: 'search' },
   { id: 'profile', icon: UserIcon, label: 'Profile', action: 'profile', path: '/account' },
 ];
