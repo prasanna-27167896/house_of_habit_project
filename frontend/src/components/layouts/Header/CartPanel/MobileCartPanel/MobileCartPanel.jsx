@@ -11,6 +11,7 @@ import { useEffect } from 'react';
 
 import LogoIcon from '../../../../../assets/icons/hoh-logo.svg?react';
 import CloseIcon from '../../../../../assets/icons/nav-mobile-close-icon.svg?react';
+import MobileSlideHeader from '../../../../mobile-slide-header/MobileSlideHeader';
 
 
 const MobileCartPanel = ({ isOpen, onClose }) => {
@@ -54,16 +55,7 @@ const MobileCartPanel = ({ isOpen, onClose }) => {
         return (
           <>
             {/* ── Header: Logo + Close ── */}
-            <div className={styles.header}>
-              <div className={styles.logo}><LogoIcon /></div>
-              <button
-                className={styles.closeBtn}
-                onClick={() => animateClose()}
-                aria-label="Close cart"
-              >
-                <CloseIcon />
-              </button>
-            </div>
+            <MobileSlideHeader animateClose={animateClose} />
 
             {/* ── Title ── */}
             <h2 className={styles.title}>Cart ({totalItems} items)</h2>

@@ -4,42 +4,12 @@
 }
 
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px 14px;
-  background: #FAFAFA;
-  flex-shrink: 0;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-}
-
-.logo svg {
-  width: 90px;
-  height: auto;
-}
-
-.closeBtn {
-  background: transparent;
-  cursor: pointer;
-}
-
-.closeBtn svg {
-  width: max(2.2rem, 2.2dvw);
-  height: max(2.2rem, 2.2dvw);
-}
-
-
 /* ── Title ── */
 .title {
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-size: 1.32rem;
+  font-weight: 400;
   color: #28282b;
-  padding: 0 20px 12px;
+  padding: max(1rem, 1dvw) max(0.8rem, 0.8dvw);
 }
 
 

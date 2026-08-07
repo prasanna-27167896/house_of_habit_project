@@ -94,7 +94,7 @@
 
 @media (max-width: 768px) {
   .priceDetails {
-    padding: max(1.5rem, 1.5dvw);
+    padding: max(1rem, 1dvw);
   }
 
   .row {

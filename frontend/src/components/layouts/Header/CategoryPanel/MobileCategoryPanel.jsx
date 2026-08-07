@@ -3,8 +3,7 @@ import styles from './MobileCategoryPanel.module.css';
 import SlidePanel from '../../../common/SlidePanel/SlidePanel';
 import slidePanelStyles from '../../../common/SlidePanel/SlidePanel.module.css';
 
-import LogoIcon from '../../../../assets/icons/hoh-logo.svg?react';
-import CloseIcon from '../../../../assets/icons/nav-mobile-close-icon.svg?react';
+import MobileSlideHeader from '../../../mobile-slide-header/MobileSlideHeader';
 
 import PoloImg from '../../../../assets/images/Polo T-shirt.png';
 import HoodiesImg from '../../../../assets/images/Hoodies.png';
@@ -37,16 +36,7 @@ const MobileCategoryPanel = ({ isOpen, onClose }) => {
         return (
           <>
             {/* Header */}
-            <div className={styles.header}>
-              <div className={styles.logo}><LogoIcon /></div>
-              <button
-                className={styles.closeBtn}
-                onClick={() => animateClose()}
-                aria-label="Close categories"
-              >
-                <CloseIcon />
-              </button>
-            </div>
+            <MobileSlideHeader animateClose={animateClose} />
 
             {/* Body */}
             <div className={styles.body}>

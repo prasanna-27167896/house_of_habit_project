@@ -12,6 +12,7 @@ import Loader from '../../../../common/Loader/Loader';
 import LogoIcon from '../../../../../assets/icons/hoh-logo.svg?react';
 import CloseIcon from '../../../../../assets/icons/nav-mobile-close-icon.svg?react';
 import SearchIcon from '../../../../../assets/icons/search-icon.svg?react';
+import MobileSlideHeader from '../../../../mobile-slide-header/MobileSlideHeader';
 
 const SKELETON_COUNT = 4;
 const DEBOUNCE_MS = 300;
@@ -146,16 +147,7 @@ const MobileSearchPanel = ({ isOpen, onClose }) => {
       {({ animateClose }) => (
         <>
           {/* Header */}
-          <div className={styles.header}>
-            <div className={styles.logo}><LogoIcon /></div>
-            <button
-              className={styles.closeBtn}
-              onClick={() => animateClose()}
-              aria-label="Close search"
-            >
-              <CloseIcon />
-            </button>
-          </div>
+          <MobileSlideHeader animateClose={animateClose} />
 
           <div className={styles.body}>
             {/* Search Input Bar */}

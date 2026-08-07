@@ -18,6 +18,7 @@ import FacebookIcon from '../../../../../assets/icons/facebook-menu-icon.svg?rea
 import TwitterIcon from '../../../../../assets/icons/twitter-menu-icon.svg?react';
 import LinkedInIcon from '../../../../../assets/icons/linkedin-menu-icon.svg?react';
 import InstagramIcon from '../../../../../assets/icons/instagram-menu-icon.svg?react';
+import MobileSlideHeader from '../../../../mobile-slide-header/MobileSlideHeader';
 
 /* ── Static data ─────────────────────────────────────────────────── */
 
@@ -90,16 +91,7 @@ const MobileMenuPanel = ({ isOpen, onClose, onOpenCart, onOpenProfile }) => {
 
           return (
             <>
-              <div className={styles.header}>
-                <div className={styles.logo}><LogoIcon /></div>
-                <button
-                  className={styles.closeBtn}
-                  onClick={() => animateClose()}
-                  aria-label="Close menu"
-                >
-                  <CloseIcon />
-                </button>
-              </div>
+              <MobileSlideHeader animateClose={animateClose} />
 
               {/* ── Nav list ── */}
               <nav aria-label="Mobile navigation">

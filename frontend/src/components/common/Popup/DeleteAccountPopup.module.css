@@ -1,8 +1,8 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px);
+  background-color: #2E3C5833;
+  backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -102,4 +102,61 @@
 .cancelBtn:hover {
   background: #e05e10;
   border-color: #e05e10;
+}
+
+@media (max-width: 768px) {
+  .overlay {
+    padding: 0.8rem;
+  }
+
+  .container {
+    max-width: max(25rem, 25dvw);
+    padding: 1rem;
+    border-radius: 1.4rem;
+  }
+
+  .iconCircle {
+    width: 80px;
+    height: 80px;
+    background: transparent;
+    margin-bottom: 1rem;
+  }
+
+  .iconCircle svg {
+    width: 80px !important;
+    height: 80px !important;
+  }
+
+  .title {
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+  }
+
+  .subtext {
+    font-size: 0.85rem;
+    color: #28282B;
+    line-height: 1.4;
+    margin-bottom: 1rem;
+    max-width: 280px;
+    font-weight: 400;
+  }
+
+  .actions {
+    gap: 0.8rem;
+  }
+
+  .deleteBtn {
+    padding: 0.8rem 0;
+    font-size: 0.8rem;
+    font-weight: 400;
+    border-radius: 0.6rem;
+  }
+
+  .cancelBtn {
+    padding: 0.8rem 0;
+    font-size: 0.8rem;
+    font-weight: 400;
+    border-radius: 0.6rem;
+  }
 }

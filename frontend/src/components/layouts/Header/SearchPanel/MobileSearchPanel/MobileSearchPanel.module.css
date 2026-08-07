@@ -1,48 +1,16 @@
 .panel {
-  background: #FAFAFA;
+  background: #FAFAFA !important;
   bottom: 64px;
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px 14px;
-  background: #FAFAFA;
-  flex-shrink: 0;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-}
-
-.logo svg {
-  width: 90px;
-  height: auto;
-}
-
-.closeBtn {
-  background: transparent;
-  cursor: pointer;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-}
-
-.closeBtn svg {
-  width: max(2.2rem, 2.2dvw);
-  height: max(2.2rem, 2.2dvw);
-}
 
 /* ── Body ── */
 .body {
   flex: 1;
   overflow-y: auto;
   scrollbar-width: none;
-  padding: 0 20px 20px;
+  padding: 24px 14px 16px;
+
 }
 
 .body::-webkit-scrollbar {
@@ -56,8 +24,8 @@
   gap: 12px;
   background: #F7F7F7;
   border-radius: 12px;
-  padding: 14px 16px;
-  margin: 8px 0 24px 0;
+  padding: 12px 14px;
+  margin: 8px 0 20px 0;
 }
 
 .searchIcon {
@@ -73,7 +41,7 @@
   border: none;
   background: transparent;
   font-size: 1.05rem;
-  font-weight: 400;
+  font-weight: 300;
   outline: none;
   color: #28282b;
 }
@@ -85,14 +53,14 @@
 
 /* ── Sections ── */
 .section {
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .sectionTitle {
   font-size: 1.25rem;
-  font-weight: 500;
+  font-weight: 400;
   color: #28282b;
-  margin: 16px 0;
+  margin: 4px 0;
   display: inline-block;
   position: relative;
 }
@@ -119,7 +87,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 400;
   color: #28282b;
   cursor: pointer;
@@ -129,8 +97,8 @@
 }
 
 .tagIcon {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   color: #28282b;
 }
 
@@ -140,7 +108,7 @@
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  margin-top: 12px;
+  margin-top: 20px;
 }
 
 .carouselGrid {
@@ -160,8 +128,8 @@
 .controlBtn {
   width: 44px;
   height: 44px;
-  border-radius: 50%;
-  border: 1px solid #E2E2E2;
+  border-radius: 0.8rem;
+  border: 1px solid #EAEAEA;
   background: #ffffff;
   display: flex;
   align-items: center;
@@ -181,8 +149,8 @@
 }
 
 .controlBtn svg {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
 }
 
 /* ── Results View ── */
@@ -191,7 +159,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   width: 100%;
-  margin-top: 12px;
+  margin-top: 20px;
 }
 
 .noResultsText {
