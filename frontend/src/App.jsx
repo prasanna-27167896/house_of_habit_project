@@ -10,8 +10,6 @@ import CheckoutModal from './components/checkout/CheckoutModal/CheckoutModal';
 import { fetchUserProfile } from './store/slices/authSlice';
 import { fetchCart } from './store/slices/cartSlice';
 
-import { lenis } from './utils/lenis';
-
 const ScrollToTop = () => {
   const { pathname } = useLocation();
 
@@ -19,9 +17,6 @@ const ScrollToTop = () => {
     window.scrollTo(0, 0);
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
-    if (lenis) {
-      lenis.scrollTo(0, { immediate: true });
-    }
   }, [pathname]);
 
   return null;

@@ -5,21 +5,24 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-
   justify-content: space-between;
-  padding: max(0.5rem, 0.5dvw) 0;
+  padding: max(0.5rem, 0.5dvw) 0 0 0;
   height: 100%;
+  flex-grow: 1;
   text-align: center;
 }
 
 .authContainer {
+  position: relative;
   width: 100%;
+  height: 100%;
+  flex-grow: 1;
   max-width: max(28rem, 28dvw);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: max(0.4rem, 0.4dvw);
-  padding: max(0.8rem, 0.8dvw);
+  padding: max(0.8rem, 0.8dvw) max(0.8rem, 0.8dvw) 0 max(0.8rem, 0.8dvw);
 }
 
 .title {
@@ -39,7 +42,7 @@
 .subparagraph {
   font-size: max(0.95rem, 0.95dvw);
   color: #28282b;
-  margin-bottom: max(1rem, 1dvh);
+  margin-bottom: max(0.6rem, 0.6dvw);
   font-weight: 300;
 }
 
@@ -56,7 +59,7 @@
   background: #fafafa;
   border-radius: max(0.8rem, 0.8dvw);
   padding: max(0.9rem, 0.9dvw) max(1rem, 1dvw);
-  margin-bottom: max(1.2rem, 1.2dvw);
+  margin-bottom: max(0.6rem, 0.6dvw);
 }
 
 .prefix {
@@ -89,7 +92,7 @@
   background: #fafafa;
   border-radius: max(0.8rem, 0.8dvw);
   padding: max(1rem, 1dvw) max(0.8rem, 0.8dvw);
-  margin-bottom: max(1.2rem, 1.2dvw);
+  margin-bottom: max(0.6rem, 0.6dvw);
   font-size: max(0.8rem, 0.8dvw);
   color: #28282b;
   border: none;
@@ -164,8 +167,8 @@
 }
 
 .troubleLink {
-  font-size: max(0.95rem, 0.95dvw);
-  color: #9c9c9d;
+  font-size: max(0.8rem, 0.8dvw);
+  color: #28282b;
   text-decoration: underline;
   font-weight: 400;
   cursor: pointer;
@@ -177,9 +180,9 @@
 /* ── Footer text ── */
 .footerText {
   color: #28282b;
-  font-size: max(0.9rem, 0.9dvw);
+  font-size: max(0.8rem, 0.8dvw);
   font-weight: 300;
-  padding-bottom: max(0.8rem, 0.8dvw);
+  padding-bottom: max(0.6rem, 0.6dvw);
 }
 
 .footerText a {
@@ -197,12 +200,11 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  border-radius: max(1.4rem, 1.4dvw);
 }
 
 .handshakeImg {
   width: 100%;
-  height: auto;
+  height: 100%;
 }
 
 .successText {
@@ -212,7 +214,8 @@
 }
 
 .errorMessage {
-  color: #ff4d4f; /* Red error color */
+  color: #ff4d4f;
+  /* Red error color */
   font-size: 0.875rem;
   margin-top: -10px;
   margin-bottom: 10px;
@@ -220,40 +223,58 @@
   font-weight: 500;
 }
 
+.footerSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  margin-top: auto;
+}
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .authContainer {
     max-width: 100%;
     padding: 8px 12px;
+  }
+
+  .footerSection {
+    display: flex;
+    flex-direction: column;
     gap: 8px;
+    width: 100%;
+    margin-top: auto;
   }
 
   .title {
-    font-size: 1.35rem;
-    margin-bottom: 4px;
+    font-size: 1.15rem;
+    margin-bottom: 0;
   }
 
   .subtitle {
     font-size: 0.95rem;
-    margin-bottom: 12px;
+    margin-bottom: 0;
   }
 
   .subparagraph {
     font-size: 0.85rem;
-    margin-bottom: 12px;
+    font-weight: 400;
+    margin-bottom: 0;
   }
 
   .inputGroup,
   .emailInput {
-    border-radius: 10px;
-    padding: 10px 12px;
-    margin-bottom: 12px;
-    font-size: 0.9rem;
+    border-radius: 8px;
+    padding: 14px 12px;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
   }
+
+
 
   .input,
   .prefix {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
 
   .prefix {
@@ -264,7 +285,7 @@
   .submitBtn {
     padding: 10px 0;
     border-radius: 8px;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
   }
 
   .otpGroup {
@@ -279,13 +300,14 @@
     font-size: 1.15rem;
   }
 
-  .resendLink,
-  .troubleLink {
+  .resendLink {
     font-size: 0.85rem;
-    margin-bottom: 8px;
+    margin-bottom: 0;
   }
 
-  .footerText {
+
+  .footerText,
+  .troubleLink {
     font-size: 0.75rem;
     padding-bottom: 4px;
     line-height: 1.4;

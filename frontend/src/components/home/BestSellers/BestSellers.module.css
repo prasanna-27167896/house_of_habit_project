@@ -1,32 +1,33 @@
 /* ── Section ── */
 .section {
-  margin-top: max(2rem, 2dvw);
-  padding: max(1rem, 1dvw);
+  margin-top: clamp(1.25rem, 2.5vw, 2rem);
+  padding: clamp(0.75rem, 1.5vw, 1rem);
 }
 
 /* ── Header ── */
 .header {
   text-align: left;
-  margin-bottom: max(1.2rem, 1.2dvw);
+  margin-bottom: clamp(0.9rem, 1.5vw, 1.2rem);
 }
 
 .title {
-  font-size: max(3rem, 3dvw);
+  font-size: clamp(1.6rem, 4vw, 3rem);
   font-weight: 600;
   color: var(--text-primary);
-  margin-bottom: max(0.2rem, 0.2dvw);
+  margin-bottom: clamp(0.15rem, 0.3vw, 0.2rem);
+  line-height: 1.15;
 }
 
 .subtitle {
   color: #28282b;
-  font-size: max(0.9rem, 0.9dvw);
+  font-size: clamp(0.85rem, 1.2vw, 0.95rem);
 }
 
 /* ── Grid ── */
 .grid {
   display: flex;
   flex-wrap: nowrap;
-  gap: max(1.2rem, 1.2dvw);
+  gap: clamp(0.75rem, 1.5vw, 1.2rem);
   overflow-x: auto;
   overflow-y: hidden;
   padding-bottom: 0.5rem;
@@ -47,16 +48,17 @@
 
 .active {
   cursor: grabbing !important;
-  /* ADD THIS: Stops global smooth scrolling from fighting your drag */
+  /* Stops global smooth scrolling from fighting your drag */
   scroll-behavior: auto !important;
 }
 
-.active > * {
+.active>* {
   pointer-events: none;
 }
 
-.grid > * {
-  flex: 0 0 calc(100% / 3); /* desktop: 3 cards visible */
+.grid>* {
+  flex: 0 0 calc(100% / 3);
+  /* desktop: 3 cards visible */
 
   /* Prevents text from highlighting while you drag */
   user-select: none;
@@ -66,12 +68,12 @@
 /* ── Card ── */
 .card {
   position: relative;
-  min-height: 260px;
-  border-radius: max(1rem, 1dvw);
+  min-height: clamp(200px, 24vw, 260px);
+  border-radius: clamp(0.75rem, 1.2vw, 1rem);
   overflow: hidden;
   display: flex;
   align-items: flex-end;
-  padding: max(1rem, 1dvw);
+  padding: clamp(0.85rem, 1.4vw, 1rem);
   background-size: cover;
   background-position: center;
   color: #ffffff;
@@ -81,20 +83,21 @@
 .textBlock {
   position: relative;
   z-index: 9;
-  width: 60%; /* text left, image right */
+  width: 60%;
+  /* text left, image right */
   display: flex;
   flex-direction: column;
-  gap: max(0.5rem, 0.5dvw);
+  gap: clamp(0.4rem, 0.8vw, 0.5rem);
 }
 
 .productName {
-  font-size: max(1.2rem, 1.2dvw);
+  font-size: clamp(0.95rem, 1.6vw, 1.2rem);
   font-weight: 400;
   margin: 0;
 }
 
 .productPrice {
-  font-size: max(1.1rem, 1.1dvw);
+  font-size: clamp(0.9rem, 1.5vw, 1.1rem);
   font-weight: 700;
   margin: 0;
 }
@@ -109,10 +112,10 @@
   position: absolute;
   right: 0;
   bottom: 0;
-  width: 50%;
+  width: 55%;
   height: 100%;
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   z-index: 2;
   overflow: hidden;
@@ -120,9 +123,22 @@
 
 .imageWrapper img {
   width: 100%;
-  height: 100%;
+  height: 105%;
   object-fit: contain;
-  max-height: 100%;
+  object-position: bottom center;
+  max-height: 105%;
+  transition: transform 0.3s ease;
+}
+
+.card:hover .imageWrapper img {
+  transform: scale(1.05);
+}
+
+/* ── Large tablet / small desktop ── */
+@media (max-width: 1200px) {
+  .grid>* {
+    flex: 0 0 calc(100% / 2.5);
+  }
 }
 
 /* ── Tablet adjustments ── */
@@ -131,7 +147,7 @@
     width: 55%;
   }
 
-  .grid > * {
+  .grid>* {
     flex: 0 0 50%;
   }
 }
@@ -139,34 +155,32 @@
 /* ── Mobile adjustments ── */
 @media (max-width: 768px) {
   .section {
-    margin-top: max(1.5rem, 1.5dvw);
+    margin-top: clamp(1rem, 3vw, 1.5rem);
     padding: 0;
   }
 
   .title {
-    font-size: max(2rem, 2.5dvw);
+    font-size: clamp(1.4rem, 6vw, 2rem);
   }
 
   .subtitle {
-    font-size: max(1rem, 1.2dvw);
+    font-size: clamp(0.8rem, 3vw, 1rem);
   }
 
-  .grid > * {
-    flex: 0 0 85%;
+  .grid>* {
+    flex: 0 0 95%;
   }
 
   .grid {
-    gap: max(1rem, 1dvw);
-    padding-left: max(1rem, 1dvw);
-    padding-right: max(1rem, 1dvw);
+    gap: clamp(0.75rem, 3vw, 1rem);
   }
 
   .card {
-    min-height: 260px;
-    padding: max(1rem, 1dvw) max(1rem, 1dvw) max(1.5rem, 1.5dvw);
+    min-height: 210px;
+    padding: clamp(0.85rem, 3vw, 1rem) clamp(0.85rem, 3vw, 1rem) clamp(1.1rem, 4vw, 1.5rem);
     flex-direction: row;
     align-items: flex-end;
-    border-radius: max(1.6rem, 1.6dvw);
+    border-radius: clamp(1.1rem, 4vw, 1.6rem);
   }
 
   .textBlock {
@@ -175,7 +189,7 @@
   }
 
   .imageWrapper {
-    width: 50%;
+    width: 55%;
     height: 100%;
     position: absolute;
     right: 0;
@@ -184,18 +198,45 @@
 
   .imageWrapper img {
     width: 100%;
-    height: 100%;
+    height: 105%;
     object-fit: contain;
-    max-height: 100%;
+    max-height: 105%;
   }
 
   .productName {
-    font-size: max(1.2rem, 1.2dvw);
+    font-size: clamp(1rem, 4vw, 1.2rem);
   }
 
   .productPrice {
-    font-size: max(1.4rem, 1.4dvw);
+    font-size: clamp(1.1rem, 4.5vw, 1.4rem);
     font-weight: 600;
+  }
+}
+
+/* ── Small phone adjustments ── */
+@media (max-width: 420px) {
+  .grid>* {
+    flex: 0 0 95%;
+  }
+
+  .card {
+    min-height: 190px;
+  }
+
+  .textBlock {
+    width: 62%;
+  }
+
+  .imageWrapper {
+    width: 50%;
+  }
+
+  .productName {
+    font-size: 0.95rem;
+  }
+
+  .productPrice {
+    font-size: 1.05rem;
   }
 }
 
@@ -204,6 +245,7 @@
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }
@@ -211,13 +253,13 @@
 
 .skeletonCard {
   position: relative;
-  min-height: 260px;
-  border-radius: max(1rem, 1dvw);
+  min-height: clamp(200px, 24vw, 260px);
+  border-radius: clamp(0.75rem, 1.2vw, 1rem);
   background: #fafafa;
   overflow: hidden;
   display: flex;
   align-items: flex-end;
-  padding: max(1rem, 1dvw);
+  padding: clamp(0.85rem, 1.4vw, 1rem);
   border: 1px solid #f0f0f0;
 }
 
@@ -227,11 +269,11 @@
   width: 60%;
   display: flex;
   flex-direction: column;
-  gap: max(0.8rem, 0.8dvw);
+  gap: clamp(0.6rem, 1.2vw, 0.8rem);
 }
 
 .skeletonName {
-  height: max(1.2rem, 1.2dvw);
+  height: clamp(1rem, 1.8vw, 1.2rem);
   width: 85%;
   border-radius: 4px;
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
@@ -240,7 +282,7 @@
 }
 
 .skeletonPrice {
-  height: max(1.1rem, 1.1dvw);
+  height: clamp(0.9rem, 1.6vw, 1.1rem);
   width: 40%;
   border-radius: 4px;
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
@@ -249,7 +291,7 @@
 }
 
 .skeletonBtn {
-  height: max(2rem, 2dvw);
+  height: clamp(1.6rem, 3vw, 2rem);
   width: 50%;
   border-radius: 4px;
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
@@ -259,14 +301,12 @@
 
 .skeletonImage {
   position: absolute;
-  right: max(1rem, 1dvw);
-  top: 50%;
-  transform: translateY(-50%);
-  width: max(8rem, 8dvw);
-  height: max(10rem, 10dvw);
-  border-radius: max(0.6rem, 0.6dvw);
+  right: clamp(0.75rem, 1.5vw, 1rem);
+  bottom: 0;
+  width: clamp(5.5rem, 12vw, 8rem);
+  height: clamp(7rem, 14vw, 10rem);
+  border-radius: clamp(0.5rem, 1vw, 0.6rem);
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
 }
-

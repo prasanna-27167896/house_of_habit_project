@@ -9,7 +9,6 @@ const SlideUpPanel = ({ isOpen, onClose, children }) => {
       />
       <div 
         className={`${styles.panel} ${isOpen ? styles.open : ''}`} 
-        data-lenis-prevent
       >
         {/* Circle Close Button overlapping the top edge */}
         <button className={styles.closeBtn} onClick={onClose} aria-label="Close panel">

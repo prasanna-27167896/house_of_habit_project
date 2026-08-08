@@ -98,7 +98,6 @@ const OtpStep = ({ contact, onVerify, onResend, error, isLoading }) => {
         </div>
 
         {error && <p className={styles.errorMessage}>{error}</p>}
-
         <button
           type="button"
           className={styles.resendLink}
@@ -108,18 +107,23 @@ const OtpStep = ({ contact, onVerify, onResend, error, isLoading }) => {
           {timer > 0 ? `Resend OTP in ${timer}sec` : "Resend OTP"}
         </button>
 
-        <button
-          type="submit"
-          className={`${styles.submitBtn} ${isValid && !isLoading ? styles.btnActive : styles.btnInactive}`}
-          disabled={!isValid || isLoading}
-        >
-          {isLoading ? "Verifying..." : "Verify"}
-        </button>
-      </div>
 
-      <button type="button" className={styles.troubleLink}>
-        Trouble Logging In?
-      </button>
+        <div className={styles.footerSection}>
+          <button
+            type="submit"
+            className={`${styles.submitBtn} ${isValid && !isLoading ? styles.btnActive : styles.btnInactive}`}
+            disabled={!isValid || isLoading}
+          >
+            {isLoading ? "Verifying..." : "Verify"}
+          </button>
+
+          <button type="button" className={styles.troubleLink}>
+            Trouble Logging In?
+          </button>
+        </div>
+
+
+      </div>
     </form>
   );
 };

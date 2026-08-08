@@ -41,20 +41,23 @@ const EmailStep = ({
 
         {error && <p className={styles.errorMessage}>{error}</p>}
 
-        <button
-          type="submit"
-          className={`${styles.submitBtn} ${isValid && !isLoading ? styles.btnActive : styles.btnInactive}`}
-          disabled={!isValid || isLoading}
-        >
-          {isLoading ? "Please wait..." : "Request OTP"}
-        </button>
+        <div className={styles.footerSection}>
+          <button
+            type="submit"
+            className={`${styles.submitBtn} ${isValid && !isLoading ? styles.btnActive : styles.btnInactive}`}
+            disabled={!isValid || isLoading}
+          >
+            {isLoading ? "Please wait..." : "Request OTP"}
+          </button>
+          <p className={styles.footerText}>
+            I accept that I have read &amp; understand
+            <br />
+            <a href="/privacy-policy">privacy policy</a> and{" "}
+            <a href="/terms">T&amp;Cs.</a>
+          </p>
+        </div>
       </div>
-      <p className={styles.footerText}>
-        I accept that I have read &amp; understand
-        <br />
-        <a href="/privacy-policy">privacy policy</a> and{" "}
-        <a href="/terms">T&amp;Cs.</a>
-      </p>
+
     </form>
   );
 };

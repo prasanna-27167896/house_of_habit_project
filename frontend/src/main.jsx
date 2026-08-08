@@ -1,6 +1,5 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { lenis } from "./utils/lenis.js";
 import "./styles/global.css";
 import App from "./App.jsx";
 

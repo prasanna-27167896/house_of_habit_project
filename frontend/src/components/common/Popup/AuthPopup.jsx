@@ -14,7 +14,6 @@ import {
   clearError,
 } from "../../../store/slices/authSlice";
 import useAuthStore from "../../../store/useAuthStore";
-import { lenis } from "../../../utils/lenis";
 
 const STEPS = {
   EMAIL: "email",
@@ -39,7 +38,6 @@ const AuthPopup = ({ isOpen, onClose, mode: initialMode = MODES.LOGIN }) => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
-      if (lenis) lenis.stop();
       setStep(STEPS.EMAIL);
       setEmail("");
       setName("");
@@ -47,11 +45,9 @@ const AuthPopup = ({ isOpen, onClose, mode: initialMode = MODES.LOGIN }) => {
       dispatch(clearError());
     } else {
       document.body.style.overflow = "";
-      if (lenis) lenis.start();
     }
     return () => {
       document.body.style.overflow = "";
-      if (lenis) lenis.start();
     };
   }, [isOpen, dispatch]);
 
@@ -162,7 +158,7 @@ const AuthPopup = ({ isOpen, onClose, mode: initialMode = MODES.LOGIN }) => {
         );
 
       case STEPS.SUCCESS:
-        return <SuccessStep bgColor="#F4F4F4" />;
+        return <SuccessStep />;
       default:
         return null;
     }
@@ -172,7 +168,6 @@ const AuthPopup = ({ isOpen, onClose, mode: initialMode = MODES.LOGIN }) => {
     <div className={styles.overlay} onClick={handleClose}>
       <div
         className={styles.modalWrapper}
-        data-lenis-prevent
         onClick={(e) => e.stopPropagation()}
       >
         <button

@@ -4,7 +4,6 @@ import styles from './SearchPanel.module.css';
 import { topSearches, trendingProducts } from '../../../../data/searchData';
 import { searchProducts } from '../../../../services/productService';
 import Loader from '../../../common/Loader/Loader';
-import { lenis } from '../../../../utils/lenis';
 import SearchIcon from '../../../../assets/icons/search-icon.svg?react';
 import DummyImage from '../../../../assets/images/dummy-model.png';
 
@@ -28,11 +27,9 @@ const SearchPanel = ({ isOpen, onClose }) => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
-      if (lenis) lenis.stop();
       setIsClosing(false);
     } else {
       document.body.style.overflow = '';
-      if (lenis) lenis.start();
       // Reset search state when panel closes
       setQuery('');
       setSearchResults([]);
@@ -42,7 +39,6 @@ const SearchPanel = ({ isOpen, onClose }) => {
     }
     return () => {
       document.body.style.overflow = '';
-      if (lenis) lenis.start();
     };
   }, [isOpen]);
 
@@ -139,7 +135,6 @@ const SearchPanel = ({ isOpen, onClose }) => {
     <div className={styles.overlay} onClick={handleClose}>
       <div
         className={`${styles.panel} ${isClosing ? styles.closing : ''}`}
-        data-lenis-prevent
         onClick={(e) => e.stopPropagation()}
       >
         <button className={styles.closeBtn} onClick={handleClose} aria-label='Close'>

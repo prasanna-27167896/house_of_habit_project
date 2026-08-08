@@ -49,7 +49,7 @@ const DetailsStep = ({
             autoFocus
           />
 
-          <div className={styles.inputGroup} style={{ marginBottom: '1rem' }}>
+          <div className={styles.inputGroup} >
             <span className={styles.prefix}>+91</span>
             <input
               className={styles.input}
@@ -73,13 +73,21 @@ const DetailsStep = ({
 
           {error && <p className={styles.errorMessage}>{error}</p>}
 
-          <button
-            type='submit'
-            className={`${styles.submitBtn} ${isValid && !isLoading ? styles.btnActive : styles.btnInactive}`}
-            disabled={!isValid || isLoading}
-          >
-            {isLoading ? 'Updating...' : 'Update'}
-          </button>
+          <div className={styles.footerSection}>
+            <button
+              type='submit'
+              className={`${styles.submitBtn} ${isValid && !isLoading ? styles.btnActive : styles.btnInactive}`}
+              disabled={!isValid || isLoading}
+            >
+              {isLoading ? 'Updating...' : 'Update'}
+            </button>
+            <p className={styles.footerText}>
+              I accept that I have read &amp; understand
+              <br />
+              <a href="/privacy-policy">privacy policy</a> and{" "}
+              <a href="/terms">T&amp;Cs.</a>
+            </p>
+          </div>
         </div>
       </form>
     </>

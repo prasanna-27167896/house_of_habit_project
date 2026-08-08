@@ -31,7 +31,7 @@
 
 .closeBtn {
   position: absolute;
-  top: max(-2.4rem, -2.4dvw);
+  top: max(-2.8rem, -2.8dvw);
   right: 0;
   z-index: 1001;
   width: max(1.8rem, 1.8dvw);
@@ -89,7 +89,8 @@
   flex: 1;
   background: #ffffff;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   justify-content: center;
   border-radius: max(1.4rem, 1.4dvw);
   margin: max(1.1rem, 1.1dvw);
@@ -122,28 +123,38 @@
     max-height: 90vh;
   }
 
+  .leftContent {
+    gap: max(1rem, 1dvw);
+  }
+
   .leftPanel {
     flex: none;
-    height: 180px;
+    height: max(8.2rem, 8.2dvw);
   }
 
   .logo {
-    width: 10rem;
+    width: max(8.5em, 8.5dvw);
   }
 
   .welcomeText {
-    font-size: 1rem;
+    font-size: 0.92rem;
   }
 
   .rightPanel {
-    padding: 1.5rem;
+    min-height: max(24rem, 24dvw);
+    margin: 0 0.6rem 0.6rem 0.6rem;
+    border-radius: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
   }
 
   .closeBtn {
-    top: -2.5rem;
+    top: -2.8rem;
     right: 0;
-    width: 2rem;
-    height: 2rem;
+    width: 2.2rem;
+    height: 2.2rem;
     font-size: 1rem;
   }
 }

@@ -5,7 +5,6 @@ import styles from './CheckoutModal.module.css';
 import QuantitySelector from '../../cart/QuantitySelector/QuantitySelector';
 import DeleteIcon from '../../../assets/icons/delete-icon-cart.svg?react';
 import DummyImage from '../../../assets/images/dummy-model.png';
-import { lenis } from '../../../utils/lenis';
 import SlideUpPanel from '../SlideUpPanel/SlideUpPanel';
 import SelectAddress from '../SelectAddress/SelectAddress';
 import AddAddress from '../AddAddress/AddAddress';
@@ -133,7 +132,7 @@ const CheckoutModal = () => {
 
   return (
     <div className={styles.overlay} onClick={handleClose}>
-      <div className={styles.modal} data-lenis-prevent onClick={(e) => e.stopPropagation()}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         {panelView === 'overview' ? (
           <OrderOverview
             addressData={addressData}

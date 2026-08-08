@@ -24,7 +24,7 @@ const OrderConfirmation = ({ onContinueShopping, onTrackOrder, totalPrice = 999,
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.body} data-lenis-prevent>
+      <div className={styles.body}>
         {/* Success Illustration Block */}
         <div className={styles.successBlock}>
           <img src={SuccessGif} alt="Order Successful" className={styles.successGif} />

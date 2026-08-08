@@ -22,9 +22,16 @@ const MobileNavBar = ({ activePanel, onAction }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { totalItems = 0 } = useSelector((state) => state.cart);
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   const handleTap = (item) => {
-    if (item.action && onAction) {
+    if (item.id === 'profile') {
+      if (isAuthenticated) {
+        navigate('/account');
+      } else if (onAction) {
+        onAction('profile');
+      }
+    } else if (item.action && onAction) {
       onAction(item.action);
     } else if (item.path) {
       navigate(item.path);

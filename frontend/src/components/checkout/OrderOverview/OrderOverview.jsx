@@ -295,7 +295,7 @@ const OrderOverview = ({ onBack, onChangeAddress, addressData, totalPrice = 999,
       </div>
 
       {/* Main Scrollable Content */}
-      <div className={styles.body} data-lenis-prevent>
+      <div className={styles.body}>
         {/* Section 1: Delivery Details */}
         <div className={styles.section}>
           <h3 className={styles.sectionTitle}>Delivery Details</h3>
