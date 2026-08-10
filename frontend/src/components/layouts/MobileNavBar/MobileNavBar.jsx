@@ -4,9 +4,10 @@ import styles from './MobileNavBar.module.css';
 
 import HomeIcon from '../../../assets/icons/HomeIconNav.svg?react';
 import BagIcon from '../../../assets/icons/CartIconNav.svg?react';
-import CategoriesIcon from '../../../assets/icons/CategoriesIconNav.svg?react';
+import CategoriesIcon from '../../../assets/icons/mobile-menu-icon.svg?react';
 import SearchIcon from '../../../assets/icons/SearchIconNav.svg?react';
 import UserIcon from '../../../assets/icons/ProfileIconNav.svg?react';
+import ProfileAvatar from '../../../assets/icons/profile-avatar-mobile.svg?react';
 
 
 const NAV_ITEMS = [
@@ -63,6 +64,13 @@ const MobileNavBar = ({ activePanel, onAction }) => {
               );
             }
 
+            let IconComponent = Icon;
+            let isAvatar = false;
+            if (id === 'profile' && isAuthenticated) {
+              IconComponent = ProfileAvatar;
+              isAvatar = true;
+            }
+
             return (
               <li key={id} className={styles.navItem}>
                 <button
@@ -71,8 +79,8 @@ const MobileNavBar = ({ activePanel, onAction }) => {
                   aria-current={isActive ? 'page' : undefined}
                   onClick={() => handleTap(item)}
                 >
-                  <span className={styles.iconWrap}>
-                    <Icon />
+                  <span className={`${styles.iconWrap} ${isAvatar ? styles.avatarWrap : ''}`}>
+                    <IconComponent />
                     {id === 'cart' && totalItems > 0 && (
                       <span className={styles.badge}>{totalItems}</span>
                     )}

@@ -1,5 +1,5 @@
 .panel {
-  background: #FAFAFA !important;
+  background: #ffffff !important;
   bottom: 64px;
 }
 
@@ -40,7 +40,7 @@
   flex: 1;
   border: none;
   background: transparent;
-  font-size: 1.05rem;
+  font-size: 0.85rem;
   font-weight: 300;
   outline: none;
   color: #28282b;

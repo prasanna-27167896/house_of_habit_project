@@ -14,6 +14,7 @@ import MobileCategoryPanel from './CategoryPanel/MobileCategoryPanel';
 import LogoIcon from "../../../assets/icons/hoh-logo.svg?react";
 import SearchIcon from "../../../assets/icons/searchIcon.svg?react";
 import UserIcon from "../../../assets/icons/UserIcon.svg?react";
+import ProfileAvatar from "../../../assets/icons/profile-avatar.svg?react";
 import BagIcon from "../../../assets/icons/BagIcon.svg?react";
 import MenuIcon from "../../../assets/icons/MenuIcon.svg?react";
 
@@ -87,19 +88,24 @@ const Header = ({ openPanel, setOpenPanel }) => {
         <div className={styles.inner}>
           <Logo />
           <nav className={styles.actions} aria-label="Site actions">
-            {NAV_ICONS.map(({ icon: Icon, label }) => (
-              <button
-                key={label}
-                className={styles.iconBtn}
-                aria-label={label}
-                onClick={() => handleIconClick(label)}
-              >
-                <Icon width={32} height={32} />
-                {label === "Cart" && totalItems > 0 && (
-                  <span className={styles.badge}>{totalItems}</span>
-                )}
-              </button>
-            ))}
+            {NAV_ICONS.map(({ icon: Icon, label }) => {
+              const isAccountAvatar = label === "Account" && isAuthenticated;
+              const IconComponent = isAccountAvatar ? ProfileAvatar : Icon;
+
+              return (
+                <button
+                  key={label}
+                  className={`${styles.iconBtn} ${isAccountAvatar ? styles.avatarBtn : ''}`}
+                  aria-label={label}
+                  onClick={() => handleIconClick(label)}
+                >
+                  <IconComponent width={32} height={32} />
+                  {label === "Cart" && totalItems > 0 && (
+                    <span className={styles.badge}>{totalItems}</span>
+                  )}
+                </button>
+              );
+            })}
           </nav>
         </div>
       </header>

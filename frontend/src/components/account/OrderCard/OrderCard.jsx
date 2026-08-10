@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import styles from './OrderCard.module.css';
 import { STATUS_CONFIG, ORDER_STATUSES } from '../../../data/ordersData';
 
@@ -53,8 +52,7 @@ const StatusDot = ({ color }) => (
   <span className={styles.statusDot} style={{ background: color }} />
 );
 
-const OrderCard = ({ order }) => {
-  const navigate = useNavigate();
+const OrderCard = ({ order, onNavigate }) => {
   const config = STATUS_CONFIG[order.status];
   const { product } = order;
 
@@ -63,7 +61,7 @@ const OrderCard = ({ order }) => {
   const hasReturnWindow = isDelivered && order.returnWindowOpen;
 
   const handleClick = () => {
-    navigate(`/account/order/${order.id}`);
+    onNavigate({ type: 'detail', orderId: order.id });
   };
 
   return (
@@ -119,7 +117,7 @@ const OrderCard = ({ order }) => {
       {/* ── Action buttons for confirmed orders ── */}
       {isConfirmed && (
         <div className={styles.actions}>
-          <button className={styles.actionBtn} onClick={() => navigate(`/account/order/${order.id}/cancel`)}>
+          <button className={styles.actionBtn} onClick={() => onNavigate({ type: 'cancel', orderId: order.id })}>
             <CancelIcon /> Cancel Item
           </button>
           <button className={styles.actionBtn} onClick={handleClick}>
@@ -137,10 +135,10 @@ const OrderCard = ({ order }) => {
           <button className={styles.actionBtn} onClick={handleClick}>
             <ExchangeIcon /> Style Exchange
           </button>
-          <button className={styles.actionBtn} onClick={() => navigate(`/account/order/${order.id}/size-exchange`)}>
+          <button className={styles.actionBtn} onClick={() => onNavigate({ type: 'size-exchange', orderId: order.id })}>
             <ExchangeIcon /> Size Exchange
           </button>
-          <button className={styles.actionBtn} onClick={() => navigate(`/account/order/${order.id}/return`)}>
+          <button className={styles.actionBtn} onClick={() => onNavigate({ type: 'return', orderId: order.id })}>
             <ReturnIcon /> Return Item
           </button>
         </div>
@@ -150,3 +148,4 @@ const OrderCard = ({ order }) => {
 };
 
 export default OrderCard;
+

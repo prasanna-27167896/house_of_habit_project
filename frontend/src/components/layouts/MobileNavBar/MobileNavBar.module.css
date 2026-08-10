@@ -7,7 +7,7 @@
   right: 0;
   z-index: 999;
   display: none;
-  background: #2b2b2b;
+  background: #1e1e1e;
   padding: 0 0 env(safe-area-inset-bottom, 0px);
 }
 
@@ -44,7 +44,7 @@
   gap: 4px;
   padding: 8px 0;
   text-decoration: none;
-  color: #999;
+  color: #ffffff;
   font-size: 0.65rem;
   font-weight: 500;
   letter-spacing: 0.02em;
@@ -87,13 +87,13 @@
 }
 
 /* For stroke-based icons (Cart, Search, Profile) → gray stroke */
-.navLink .iconWrap svg path[stroke] {
-  stroke: #999;
+.navLink .iconWrap:not(.avatarWrap) svg path[stroke] {
+  stroke: #ffffff;
 }
 
 /* For fill-based icons (Home) → gray fill */
-.navLink .iconWrap svg path[fill]:not([fill='none']) {
-  fill: #999;
+.navLink .iconWrap:not(.avatarWrap) svg path[fill]:not([fill='none']) {
+  fill: #ffffff;
 }
 
 /* ── Label ── */
@@ -111,12 +111,12 @@
 }
 
 /* Active: stroke icons turn orange */
-.navLink.active .iconWrap svg path[stroke] {
+.navLink.active .iconWrap:not(.avatarWrap) svg path[stroke] {
   stroke: var(--secondary-color, #ff6b3d);
 }
 
 /* Active: fill icons turn orange */
-.navLink.active .iconWrap svg path[fill]:not([fill='none']) {
+.navLink.active .iconWrap:not(.avatarWrap) svg path[fill]:not([fill='none']) {
   fill: var(--secondary-color, #ff6b3d);
 }
 
@@ -143,34 +143,28 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 56px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  background: var(--secondary-color, #ff6b3d);
+  background: none;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(255, 107, 61, 0.45);
   transition:
     transform 0.25s ease,
     box-shadow 0.25s ease;
   -webkit-tap-highlight-color: transparent;
   z-index: 2;
+  padding: 0;
 }
 
 .centerBtn svg {
-  width: 26px;
-  height: 26px;
-}
-
-/* Override all fill colors inside center button to white */
-.centerBtn svg path {
-  fill: #fff !important;
-  stroke: none !important;
+  width: 60px;
+  height: 60px;
+  display: block;
 }
 
 .centerBtn:active {
   transform: scale(0.92);
-  box-shadow: 0 2px 10px rgba(255, 107, 61, 0.35);
 }
 
 /* ── Show only on mobile ── */

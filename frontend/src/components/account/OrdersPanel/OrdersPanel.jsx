@@ -3,6 +3,10 @@ import styles from './OrdersPanel.module.css';
 import PanelHeader from '../PanelHeader/PanelHeader';
 import OrderCard from '../OrderCard/OrderCard';
 import Button from '../../common/Button/Button';
+import OrderDetailView from './OrderDetailView';
+import CancelOrderView from './CancelOrderView';
+import ReturnItemView from './ReturnItemView';
+import SizeExchangeView from './SizeExchangeView';
 
 import ArrowIcon from '../../../assets/icons/arrow-btn.svg?react';
 import OrdersBagIcon from '../../../assets/icons/orders-bag-icon.svg?react';
@@ -29,6 +33,9 @@ const OrdersPanel = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [showFilter, setShowFilter] = useState(false);
 
+  /* ── View state: controls which sub-view is displayed ── */
+  const [view, setView] = useState({ type: 'list' });
+
   const orders = mockOrders;
 
   const filteredOrders = orders.filter((order) => {
@@ -45,6 +52,19 @@ const OrdersPanel = () => {
     { id: 'cancelled', label: 'Cancelled' },
     { id: 'refund-credited', label: 'Refund' },
   ];
+
+  /* ── Navigation handlers ── */
+  const handleNavigate = (target) => {
+    setView(target);
+  };
+
+  const handleBack = (target) => {
+    if (target && target.type) {
+      setView(target);
+    } else {
+      setView({ type: 'list' });
+    }
+  };
 
   /* ── Search + Filter action slot for PanelHeader ── */
   const headerAction = (
@@ -82,12 +102,64 @@ const OrdersPanel = () => {
     );
   }
 
+  const isListView = view.type === 'list';
+
+  // Get Panel Header configuration based on view
+  let headerTitle = 'Order History';
+  let headerSubtitle = 'View and track your past orders.';
+  let headerPrefix = null;
+  let headerActionSlot = null;
+
+  if (isListView) {
+    headerActionSlot = headerAction;
+  } else {
+    const BackArrowIcon = () => (
+      <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'>
+        <polyline points='15 18 9 12 15 6' />
+      </svg>
+    );
+
+    const onBackClick = () => {
+      if (view.type === 'detail') {
+        handleBack();
+      } else {
+        handleBack({ type: 'detail', orderId: view.orderId });
+      }
+    };
+
+    headerPrefix = (
+      <button className={styles.backBtn} onClick={onBackClick} aria-label="Go back">
+        <BackArrowIcon />
+      </button>
+    );
+
+    if (view.type === 'detail') {
+      headerTitle = 'Order Details';
+      const order = mockOrders.find(o => o.id === Number(view.orderId));
+      headerSubtitle = order ? `Order ID # ${order.orderId}` : '';
+    } else if (view.type === 'cancel') {
+      headerTitle = 'Cancel Item';
+      headerSubtitle = 'Tell us why you want to cancel this item.';
+    } else if (view.type === 'return') {
+      headerTitle = 'Return Item';
+      headerSubtitle = 'Tell us why you want to return this item.';
+    } else if (view.type === 'size-exchange') {
+      headerTitle = 'Size Exchange';
+      headerSubtitle = 'Select the replacement size and reason.';
+    }
+  }
+
   return (
     <div className={styles.panel}>
-      <PanelHeader title='Order History' subtitle='View and track your past orders.' action={headerAction} />
+      <PanelHeader
+        title={headerTitle}
+        subtitle={headerSubtitle}
+        prefix={headerPrefix}
+        action={headerActionSlot}
+      />
 
       {/* ── Filter pills ── */}
-      {showFilter && (
+      {isListView && showFilter && (
         <div className={styles.filterRow}>
           {filters.map((f) => (
             <button
@@ -101,14 +173,33 @@ const OrdersPanel = () => {
         </div>
       )}
 
-      {/* ── Order list ── */}
-      <div className={styles.orderList}>
-        {filteredOrders.length > 0 ? (
-          filteredOrders.map((order) => (
-            <OrderCard key={order.id} order={order} />
-          ))
+      {/* ── Order list or sub-views ── */}
+      <div className={styles.scrollWrapper}>
+        {isListView ? (
+          <div className={styles.orderList}>
+            {filteredOrders.length > 0 ? (
+              filteredOrders.map((order) => (
+                <OrderCard key={order.id} order={order} onNavigate={handleNavigate} />
+              ))
+            ) : (
+              <p className={styles.noResults}>No orders found matching your search.</p>
+            )}
+          </div>
         ) : (
-          <p className={styles.noResults}>No orders found matching your search.</p>
+          <>
+            {view.type === 'detail' && (
+              <OrderDetailView orderId={view.orderId} onBack={handleBack} onNavigate={handleNavigate} />
+            )}
+            {view.type === 'cancel' && (
+              <CancelOrderView orderId={view.orderId} onBack={handleBack} />
+            )}
+            {view.type === 'return' && (
+              <ReturnItemView orderId={view.orderId} onBack={handleBack} />
+            )}
+            {view.type === 'size-exchange' && (
+              <SizeExchangeView orderId={view.orderId} onBack={handleBack} />
+            )}
+          </>
         )}
       </div>
     </div>

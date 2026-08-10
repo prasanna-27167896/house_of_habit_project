@@ -4,8 +4,7 @@
   bottom: 0;
   width: 100%;
   height: max-content;
-  background: #ffffff;
-  border-radius: 1.2rem 1.2rem 0 0;
+  background: transparent;
   display: flex;
   flex-direction: column;
   z-index: 20;
@@ -26,7 +25,7 @@
 /* Circular Close Button centered on top edge */
 .closeBtn {
   position: absolute;
-  top: -36px;
+  top: -10px;
   left: 50%;
   transform: translate(-50%, -50%);
   width: max(2.6rem, 2.6dvw);
@@ -66,6 +65,8 @@
   flex-direction: column;
   width: 100%;
   position: relative;
+  background: #ffffff;
+  margin-top: -1px;
 }
 
 /* Backdrop Overlay */
@@ -95,4 +96,37 @@
     max-height: 85vh;
     max-height: 85dvh;
   }
+}
+
+/* ── Curved Notch Top Header ── */
+.notchHeader {
+  display: flex;
+  height: 28px;
+  width: 100%;
+  background: transparent;
+  pointer-events: none;
+}
+
+.notchLeft {
+  flex: 1;
+  background: #ffffff;
+  border-top-left-radius: 1.2rem;
+}
+
+.notchRight {
+  flex: 1;
+  background: #ffffff;
+  border-top-right-radius: 1.2rem;
+}
+
+.notchCenter {
+  width: 100px;
+  height: 28px;
+  background: transparent;
+}
+
+.notchSvg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }

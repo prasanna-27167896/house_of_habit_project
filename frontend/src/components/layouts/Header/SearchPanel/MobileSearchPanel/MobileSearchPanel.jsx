@@ -203,7 +203,6 @@ const MobileSearchPanel = ({ isOpen, onClose }) => {
                         ))}
                     </div>
 
-                    {/* Pagination Buttons */}
                     <div className={styles.carouselControls}>
                       <button
                         className={styles.controlBtn}
@@ -282,7 +281,7 @@ const MobileSearchPanel = ({ isOpen, onClose }) => {
           </div>
         </>
       )}
-    </SlidePanel>
+    </SlidePanel >
   );
 };
 

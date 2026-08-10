@@ -13,7 +13,7 @@
 
 .scrolled {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-  background: #ffffff;
+  background: #ffffffcc;
 }
 
 .inner {
@@ -72,12 +72,8 @@
     border-radius: 0;
     border: none;
     top: 0;
-    background: #ffffff;
+    background: #fff;
     margin: 0;
-  }
-
-  .header.scrolled {
-    background: #fafafa;
   }
 
   .inner {

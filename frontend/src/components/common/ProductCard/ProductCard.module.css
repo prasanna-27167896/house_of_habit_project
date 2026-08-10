@@ -96,8 +96,9 @@
 
 /* Small phones */
 @media (max-width: 360px) {
+
   .imageWrapper {
-    border-radius: 8px;
+    border-radius: 16px !important;
   }
 
   .name {
@@ -111,6 +112,9 @@
 
 /* Tablet */
 @media (min-width: 768px) {
+
+
+
   .imageWrapper {
     border-radius: 10px;
   }
@@ -142,6 +146,7 @@
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }
@@ -236,14 +241,16 @@
 }
 
 @keyframes bounce {
-  0%, 80%, 100% {
+
+  0%,
+  80%,
+  100% {
     transform: scale(0);
     opacity: 0.3;
   }
+
   40% {
     transform: scale(1.0);
     opacity: 1;
   }
 }
-
-

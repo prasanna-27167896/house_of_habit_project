@@ -4,10 +4,6 @@ import ShopPage from '../pages/Shop/ShopPage';
 import ProductDetailsPage from '../pages/Product/ProductDetailsPage';
 import ContactPage from '../pages/Contact/ContactPage';
 import AccountPage from '../pages/Account/AccountPage';
-import OrderDetailPage from '../pages/Account/OrderDetailPage';
-import CancelOrderPage from '../pages/Account/CancelOrderPage';
-import ReturnItemPage from '../pages/Account/ReturnItemPage';
-import SizeExchangePage from '../pages/Account/SizeExchangePage';
 import PolicyPage from '../pages/PolicyPage/PolicyPage';
 
 const AppRoutes = ({ location }) => (
@@ -15,10 +11,6 @@ const AppRoutes = ({ location }) => (
     <Route path='/' element={<Home />} />
     <Route path='/contact' element={<ContactPage />} />
     <Route path='/account' element={<AccountPage />} />
-    <Route path='/account/order/:orderId' element={<OrderDetailPage />} />
-    <Route path='/account/order/:orderId/cancel' element={<CancelOrderPage />} />
-    <Route path='/account/order/:orderId/return' element={<ReturnItemPage />} />
-    <Route path='/account/order/:orderId/size-exchange' element={<SizeExchangePage />} />
     <Route path='/checkout' element={null} />
     <Route path='/shop/:category' element={<ShopPage />} />
     <Route path='/shop/:category/:productId' element={<ProductDetailsPage />} />
@@ -36,3 +28,4 @@ const AppRoutes = ({ location }) => (
 );
 
 export default AppRoutes;
+

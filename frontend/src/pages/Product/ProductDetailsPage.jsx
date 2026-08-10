@@ -78,6 +78,7 @@ const ProductDetailsPage = () => {
   ].filter(Boolean);
 
   const imagesToDisplay = (galleryImages.length > 0 ? galleryImages : [DummyImage, DummyImage, DummyImage]).slice(0, 3);
+  const zoomImages = (galleryImages.length > 0 ? galleryImages : [DummyImage, DummyImage, DummyImage, DummyImage]).slice(0, 4);
 
   // Extract sizes and colors from variants
   const variants = productDetail?.variants || [];
@@ -184,7 +185,7 @@ const ProductDetailsPage = () => {
 
         <section className={styles.productSection}>
           <div className={styles.galleryCol}>
-            <ImageGallery images={imagesToDisplay} />
+            <ImageGallery images={imagesToDisplay} zoomImages={zoomImages} />
           </div>
 
           <div className={styles.infoCol}>

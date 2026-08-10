@@ -3,6 +3,10 @@
   border-radius: var(--border-radius-lg);
   background: var(--background-color);
   min-height: max(36rem, 36dvw);
+  max-height: max(36rem, 36dvw);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* ── Header actions (search + filter) ── */
@@ -10,6 +14,27 @@
   display: flex;
   align-items: center;
   gap: max(0.6rem, 0.6dvw);
+}
+
+.backBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: max(0.4rem, 0.4dvw);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+  color: #28282b;
+}
+
+.backBtn:hover {
+  background: #f0f0f0;
+}
+
+.backBtn:active {
+  transform: scale(0.95);
 }
 
 .searchBox {
@@ -85,6 +110,13 @@
   background: #ff5f15;
   color: #ffffff;
   border-color: #ff5f15;
+}
+
+/* ── Scroll wrapper ── */
+.scrollWrapper {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 /* ── Order list ── */

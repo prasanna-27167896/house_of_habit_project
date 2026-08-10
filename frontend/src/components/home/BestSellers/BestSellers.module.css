@@ -175,12 +175,16 @@
     gap: clamp(0.75rem, 3vw, 1rem);
   }
 
+  .card,
+  .skeletonCard {
+    min-height: 225px;
+    border-radius: clamp(1.1rem, 4vw, 1.6rem);
+  }
+
   .card {
-    min-height: 210px;
     padding: clamp(0.85rem, 3vw, 1rem) clamp(0.85rem, 3vw, 1rem) clamp(1.1rem, 4vw, 1.5rem);
     flex-direction: row;
     align-items: flex-end;
-    border-radius: clamp(1.1rem, 4vw, 1.6rem);
   }
 
   .textBlock {
@@ -219,8 +223,9 @@
     flex: 0 0 95%;
   }
 
-  .card {
-    min-height: 190px;
+  .card,
+  .skeletonCard {
+    min-height: 200px;
   }
 
   .textBlock {
