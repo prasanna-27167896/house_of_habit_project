@@ -18,9 +18,9 @@
 
 /* ── Container ── */
 .container {
-  max-width: var(--container-max-width, 1200px);
+  max-width: 100%;
   margin: 0 auto;
-  padding: 0 var(--space-md, 1rem);
+  padding: 0 max(2.5rem, 2.5dvw);
 }
 
 /* ── Breadcrumb Skeleton ── */
@@ -86,7 +86,7 @@
 .mainImage {
   flex: 1;
   border-radius: max(0.8rem, 0.8dvw);
-  height: max(38.5rem, 38.5dvw);
+  height: max(43.2rem, 43.2dvw);
 }
 
 /* ── Info Column ── */
@@ -251,7 +251,7 @@
 
 /* ── Related Products ── */
 .related {
-  padding: max(2.2rem, 2.2dvw) max(2rem, 2dvw);
+  padding: max(2.2rem, 2.2dvw) 0;
 }
 
 .relatedTitleSkeleton {
@@ -269,6 +269,10 @@
 
 /* ── Responsive ── */
 @media (max-width: 1024px) {
+  .container {
+    padding: 0 max(1.2rem, 1.2dvw);
+  }
+
   .productSection {
     grid-template-columns: 1fr;
     gap: 1.5rem;
@@ -308,6 +312,9 @@
 }
 
 @media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
   .relatedGrid {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;

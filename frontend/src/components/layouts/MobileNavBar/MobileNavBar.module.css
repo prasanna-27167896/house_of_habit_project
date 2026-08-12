@@ -111,13 +111,24 @@
 }
 
 /* Active: stroke icons turn orange */
-.navLink.active .iconWrap:not(.avatarWrap) svg path[stroke] {
-  stroke: var(--secondary-color, #ff6b3d);
+.navLink.active .iconWrap:not(.avatarWrap):not(.cartWrap) svg path[stroke] {
+  stroke: var(--secondary-color, #ff5f15);
 }
 
 /* Active: fill icons turn orange */
-.navLink.active .iconWrap:not(.avatarWrap) svg path[fill]:not([fill='none']) {
-  fill: var(--secondary-color, #ff6b3d);
+.navLink.active .iconWrap:not(.avatarWrap):not(.cartWrap) svg path[fill]:not([fill='none']) {
+  fill: var(--secondary-color, #ff5f15);
+}
+
+/* Active: Cart icon filled */
+.navLink.active .cartWrap svg path:first-child {
+  fill: var(--secondary-color, #ff5f15);
+  stroke: var(--secondary-color, #ff5f15);
+}
+
+.navLink.active .cartWrap svg path:last-child {
+  stroke: #1e1e1e;
+  opacity: 1;
 }
 
 .navLink:active .iconWrap {

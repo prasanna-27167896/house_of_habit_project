@@ -69,7 +69,7 @@ const MobileCartPanel = ({ isOpen, onClose }) => {
                 </div>
                 <p className={styles.emptyMessage}>Your cart is waiting — add your favorite styles now.</p>
                 <button className={styles.shopBtn} type='button' onClick={handleStartShopping}>
-                  <Button variant='light' size='sm'>
+                  <Button bgColor={'#1e1e1e'} pillColor={'#ff5f15'} size='sm'>
                     Start Shopping
                   </Button>
                 </button>

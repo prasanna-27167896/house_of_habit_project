@@ -79,7 +79,7 @@ const MobileNavBar = ({ activePanel, onAction }) => {
                   aria-current={isActive ? 'page' : undefined}
                   onClick={() => handleTap(item)}
                 >
-                  <span className={`${styles.iconWrap} ${isAvatar ? styles.avatarWrap : ''}`}>
+                  <span className={`${styles.iconWrap} ${isAvatar ? styles.avatarWrap : ''} ${id === 'cart' ? styles.cartWrap : ''}`}>
                     <IconComponent />
                     {id === 'cart' && totalItems > 0 && (
                       <span className={styles.badge}>{totalItems}</span>

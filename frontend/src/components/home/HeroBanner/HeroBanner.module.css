@@ -1,23 +1,108 @@
 .hero {
   position: relative;
   width: 100%;
-  height: max(36rem, 36dvw);
+  height: max(38rem, 38dvw);
   border-radius: max(2.2rem, 2.2dvh);
   overflow: hidden;
-  background-image: url('/images/Banner.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background: linear-gradient(135deg, #1a1715 0%, #292420 50%, #181513 100%);
   margin-top: max(1.5rem, 1.5dvh);
 }
 
+/* ── Carousel layer ── */
+.carouselLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slideNext {
+  transform: translateX(100%);
+  opacity: 0;
+  transition: none;
+}
+
+.slidePrev {
+  transform: translateX(-100%);
+  opacity: 1;
+}
+
+.slideActive {
+  transform: translateX(0);
+  opacity: 1;
+  z-index: 2;
+}
+
+.picture {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.slideImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* ── Overlay ── */
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ── Content ── */
 .content {
   position: absolute;
   inset: 0;
+  z-index: 3;
   display: flex;
   align-items: flex-end;
-  padding: max(2rem, 2dvh);
-  gap: max(2rem, 2dvw);
+  justify-content: space-between;
+  padding: max(2.2rem, 2.2dvw);
+}
+
+/* ── Left Column: Vertical Indicator Dots + Button ── */
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: max(4.4rem, 4.4dvw);
+}
+
+/* ── Indicator Dots ── */
+.dots {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: max(0.2rem, 0.2dvw);
+}
+
+.dot {
+  width: max(0.3rem, 0.3dvw);
+  height: max(1rem, 1dvw);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.4);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.4s ease;
+}
+
+.dotActive {
+  height: max(1.4rem, 1.4dvw);
+  background: #ff5f15;
 }
 
 /* ── Text block ── */
@@ -27,15 +112,16 @@
   max-width: max(50rem, 50dvw);
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-end;
   gap: max(0.2rem, 0.2dvh);
 }
 
 .subBlock {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-around;
+  align-items: flex-end;
+  justify-content: space-between;
   gap: max(2.6rem, 2.6dvw);
+  width: 100%;
 }
 
 .heading {
@@ -104,46 +190,102 @@
   color: #fff;
 }
 
+.desktopBtnWrapper {
+  display: block;
+}
+
+.mobileBtnWrapper {
+  display: none;
+}
+
+.desktopBr {
+  display: inline;
+}
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .hero {
     width: 100%;
     height: max(36rem, 36dvw);
     border-radius: max(2rem, 2dvw);
+    margin-bottom: max(2rem, 2dvw);
   }
 
   .rating {
     display: none;
   }
 
+  .desktopBtnWrapper {
+    display: none;
+  }
+
+  .mobileBtnWrapper {
+    display: block;
+    margin-top: max(0.8rem, 0.8dvh);
+  }
+
+  .desktopBr {
+    display: none;
+  }
+
   .content {
-    padding: max(0.8rem, 0.8dvw);
-
-    /* reverse order on mobile */
-    flex-direction: column-reverse;
-
+    padding: max(1.4rem, 1.4dvw);
+    flex-direction: column;
     align-items: flex-start;
-    justify-content: flex-start;
-    gap: max(0.6rem, 0.6dvw);
+    justify-content: flex-end;
+    gap: max(0.6rem, 0.6dvh);
+  }
+
+  .leftCol {
+    width: auto;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    margin-bottom: max(0.5rem, 0.5dvh);
+  }
+
+  .dots {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: max(0.2rem, 0.2dvw);
+  }
+
+  .dot {
+    width: max(0.3rem, 0.3dvw);
+    height: max(0.8rem, 0.8dvw);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.4);
+  }
+
+  .dotActive {
+    height: max(1.2rem, 1.2dvw);
+    background: #ff5f15;
   }
 
   .textBlock {
     margin-left: 0;
-    text-align: start;
+    text-align: left;
     max-width: 100%;
     align-items: flex-start;
+    gap: max(0.4rem, 0.4dvw);
   }
 
   .subBlock {
-    justify-content: center;
-    gap: max(2rem, 2dvw);
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0;
   }
 
   .heading {
     font-size: max(1.8rem, 1.8dvw);
+    text-align: left;
+    margin-bottom: 0;
   }
 
   .sub {
     font-size: max(0.95rem, 0.95dvw);
+    text-align: left;
+    margin-bottom: 0;
   }
 }

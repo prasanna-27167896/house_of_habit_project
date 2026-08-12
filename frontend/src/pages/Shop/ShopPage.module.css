@@ -31,7 +31,7 @@
 
 .heroDark .heroTitle,
 .heroDark .heroSub {
-  color: #ffffff;
+  color: #28282B;
 }
 
 .heroLight .heroTitle,
@@ -88,15 +88,19 @@
 }
 
 /* ── Load More ── */
+.loadMoreContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .loadMore {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: max(0.5rem, 0.5dvw);
   margin-top: max(2rem, 2dvw);
-  font-size: max(0.9rem, 0.9dvw);
-  color: var(--text-light);
-  cursor: pointer;
 }
 
 /* ── Animation ── */

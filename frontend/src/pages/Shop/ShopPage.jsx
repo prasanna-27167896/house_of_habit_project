@@ -78,15 +78,49 @@ const ShopPage = () => {
     }
   }, [dispatch, matchedCategory?.categoryId, categoryKey, category, categories.length]);
 
+  const loadMoreRef = useRef(null);
+
   useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const target = entries[0];
+        if (target.isIntersecting && !categoryLoading) {
+          const { page, totalPages } = categoryPagination;
+          if (page < totalPages) {
+            dispatch(
+              fetchProductsByCategory({
+                categoryId: matchedCategory?.categoryId,
+                categoryName: categoryKey,
+                page: page + 1,
+                limit: 12,
+                append: true,
+              })
+            );
+          }
+        }
+      },
+      { rootMargin: '300px' }
+    );
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
+    }
+
     const handleScroll = () => {
       if (categoryLoading) return;
       const { page, totalPages } = categoryPagination;
       if (page >= totalPages) return;
 
-      const scrollBottom = window.innerHeight + window.scrollY;
-      const threshold = document.body.offsetHeight - 500;
-      if (scrollBottom >= threshold) {
+      const scrollTop = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+      const windowHeight = window.innerHeight || document.documentElement.clientHeight;
+      const totalHeight = Math.max(
+        document.body.scrollHeight,
+        document.body.offsetHeight,
+        document.documentElement.scrollHeight,
+        document.documentElement.offsetHeight
+      );
+
+      if (scrollTop + windowHeight >= totalHeight - 600) {
         dispatch(
           fetchProductsByCategory({
             categoryId: matchedCategory?.categoryId,
@@ -99,8 +133,14 @@ const ShopPage = () => {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('touchmove', handleScroll, { passive: true });
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('touchmove', handleScroll);
+    };
   }, [dispatch, categoryLoading, categoryPagination, matchedCategory?.categoryId, categoryKey]);
 
   if (!categoryKey) return <Navigate to='/' replace />;
@@ -111,6 +151,9 @@ const ShopPage = () => {
       el.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  const hasMore = categoryPagination.page < categoryPagination.totalPages;
+  const showEndMessage = !categoryLoading && !hasMore && categoryProducts.length > 0;
 
   return (
     <main>
@@ -139,11 +182,19 @@ const ShopPage = () => {
             )}
           </div>
 
-          {categoryLoading && categoryProducts.length > 0 && (
-            <div className={styles.loadMore}>
-              <Loader loadingText="Loading More..." />
-            </div>
-          )}
+          <div ref={loadMoreRef} className={styles.loadMoreContainer}>
+            {categoryLoading && categoryProducts.length > 0 && (
+              <div className={styles.loadMore}>
+                <Loader loadingText="Loading More..." />
+              </div>
+            )}
+
+            {showEndMessage && (
+              <div className={styles.loadMore}>
+                <Loader loadingText="You have reached products end" showSpinner={false} />
+              </div>
+            )}
+          </div>
         </section>
       </div>
     </main>

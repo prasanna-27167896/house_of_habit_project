@@ -1,9 +1,15 @@
+.container {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0 max(2.5rem, 2.5dvw);
+}
+
 /* ── Product Section ── */
 .productSection {
   display: grid;
   grid-template-columns: 2fr 1fr;
   gap: max(1.4rem, 1.4dvw);
-  padding: 0 max(1rem, 1dvw);
+  padding: 0;
 }
 
 /* ── Gallery Column ── */
@@ -165,7 +171,7 @@
 
 /* ── Related Products ── */
 .related {
-  padding: max(2.2rem, 2.2dvw) max(2rem, 2dvw);
+  padding: max(2.2rem, 2.2dvw) 0;
 }
 
 .relatedTitle {
@@ -183,6 +189,10 @@
 
 /* ── Responsive ── */
 @media (max-width: 1024px) {
+  .container {
+    padding: 0 max(1.2rem, 1.2dvw);
+  }
+
   .productSection {
     grid-template-columns: 1fr;
     gap: 1.5rem;
@@ -197,7 +207,7 @@
   }
 
   .related {
-    padding: max(2.2rem, 2.2dvw) max(1rem, 1dvw);
+    padding: max(2.2rem, 2.2dvw) 0;
   }
 
   .relatedGrid {
@@ -206,6 +216,10 @@
 }
 
 @media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
+
   .relatedGrid {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;

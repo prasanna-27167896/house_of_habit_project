@@ -101,15 +101,19 @@
 }
 
 /* ── Load more ── */
+.loadMoreContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .loadMore {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-xs);
   margin-top: var(--space-xl);
-  font-size: var(--font-sm);
-  color: var(--text-light);
-  cursor: pointer;
 }
 
 @keyframes spin {
