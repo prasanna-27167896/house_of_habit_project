@@ -1,30 +1,10 @@
 .wrapper {
-  max-width: max(52rem, 52dvw);
+  max-width: 100%;
   margin: 0 auto;
-  padding: max(1.5rem, 1.5dvw) max(1rem, 1dvw) max(3rem, 3dvw);
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: max(1rem, 1dvw);
-}
-
-/* ── Back button ── */
-.backBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: max(0.3rem, 0.3dvw);
-  background: none;
-  border: none;
-  color: var(--text-color);
-  font-size: max(0.9rem, 0.9dvw);
-  font-weight: 400;
-  cursor: pointer;
-  padding: 0;
-  margin-bottom: max(0.3rem, 0.3dvw);
-  transition: opacity var(--transition-fast);
-}
-
-.backBtn:hover {
-  opacity: 0.6;
 }
 
 .notFound {
@@ -36,8 +16,9 @@
 
 /* ── Section cards ── */
 .section {
-  background: #fafafa;
-  border-radius: var(--border-radius-md);
+  background: #ffffff;
+  border: 1px solid #eaeaea;
+  border-radius: 12px;
   overflow: hidden;
 }
 
@@ -51,10 +32,11 @@
 }
 
 .productImage {
-  width: max(8rem, 8dvw);
-  height: max(9rem, 9dvw);
+  width: max(6.5rem, 6.5dvw);
+  height: max(7.5rem, 7.5dvw);
   object-fit: cover;
-  border-radius: var(--border-radius-sm);
+  border-radius: 12px;
+  background: #f7f7f7;
   flex-shrink: 0;
 }
 
@@ -66,21 +48,21 @@
 .productName {
   font-size: max(1rem, 1dvw);
   font-weight: 600;
-  color: #28282b;
-  margin: 0 0 max(0.3rem, 0.3dvw);
+  color: #1f2937;
+  margin: 0 0 max(0.25rem, 0.25dvw);
 }
 
 .productDesc {
   font-size: max(0.82rem, 0.82dvw);
-  color: #777;
-  margin: 0 0 max(0.3rem, 0.3dvw);
+  color: #6b7280;
+  margin: 0 0 max(0.25rem, 0.25dvw);
 }
 
 .productMeta {
-  font-size: max(0.78rem, 0.78dvw);
-  color: #999;
-  margin: 0;
-  line-height: 1.6;
+  font-size: max(0.8rem, 0.8dvw);
+  color: #6b7280;
+  margin: 0 0 max(0.15rem, 0.15dvw);
+  line-height: 1.4;
 }
 
 /* ── Eligible row ── */
@@ -95,29 +77,29 @@
 .eligibleLeft {
   display: flex;
   align-items: center;
-  gap: max(0.5rem, 0.5dvw);
+  gap: max(0.6rem, 0.6dvw);
 }
 
 .eligibleText {
   font-size: max(0.95rem, 0.95dvw);
-  font-weight: 500;
-  color: #28282b;
+  font-weight: 600;
+  color: #1f2937;
 }
 
 .viewPolicyBtn {
   background: #ff5f15;
-  color: #fff;
+  color: #ffffff;
   border: none;
-  border-radius: var(--border-radius-sm);
+  border-radius: 8px;
   padding: max(0.45rem, 0.45dvw) max(1rem, 1dvw);
   font-size: max(0.82rem, 0.82dvw);
   font-weight: 500;
   cursor: pointer;
-  transition: opacity var(--transition-fast);
+  transition: background var(--transition-fast);
 }
 
 .viewPolicyBtn:hover {
-  opacity: 0.85;
+  background: #e04f0d;
 }
 
 /* ── Reason section ── */
@@ -127,86 +109,94 @@
 }
 
 .sectionTitle {
-  font-size: max(0.95rem, 0.95dvw);
+  font-size: max(1rem, 1dvw);
   font-weight: 600;
-  color: #28282b;
+  color: #1f2937;
   margin: 0;
 }
 
 .sectionSub {
-  font-size: max(0.78rem, 0.78dvw);
-  color: #999;
-  margin: max(0.2rem, 0.2dvw) 0 0;
+  font-size: max(0.82rem, 0.82dvw);
+  color: #6b7280;
+  margin: max(0.25rem, 0.25dvw) 0 0;
 }
 
 .divider {
   height: 1px;
   background: #f0f0f0;
-  margin: max(0.8rem, 0.8dvw) 0;
+  margin: max(1rem, 1dvw) 0;
 }
 
 .selectLabel {
-  font-size: max(0.9rem, 0.9dvw);
+  font-size: max(0.92rem, 0.92dvw);
   font-weight: 600;
-  color: #28282b;
+  color: #1f2937;
   margin: 0 0 max(0.8rem, 0.8dvw);
 }
 
 .required {
-  color: #e53935;
+  color: #ef4444;
+  margin-left: 2px;
 }
 
 /* ── Reason radio list ── */
 .reasonList {
   display: flex;
   flex-direction: column;
-  gap: max(0.6rem, 0.6dvw);
-  margin-bottom: max(1rem, 1dvw);
+  gap: max(0.75rem, 0.75dvw);
+  margin-bottom: max(1.2rem, 1.2dvw);
 }
 
 .reasonItem {
   display: flex;
   align-items: center;
-  gap: max(0.5rem, 0.5dvw);
-  font-size: max(0.85rem, 0.85dvw);
-  color: #28282b;
+  gap: max(0.6rem, 0.6dvw);
+  font-size: max(0.88rem, 0.88dvw);
+  color: #374151;
   cursor: pointer;
+  user-select: none;
 }
 
 .radio {
-  width: max(1rem, 1dvw);
-  height: max(1rem, 1dvw);
+  width: max(1.1rem, 1.1dvw);
+  height: max(1.1rem, 1.1dvw);
   accent-color: #ff5f15;
   cursor: pointer;
+}
+
+.reasonText {
+  color: #374151;
 }
 
 /* ── Comment box ── */
 .commentBox {
   width: 100%;
-  padding: max(0.6rem, 0.6dvw);
-  border: 1px solid #e5e5e5;
-  border-radius: var(--border-radius-sm);
-  font-size: max(0.82rem, 0.82dvw);
+  padding: max(0.8rem, 0.8dvw);
+  border: 1px solid #eaeaea;
+  border-radius: 8px;
+  background: #fafafa;
+  font-size: max(0.85rem, 0.85dvw);
   font-family: var(--font-family);
-  color: #28282b;
+  color: #1f2937;
   resize: vertical;
   outline: none;
   transition: border-color var(--transition-fast);
 }
 
 .commentBox::placeholder {
-  color: #ccc;
+  color: #9ca3af;
 }
 
 .commentBox:focus {
   border-color: #ff5f15;
+  background: #ffffff;
 }
 
 .cancelNote {
-  font-size: max(0.75rem, 0.75dvw);
-  color: #999;
+  font-size: max(0.8rem, 0.8dvw);
+  color: #6b7280;
   text-align: center;
-  margin: max(0.8rem, 0.8dvw) 0 0;
+  margin: max(1.5rem, 1.5dvw) 0 0;
 }
 
 /* ── Refund footer ── */
@@ -214,31 +204,31 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: max(1rem, 1dvw) max(1.5rem, 1.5dvw);
+  padding: max(1.2rem, 1.2dvw) max(1.5rem, 1.5dvw);
   background: #ffffff;
 }
 
 .refundPrice {
-  font-size: max(1rem, 1dvw);
-  font-weight: 600;
-  color: #28282b;
+  font-size: max(1.15rem, 1.15dvw);
+  font-weight: 700;
+  color: #1f2937;
   margin: max(0.2rem, 0.2dvw) 0 0;
 }
 
 .cancelBtn {
   background: #ff5f15;
-  color: #fff;
+  color: #ffffff;
   border: none;
-  border-radius: var(--border-radius-sm);
-  padding: max(0.6rem, 0.6dvw) max(1.2rem, 1.2dvw);
-  font-size: max(0.88rem, 0.88dvw);
-  font-weight: 500;
+  border-radius: 8px;
+  padding: max(0.65rem, 0.65dvw) max(1.5rem, 1.5dvw);
+  font-size: max(0.9rem, 0.9dvw);
+  font-weight: 600;
   cursor: pointer;
-  transition: opacity var(--transition-fast);
+  transition: background var(--transition-fast);
 }
 
 .cancelBtn:hover {
-  opacity: 0.85;
+  background: #e04f0d;
 }
 
 .cancelBtn:disabled {

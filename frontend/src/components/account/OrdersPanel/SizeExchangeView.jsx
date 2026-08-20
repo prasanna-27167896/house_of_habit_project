@@ -21,6 +21,33 @@ const ChevronDownIcon = () => (
   </svg>
 );
 
+/* ── Category Illustrations ── */
+const SizeFitIllustration = () => (
+  <svg width='44' height='44' viewBox='0 0 44 44' fill='none' xmlns='http://www.w3.org/2000/svg'>
+    <rect width='44' height='44' rx='10' fill='#F0F4FF' />
+    <circle cx='22' cy='16' r='6' fill='#3B82F6' />
+    <path d='M12 34C12 28.4772 16.4772 24 22 24C27.5228 24 32 28.4772 32 34H12Z' fill='#1D4ED8' />
+    <path d='M16 28L22 22L28 28' stroke='#F59E0B' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+  </svg>
+);
+
+const DifferentProductIllustration = () => (
+  <svg width='44' height='44' viewBox='0 0 44 44' fill='none' xmlns='http://www.w3.org/2000/svg'>
+    <rect width='44' height='44' rx='10' fill='#FFF3ED' />
+    <path d='M14 20L22 15L30 20V32L22 37L14 32V20Z' fill='#FF5F15' />
+    <path d='M22 15V37' stroke='#EA580C' strokeWidth='1.5' />
+    <path d='M14 20L22 25L30 20' stroke='#EA580C' strokeWidth='1.5' />
+  </svg>
+);
+
+const DamagedIllustration = () => (
+  <svg width='44' height='44' viewBox='0 0 44 44' fill='none' xmlns='http://www.w3.org/2000/svg'>
+    <rect width='44' height='44' rx='10' fill='#E6FFFA' />
+    <path d='M16 14L22 11L28 14V20C28 26 22 30 22 30C22 30 16 26 16 20V14Z' fill='#0D9488' />
+    <path d='M20 18L24 22M24 18L20 22' stroke='#FFFFFF' strokeWidth='2' strokeLinecap='round' />
+  </svg>
+);
+
 const SIZES = ['S', 'M', 'L', 'XL'];
 
 const EXCHANGE_CATEGORIES = [
@@ -28,21 +55,21 @@ const EXCHANGE_CATEGORIES = [
     id: 'size-fit',
     title: 'Size & Fit Issues',
     subtitle: "Doesn't fit me well",
-    emoji: '👤',
+    illustration: <SizeFitIllustration />,
     reasons: ['Size too small', 'Size too big', 'I did not like the fit'],
   },
   {
     id: 'different',
     title: 'Different Product',
     subtitle: 'Not what i ordered',
-    emoji: '📦',
+    illustration: <DifferentProductIllustration />,
     reasons: ['Received a different product', 'Color is different from what I ordered'],
   },
   {
     id: 'damaged',
     title: 'Damaged/Used',
     subtitle: 'Not in good condition',
-    emoji: '🧳',
+    illustration: <DamagedIllustration />,
     reasons: ['Product is damaged', 'Product seems to be used'],
   },
 ];
@@ -118,7 +145,7 @@ const SizeExchangeView = ({ orderId, onBack }) => {
               <div key={cat.id} className={styles.categoryCard}>
                 <button className={styles.categoryHeader} onClick={() => toggleCategory(cat.id)}>
                   <div className={styles.categoryLeft}>
-                    <span className={styles.categoryEmoji}>{cat.emoji}</span>
+                    {cat.illustration}
                     <div>
                       <p className={styles.categoryTitle}>{cat.title}</p>
                       <p className={styles.categorySub}>{cat.subtitle}</p>
@@ -129,6 +156,7 @@ const SizeExchangeView = ({ orderId, onBack }) => {
 
                 {openCategory === cat.id && (
                   <div className={styles.categoryBody}>
+                    <div className={styles.innerDivider} />
                     {cat.reasons.map((reason) => (
                       <label key={reason} className={styles.reasonItem}>
                         <input

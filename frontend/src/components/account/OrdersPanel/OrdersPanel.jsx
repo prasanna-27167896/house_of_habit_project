@@ -10,7 +10,7 @@ import SizeExchangeView from './SizeExchangeView';
 
 import ArrowIcon from '../../../assets/icons/arrow-btn.svg?react';
 import OrdersBagIcon from '../../../assets/icons/orders-bag-icon.svg?react';
-import { mockOrders } from '../../../data/ordersData';
+import { mockOrders, ORDER_STATUSES } from '../../../data/ordersData';
 
 /* ── Inline icons ── */
 const SearchIcon = () => (
@@ -28,10 +28,24 @@ const FilterIcon = () => (
   </svg>
 );
 
+const CloseIcon = () => (
+  <svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
+    <line x1='18' y1='6' x2='6' y2='18' />
+    <line x1='6' y1='6' x2='18' y2='18' />
+  </svg>
+);
+
 const OrdersPanel = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState('all');
   const [showFilter, setShowFilter] = useState(false);
+
+  /* ── Filter state ── */
+  const [filterTab, setFilterTab] = useState('status'); // 'status' | 'time'
+  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [selectedTime, setSelectedTime] = useState('anytime');
+
+  const [appliedStatus, setAppliedStatus] = useState('all');
+  const [appliedTime, setAppliedTime] = useState('anytime');
 
   /* ── View state: controls which sub-view is displayed ── */
   const [view, setView] = useState({ type: 'list' });
@@ -39,19 +53,57 @@ const OrdersPanel = () => {
   const orders = mockOrders;
 
   const filteredOrders = orders.filter((order) => {
-    const matchesSearch = order.product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const matchesSearch =
+      order.product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       order.orderId.includes(searchQuery);
-    const matchesFilter = activeFilter === 'all' || order.status === activeFilter;
-    return matchesSearch && matchesFilter;
+
+    let matchesStatus = true;
+    if (appliedStatus === 'on-the-way') {
+      matchesStatus =
+        order.status === ORDER_STATUSES.CONFIRMED ||
+        order.status === ORDER_STATUSES.PLACED ||
+        order.status === ORDER_STATUSES.SHIPPED ||
+        order.status === ORDER_STATUSES.OUT_FOR_DELIVERY;
+    } else if (appliedStatus === 'delivered') {
+      matchesStatus = order.status === ORDER_STATUSES.DELIVERED;
+    } else if (appliedStatus === 'cancelled') {
+      matchesStatus = order.status === ORDER_STATUSES.CANCELLED;
+    } else if (appliedStatus === 'returned') {
+      matchesStatus =
+        order.status === ORDER_STATUSES.OUT_FOR_PICKUP ||
+        order.status === ORDER_STATUSES.REFUND_CREDITED;
+    }
+
+    return matchesSearch && matchesStatus;
   });
 
-  const filters = [
+  const statusOptions = [
     { id: 'all', label: 'All' },
-    { id: 'confirmed', label: 'Confirmed' },
+    { id: 'on-the-way', label: 'On the way' },
     { id: 'delivered', label: 'Delivered' },
     { id: 'cancelled', label: 'Cancelled' },
-    { id: 'refund-credited', label: 'Refund' },
+    { id: 'returned', label: 'Returned' },
   ];
+
+  const timeOptions = [
+    { id: 'anytime', label: 'Anytime' },
+    { id: '30-days', label: 'Last 30 days' },
+    { id: '6-months', label: 'Last 6 months' },
+    { id: 'year', label: 'Last year' },
+  ];
+
+  const handleClearFilter = () => {
+    setSelectedStatus('all');
+    setSelectedTime('anytime');
+    setAppliedStatus('all');
+    setAppliedTime('anytime');
+  };
+
+  const handleApplyFilter = () => {
+    setAppliedStatus(selectedStatus);
+    setAppliedTime(selectedTime);
+    setShowFilter(false);
+  };
 
   /* ── Navigation handlers ── */
   const handleNavigate = (target) => {
@@ -79,9 +131,91 @@ const OrdersPanel = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
-      <button className={styles.filterBtn} onClick={() => setShowFilter((p) => !p)}>
-        <FilterIcon /> Filter
-      </button>
+      <div className={styles.filterWrapper}>
+        <button
+          className={`${styles.filterBtn} ${showFilter ? styles.filterBtnActive : ''}`}
+          onClick={() => setShowFilter((p) => !p)}
+        >
+          <FilterIcon /> Filter
+        </button>
+
+        {showFilter && (
+          <div className={styles.filterDropdown}>
+            {/* Header */}
+            <div className={styles.filterHeader}>
+              <h3 className={styles.filterTitle}>Filter Orders</h3>
+              <button
+                className={styles.closeFilterBtn}
+                onClick={() => setShowFilter(false)}
+                aria-label='Close filter'
+              >
+                <CloseIcon />
+              </button>
+            </div>
+
+            {/* Tabs */}
+            <div className={styles.tabSegment}>
+              <button
+                className={`${styles.tabBtn} ${filterTab === 'status' ? styles.tabBtnActive : ''}`}
+                onClick={() => setFilterTab('status')}
+              >
+                Status
+              </button>
+              <button
+                className={`${styles.tabBtn} ${filterTab === 'time' ? styles.tabBtnActive : ''}`}
+                onClick={() => setFilterTab('time')}
+              >
+                Time
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className={styles.filterContent}>
+              {filterTab === 'status' ? (
+                <div className={styles.optionsList}>
+                  {statusOptions.map((opt) => (
+                    <label key={opt.id} className={styles.optionItem}>
+                      <input
+                        type='checkbox'
+                        className={styles.checkboxInput}
+                        checked={selectedStatus === opt.id}
+                        onChange={() => setSelectedStatus(opt.id)}
+                      />
+                      <span className={styles.checkboxCustom} />
+                      <span className={styles.optionLabel}>{opt.label}</span>
+                    </label>
+                  ))}
+                </div>
+              ) : (
+                <div className={styles.optionsList}>
+                  {timeOptions.map((opt) => (
+                    <label key={opt.id} className={styles.optionItem}>
+                      <input
+                        type='checkbox'
+                        className={styles.checkboxInput}
+                        checked={selectedTime === opt.id}
+                        onChange={() => setSelectedTime(opt.id)}
+                      />
+                      <span className={styles.checkboxCustom} />
+                      <span className={styles.optionLabel}>{opt.label}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className={styles.filterFooter}>
+              <button className={styles.clearBtn} onClick={handleClearFilter}>
+                Clear
+              </button>
+              <button className={styles.applyBtn} onClick={handleApplyFilter}>
+                Apply
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 
@@ -128,14 +262,14 @@ const OrdersPanel = () => {
     };
 
     headerPrefix = (
-      <button className={styles.backBtn} onClick={onBackClick} aria-label="Go back">
+      <button className={styles.backBtn} onClick={onBackClick} aria-label='Go back'>
         <BackArrowIcon />
       </button>
     );
 
     if (view.type === 'detail') {
       headerTitle = 'Order Details';
-      const order = mockOrders.find(o => o.id === Number(view.orderId));
+      const order = mockOrders.find((o) => o.id === Number(view.orderId));
       headerSubtitle = order ? `Order ID # ${order.orderId}` : '';
     } else if (view.type === 'cancel') {
       headerTitle = 'Cancel Item';
@@ -157,21 +291,6 @@ const OrdersPanel = () => {
         prefix={headerPrefix}
         action={headerActionSlot}
       />
-
-      {/* ── Filter pills ── */}
-      {isListView && showFilter && (
-        <div className={styles.filterRow}>
-          {filters.map((f) => (
-            <button
-              key={f.id}
-              className={`${styles.filterPill} ${activeFilter === f.id ? styles.filterActive : ''}`}
-              onClick={() => setActiveFilter(f.id)}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
-      )}
 
       {/* ── Order list or sub-views ── */}
       <div className={styles.scrollWrapper}>

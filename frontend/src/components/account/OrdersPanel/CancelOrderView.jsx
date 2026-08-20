@@ -3,16 +3,10 @@ import styles from '../../../pages/Account/CancelOrderPage.module.css';
 import { mockOrders } from '../../../data/ordersData';
 
 /* ── Inline SVG Icons ── */
-const BackIcon = () => (
-  <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'>
-    <polyline points='15 18 9 12 15 6' />
-  </svg>
-);
-
 const EligibleIcon = () => (
-  <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#2ecc40' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'>
-    <path d='M22 11.08V12a10 10 0 1 1-5.93-9.14' />
-    <polyline points='22 4 12 14.01 9 11.01' />
+  <svg width='22' height='22' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+    <circle cx='12' cy='12' r='10' fill='#16a34a' />
+    <path d='M8.5 12L10.5 14L15.5 9' stroke='#FFFFFF' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
   </svg>
 );
 
@@ -88,7 +82,7 @@ const CancelOrderView = ({ orderId, onBack }) => {
                   onChange={(e) => setSelectedReason(e.target.value)}
                   className={styles.radio}
                 />
-                <span>{reason}</span>
+                <span className={styles.reasonText}>{reason}</span>
               </label>
             ))}
           </div>

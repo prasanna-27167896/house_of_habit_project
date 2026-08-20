@@ -1,62 +1,85 @@
 .card {
   border: 1px solid #eaeaea;
-  border-radius: var(--border-radius-md);
+  border-radius: 16px;
   background: #ffffff;
   overflow: hidden;
 }
 
 /* ── Status header ── */
 .statusHeader {
-  padding: max(0.7rem, 0.7dvw) max(1.2rem, 1.2dvw);
+  padding: 8px;
+  margin: 12px;
+  background: linear-gradient(90deg, #F5FFF5 0%, #FFFFFF 100%);
+  border-radius: 10px 0 0 0;
+}
+
+.statusHeaderCancelled {
+  background: linear-gradient(90deg, #FFF5F5 0%, #FFFFFF 100%);
 }
 
 .statusInfo {
   display: flex;
   align-items: flex-start;
-  gap: max(0.5rem, 0.5dvw);
+  gap: max(0.45rem, 0.45dvw);
 }
 
-.statusDot {
-  width: max(0.6rem, 0.6dvw);
-  height: max(0.6rem, 0.6dvw);
-  border-radius: 50%;
-  flex-shrink: 0;
-  margin-top: max(0.3rem, 0.3dvw);
+.statusContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.statusTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: max(0.4em, 0.4dvw);
 }
 
 .statusLabel {
-  font-size: max(0.9rem, 0.9dvw);
-  font-weight: 600;
+  font-size: max(0.92rem, 0.92dvw);
+  font-weight: 500;
   margin: 0;
   line-height: 1.2;
 }
 
 .statusDate {
-  font-size: max(0.72rem, 0.72dvw);
-  color: #666;
-  margin: 0;
-  line-height: 1.4;
+  font-size: max(0.74rem, 0.74dvw);
+  color: #28282B;
+  line-height: 1.35;
+}
+
+.viewRefundBtn {
+  background: none;
+  border: none;
+  color: #FF5F15;
+  font-size: max(0.8rem, 0.8dvw);
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  white-space: nowrap;
+  transition: opacity var(--transition-fast);
+}
+
+.viewRefundBtn:hover {
+  opacity: 0.8;
 }
 
 /* ── Product row ── */
 .productRow {
   display: flex;
-  align-items: center;
+  align-items: start;
   gap: max(1rem, 1dvw);
-  padding: max(0.5rem, 0.5dvw) max(1.2rem, 1.2dvw) max(0.8rem, 0.8dvw);
+  padding: max(0.8rem, 0.8dvw) max(1.2rem, 1.2dvw);
   cursor: pointer;
   transition: background var(--transition-fast);
 }
 
-.productRow:hover {
-  background: #fafafa;
-}
-
 .productImage {
-  width: max(4.5rem, 4.5dvw);
-  height: max(5rem, 5dvw);
-  object-fit: cover;
-  border-radius: var(--border-radius-sm);
+  width: max(5.8rem, 5.8dvw);
+  height: max(5.8rem, 5.8dvw);
+  object-fit: contain;
+  border-radius: var(--border-radius-sm, 8px);
+  background: #f7f7f7;
   flex-shrink: 0;
 }
 
@@ -66,93 +89,89 @@
 }
 
 .productName {
-  font-size: max(0.88rem, 0.88dvw);
+  font-size: max(0.95rem, 0.95dvw);
   font-weight: 500;
-  color: #28282b;
-  margin: 0 0 max(0.15rem, 0.15dvw);
+  color: #28282B;
+  margin: 0 0 max(0.2rem, 0.2dvw);
+  line-height: 1.2;
 }
 
 .productDesc {
-  font-size: max(0.75rem, 0.75dvw);
-  color: #777;
-  margin: 0 0 max(0.15rem, 0.15dvw);
+  font-size: max(0.8rem, 0.8dvw);
+  color: #9D9D9D;
+  margin: 0 0 max(0.2rem, 0.2dvw);
+  line-height: 1.35;
 }
 
 .productMeta {
-  font-size: max(0.72rem, 0.72dvw);
-  color: #999;
-  margin: 0;
+  font-size: max(0.8rem, 0.8dvw);
+  color: #9D9D9D;
+  margin: max(0.08rem, 0.08dvw) 0;
+  line-height: 1.35;
 }
 
 .chevron {
   flex-shrink: 0;
-  color: #999;
+  color: #000000;
   display: flex;
   align-items: center;
 }
 
 /* ── Return window info ── */
-.returnInfo {
-  font-size: max(0.78rem, 0.78dvw);
-  color: #555;
-  padding: max(0.4rem, 0.4dvw) max(1.2rem, 1.2dvw) max(0.7rem, 0.7dvw);
-  margin: 0;
-}
-
-.returnDot {
-  margin-right: max(0.3rem, 0.3dvw);
-}
-
-/* ── Refund link ── */
-.refundLink {
-  padding: 0 max(1.2rem, 1.2dvw) max(0.7rem, 0.7dvw);
+.returnBanner {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  font-size: max(0.75rem, 0.75dvw);
+  font-weight: 400;
+  color: #9D9D9D;
+  padding: max(0.5rem, 0.5dvw) max(1.2rem, 1.2dvw) max(0.4rem, 0.4dvw);
 }
 
-.viewRefundBtn {
-  background: none;
-  border: none;
-  color: #ff5f15;
-  font-size: max(0.82rem, 0.82dvw);
+.returnBanner strong {
+  color: #000000;
   font-weight: 500;
-  cursor: pointer;
-  padding: 0;
-  transition: opacity var(--transition-fast);
 }
 
-.viewRefundBtn:hover {
-  opacity: 0.7;
+.closedReturnBanner {
+  font-size: max(0.75rem, 0.75dvw);
+  font-weight: 400;
+  color: #9D9D9D;
+  padding: max(0.6rem, 0.6dvw) max(1.2rem, 1.2dvw) max(0.8rem, 0.8dvw);
+}
+
+.closedReturnBanner strong {
+  color: #000000;
+  font-weight: 500;
 }
 
 /* ── Action buttons ── */
 .actions {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: max(0.6rem, 0.6dvw);
-  padding: max(0.4rem, 0.4dvw) max(1.2rem, 1.2dvw) max(1rem, 1dvw);
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: max(1rem, 1dvw);
+  padding: max(0.5rem, 0.5dvw) max(1.2rem, 1.2dvw) max(1rem, 1dvw);
 }
 
 .actionBtn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: max(0.35rem, 0.35dvw);
-  padding: max(0.55rem, 0.55dvw) max(0.5rem, 0.5dvw);
-  font-size: max(0.78rem, 0.78dvw);
-  font-weight: 400;
-  color: #28282b;
+  gap: max(0.4rem, 0.4dvw);
+  padding: max(0.7rem, 0.7dvw) max(0.8rem, 0.8dvw);
+  font-size: max(0.85rem, 0.85dvw);
+  font-weight: 500;
+  color: #28282B;
   background: #ffffff;
-  border: 1px solid #e5e5e5;
-  border-radius: var(--border-radius-sm);
+  border: 1px solid #E9E9E9;
+  border-radius: 10px;
   cursor: pointer;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
+  transition: all var(--transition-fast);
   white-space: nowrap;
 }
 
 .actionBtn:hover {
-  background: #f5f5f5;
-  border-color: #ccc;
+  background: #f9fafb;
+  border-color: #d1d5db;
 }
 
 /* ── Mobile ── */
@@ -163,7 +182,230 @@
   }
 
   .actions {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.4rem;
   }
+
+  .actionBtn {
+    padding: 0.5rem 0.3rem;
+    font-size: 0.72rem;
+    gap: 0.25rem;
+  }
+}
+
+/* ── Refund Details Modal Popup ── */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #2E3C584D;
+  backdrop-filter: blur(2px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(1rem, 1dvw);
+}
+
+.refundModalCard {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: max(1.1rem, 1.1dvw);
+  width: 100%;
+  max-width: 440px;
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.refundModalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.refundModalTitle {
+  font-size: max(1.1rem, 1.1dvw);
+  font-weight: 500;
+  color: #28282B;
+  margin: 0;
+}
+
+.refundModalSubtitle {
+  font-size: max(0.75rem, 0.75dvw);
+  color: #9C9C9D;
+  margin: max(0.2rem, 0.2dvw) 0 0;
+}
+
+.closeModalBtn {
+  background: none;
+  border: none;
+  color: #28282B;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-fast);
+}
+
+.closeModalBtn:hover {
+  color: #1f2937;
+}
+
+.refundModalDivider {
+  height: 1px;
+  background: #EAEAEA;
+  margin: max(1rem, 1dvw) 0 max(1.2rem, 1.2dvw);
+}
+
+.refundModalBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fafafa;
+  border-radius: 16px;
+  padding: max(0.8rem, 0.8dvw);
+  margin-bottom: max(1rem, 1dvw);
+}
+
+.refundModalAmount {
+  font-size: max(1.05rem, 1.05dvw);
+  font-weight: 600;
+  color: #28282B;
+  display: block;
+}
+
+.refundModalCreditText {
+  font-size: max(0.8rem, 0.8dvw);
+  color: #28282B;
+}
+
+.refundModalBadge {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: max(0.25rem, 0.25dvw) max(0.65rem, 0.65dvw);
+  font-size: max(0.8rem, 0.8dvw);
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.refundModalNoteRow {
+  display: flex;
+  align-items: center;
+  gap: max(0.6rem, 0.6dvw);
+}
+
+.refundModalNoteText {
+  font-size: max(0.8rem, 0.8dvw);
+  color: #9D9D9D;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* ── Track Item Modal Popup ── */
+.trackModalCard {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: max(1rem, 1dvw) max(1rem, 1dvw) max(2rem, 2dvw);
+  width: 100%;
+  max-width: 440px;
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+.trackModalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.trackModalTitle {
+  font-size: max(1.05em, 1.05dvw);
+  font-weight: 500;
+  color: #28282B;
+  margin: 0;
+}
+
+.trackModalSubtitle {
+  font-size: max(0.75rem, 0.75dvw);
+  color: #9C9C9D;
+}
+
+.trackModalDivider {
+  height: 1px;
+  background: #EAEAEA;
+  margin: max(1rem, 1dvw) 0 max(1.5rem, 1.5dvw);
+}
+
+.trackTimelineList {
+  display: flex;
+  flex-direction: column;
+}
+
+.trackTimelineStep {
+  display: flex;
+  align-items: center;
+  gap: max(0.4rem, 0.4dvw);
+}
+
+.trackStepIconPending,
+.trackStepIconActive {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.trackStepText {
+  font-size: max(0.95rem, 0.95dvw);
+  color: #28282B;
+  margin: 0;
+}
+
+.trackStepText strong,
+.trackStepTextGreen strong {
+  font-weight: 500 !important;
+  font-size: max(1rem, 1dvw) !important;
+}
+
+.trackStepTextGreen {
+  font-size: max(0.95rem, 0.95dvw);
+  color: #05D205;
+  margin: 0;
+}
+
+.trackStepDate {
+  color: #9D9D9D;
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+.trackLineDashed {
+  width: 1px;
+  height: max(2.6rem, 2.6dvw);
+  border-left: 1px dashed #EAEAEA;
+  margin-left: 8px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.trackLineGreen {
+  width: 1px;
+  height: max(2.6rem, 2.6dvw);
+  border-left: 1px dashed #0BD30B;
+  margin-left: 8px;
+  margin-top: 4px;
+  margin-bottom: 4px;
 }

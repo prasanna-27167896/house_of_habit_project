@@ -14,35 +14,35 @@ export const ORDER_STATUSES = {
 export const STATUS_CONFIG = {
   [ORDER_STATUSES.PLACED]: {
     label: 'Placed',
-    color: '#ff5f15',
+    color: '#00a63e',
   },
   [ORDER_STATUSES.CONFIRMED]: {
     label: 'Confirmed',
-    color: '#ff5f15',
+    color: '#00a63e',
   },
   [ORDER_STATUSES.SHIPPED]: {
     label: 'Shipped',
-    color: '#ff5f15',
+    color: '#00a63e',
   },
   [ORDER_STATUSES.OUT_FOR_DELIVERY]: {
     label: 'On Delivery',
-    color: '#ff5f15',
+    color: '#00a63e',
   },
   [ORDER_STATUSES.DELIVERED]: {
     label: 'Delivered',
-    color: '#2ecc40',
+    color: '#00a63e',
   },
   [ORDER_STATUSES.CANCELLED]: {
     label: 'Cancelled',
     color: '#e53935',
   },
   [ORDER_STATUSES.OUT_FOR_PICKUP]: {
-    label: 'Out for Pickup',
-    color: '#ff5f15',
+    label: 'Out For Pickup',
+    color: '#00a63e',
   },
   [ORDER_STATUSES.REFUND_CREDITED]: {
     label: 'Refund Credited',
-    color: '#ff5f15',
+    color: '#00a63e',
   },
 };
 
