@@ -26,7 +26,7 @@ const LogoutIcon = () => (
 
 const NAV_ITEMS = [
   { id: 'profile', label: 'My Profile' },
-  { id: 'orders', label: 'My Orders' },
+  { id: 'orders', label: 'My Orders' }, 
   { id: 'addresses', label: 'Addresses' },
   { id: 'support', label: 'Help & Support' },
 ];

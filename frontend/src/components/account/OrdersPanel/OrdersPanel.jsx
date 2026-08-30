@@ -50,7 +50,7 @@ const OrdersPanel = () => {
   /* ── View state: controls which sub-view is displayed ── */
   const [view, setView] = useState({ type: 'list' });
 
-  const orders = mockOrders;
+  const orders = []; 
 
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
@@ -228,7 +228,7 @@ const OrdersPanel = () => {
         <div className={styles.emptyState}>
           <OrdersBagIcon width={140} height={160} />
           <p className={styles.emptyText}>You haven't placed any orders yet.</p>
-          <Button variant='dark' size='sm'>
+          <Button variant='light' size='sm' bgColor='#1e1e1e' textColor='#ffffff'>
             Continue Shopping <ArrowIcon width={30} height={30} />
           </Button>
         </div>

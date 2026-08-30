@@ -90,18 +90,59 @@
   height: max(1.6rem, 1.6dvw);
 }
 
-.searchInput {
+/* ── Input Wrapper (holds input + animated placeholder) ── */
+.inputWrapper {
+  position: relative;
   flex: 1;
+}
+
+.searchInput {
+  width: 100%;
   border: none;
   background: transparent;
   font-size: max(1.1rem, 1.1dvw);
   font-weight: 300;
   outline: none;
   color: #28282b;
+  position: relative;
+  z-index: 1;
 }
 
-.searchInput::placeholder {
+/* ── Animated Placeholder Overlay ── */
+.animatedPlaceholder {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+  pointer-events: none;
+  font-size: max(1.1rem, 1.1dvw);
+  font-weight: 300;
   color: #28282b;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.placeholderStatic {
+  flex-shrink: 0;
+}
+
+.placeholderSlider {
+  display: inline-block;
+  animation: placeholderSlideUp 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes placeholderSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ── Sections ── */

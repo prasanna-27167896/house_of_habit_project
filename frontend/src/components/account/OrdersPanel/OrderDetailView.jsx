@@ -655,11 +655,12 @@ const OrderDetailView = ({ orderId, onBack, onNavigate }) => {
                   <span>Paid By</span>
                   <span className={styles.paidByMethod}>UPI Payment</span>
                 </div>
-              </div>
-
-              <button className={styles.downloadInvoiceBtn} onClick={() => setShowPriceDetailsModal(false)}>
+                <button className={styles.downloadInvoiceBtn} onClick={() => setShowPriceDetailsModal(false)}>
                 <DownloadIcon /> Download Invoice
               </button>
+              </div>
+
+              
             </div>
           </div>
         </div>

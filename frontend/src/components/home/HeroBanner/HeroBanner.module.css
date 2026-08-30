@@ -39,6 +39,7 @@
   transform: translateX(0);
   opacity: 1;
   z-index: 2;
+  pointer-events: auto;
 }
 
 .picture {
@@ -54,23 +55,38 @@
   object-position: center;
 }
 
-/* ── Overlay ── */
+/* ── Overlay (inside each slide) ── */
 .overlay {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: 1;
   pointer-events: none;
 }
 
-/* ── Content ── */
-.content {
+/* ── Slide Content (inside each slide) ── */
+.slideContent {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: max(2.2rem, 2.2dvw);
+}
+
+/* ── Fixed Controls (dots + desktop button, always visible) ── */
+.fixedControls {
   position: absolute;
   inset: 0;
   z-index: 3;
   display: flex;
   align-items: flex-end;
-  justify-content: space-between;
   padding: max(2.2rem, 2.2dvw);
+  pointer-events: none;
+}
+
+.fixedControls > * {
+  pointer-events: auto;
 }
 
 /* ── Left Column: Vertical Indicator Dots + Button ── */
@@ -152,42 +168,39 @@
 }
 
 .avatar {
-  width: max(1.8rem, 1.8dvw);
-  height: max(1.8rem, 1.8dvh);
+  width: max(2rem, 2dvw);
+  height: max(2rem, 2dvw);
   border-radius: 50%;
-  border: 2px solid #fff;
+  border: 1px solid #ffffff;
   display: block;
   margin-left: max(-0.8rem, -0.8dvw);
+  object-fit: cover;
 }
 
 .avatar:first-child {
   margin-left: 0;
 }
 
-.a1 {
-  background: #a8b4be;
-}
-
-.a2 {
-  background: #7a8d9a;
-}
-
-.a3 {
-  background: #546474;
-}
-
 .ratingText {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  font-size: max(0.9rem, 0.9dvw);
+  font-size: max(0.88rem, 0.88dvw);
   color: rgba(255, 255, 255, 0.9);
 }
 
 .ratingText strong {
-  font-size: max(0.9rem, 0.9dvw);
-  font-weight: 600;
+  font-size: max(0.88rem, 0.88dvw);
+  font-weight: 500;
   color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
+}
+
+.starIcon {
+  width: max(0.9rem, 0.9dvw);
+  height: max(0.9rem, 0.9dvw);
 }
 
 .desktopBtnWrapper {
@@ -228,7 +241,13 @@
     display: none;
   }
 
-  .content {
+  .slideContent {
+    padding: max(1.4rem, 1.4dvw);
+    align-items: flex-end;
+    justify-content: flex-start;
+  }
+
+  .fixedControls {
     padding: max(1.4rem, 1.4dvw);
     flex-direction: column;
     align-items: flex-start;

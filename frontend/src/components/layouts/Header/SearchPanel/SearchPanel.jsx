@@ -11,6 +11,9 @@ const SKELETON_COUNT = 5;
 
 const DEBOUNCE_MS = 300;
 
+const PLACEHOLDER_WORDS = ['Polo T-Shirts', 'Hoodies', 'Sweatshirts'];
+const PLACEHOLDER_INTERVAL = 2500;
+
 const SearchPanel = ({ isOpen, onClose }) => {
   const [query, setQuery] = useState('');
   const [isClosing, setIsClosing] = useState(false);
@@ -18,9 +21,11 @@ const SearchPanel = ({ isOpen, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [error, setError] = useState(null);
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
 
   const debounceRef = useRef(null);
   const abortRef = useRef(null);
+  const inputRef = useRef(null);
   const navigate = useNavigate();
 
   // Reset state when panel opens/closes
@@ -49,6 +54,15 @@ const SearchPanel = ({ isOpen, onClose }) => {
       if (abortRef.current) abortRef.current.abort();
     };
   }, []);
+
+  // Animated placeholder cycling
+  useEffect(() => {
+    if (query) return;
+    const interval = setInterval(() => {
+      setPlaceholderIndex((prev) => (prev + 1) % PLACEHOLDER_WORDS.length);
+    }, PLACEHOLDER_INTERVAL);
+    return () => clearInterval(interval);
+  }, [query]);
 
   const fetchResults = useCallback(async (keyword) => {
     // Abort any in-flight request
@@ -143,15 +157,25 @@ const SearchPanel = ({ isOpen, onClose }) => {
 
         <div className={styles.content}>
           {/* Search Input */}
-          <div className={styles.searchBar}>
+          <div className={styles.searchBar} onClick={() => inputRef.current?.focus()}>
             <SearchIcon width={20} height={20} className={styles.searchIcon} />
-            <input
-              type='text'
-              className={styles.searchInput}
-              placeholder='Search By "Polo T shirts"'
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
+            <div className={styles.inputWrapper}>
+              <input
+                ref={inputRef}
+                type='text'
+                className={styles.searchInput}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              {!query && (
+                <div className={styles.animatedPlaceholder}>
+                  <span className={styles.placeholderStatic}>Search By</span>
+                  <span className={styles.placeholderSlider} key={placeholderIndex}>
+                    "{PLACEHOLDER_WORDS[placeholderIndex]}"
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Default View: Top Searches + Trending */}

@@ -10,21 +10,29 @@ import img1Mobile from '../../../assets/images/home-banner-carousal-image-mobile
 import img2Mobile from '../../../assets/images/home-banner-carousal-image-mobile-2.png';
 import img3Mobile from '../../../assets/images/home-banner-carousal-image-mobile-3.png';
 
+import profileIcon1 from '../../../assets/icons/profile-icon-1.svg';
+import profileIcon2 from '../../../assets/icons/profile-icon-2.svg';
+import profileIcon3 from '../../../assets/icons/profile-icon-3.svg';
+import profileIcon4 from '../../../assets/icons/profile-icon-4.svg';
+import starIcon from '../../../assets/icons/star-icon.svg';
+
 const slides = [
   { desktop: img1Desktop, mobile: img1Mobile, alt: 'Banner Style 1' },
   { desktop: img2Desktop, mobile: img2Mobile, alt: 'Banner Style 2' },
   { desktop: img3Desktop, mobile: img3Mobile, alt: 'Banner Style 3' },
 ];
 
+const avatars = [profileIcon1, profileIcon2, profileIcon3, profileIcon4];
+
 const RatingWidget = () => (
   <div className={styles.rating}>
     <div className={styles.avatars}>
-      <span className={`${styles.avatar} ${styles.a1}`} />
-      <span className={`${styles.avatar} ${styles.a2}`} />
-      <span className={`${styles.avatar} ${styles.a3}`} />
+      {avatars.map((icon, i) => (
+        <img key={i} src={icon} alt={`Customer ${i + 1}`} className={styles.avatar} />
+      ))}
     </div>
     <div className={styles.ratingText}>
-      <strong>&#9733; 4.5+ Rating</strong>
+      <strong><img src={starIcon} alt="star" className={styles.starIcon} /> 4.5+ Rating</strong>
       <span>Satisfied Customer</span>
     </div>
   </div>
@@ -56,26 +64,47 @@ const HeroBanner = () => {
 
   return (
     <section className={styles.hero}>
-      {/* ── Carousel Images Layer ── */}
+      {/* ── Slides: each slide has image + content ── */}
       <div className={styles.carouselLayer}>
         {slides.map((slide, index) => (
           <div
             key={index}
             className={`${styles.slide} ${getSlideClass(index)}`}
           >
+            {/* Background Image */}
             <picture className={styles.picture}>
               <source media="(max-width: 768px)" srcSet={slide.mobile} />
               <img src={slide.desktop} alt={slide.alt} className={styles.slideImg} />
             </picture>
+
+            {/* Overlay */}
+            <div className={styles.overlay} />
+
+            {/* Content inside each slide */}
+            <div className={styles.slideContent}>
+              <div className={styles.textBlock}>
+                <h1 className={styles.heading}>Wear Your Identity</h1>
+                <div className={styles.subBlock}>
+                  <p className={styles.sub}>
+                    Contemporary clothing crafted for
+                    <br className={styles.desktopBr} />
+                    everyday confidence.
+                  </p>
+                  <RatingWidget />
+                </div>
+                <div className={styles.mobileBtnWrapper}>
+                  <Button variant='light' size='sm' onClick={handleShopNow}>
+                    Shop Now
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
         ))}
       </div>
 
-      <div className={styles.overlay} />
-
-      {/* ── Content ── */}
-      <div className={styles.content}>
-        {/* Left Column: Vertical Indicator Dots + Button (Desktop) */}
+      {/* ── Fixed UI: Dots + Desktop Button (always visible) ── */}
+      <div className={styles.fixedControls}>
         <div className={styles.leftCol}>
           <div className={styles.dots}>
             {slides.map((_, index) => (
@@ -90,24 +119,6 @@ const HeroBanner = () => {
           </div>
 
           <div className={styles.desktopBtnWrapper}>
-            <Button variant='light' size='sm' onClick={handleShopNow}>
-              Shop Now
-            </Button>
-          </div>
-        </div>
-
-        {/* Text Block: Heading + Subtitle + Rating / Mobile Button */}
-        <div className={styles.textBlock}>
-          <h1 className={styles.heading}>Wear Your Identity</h1>
-          <div className={styles.subBlock}>
-            <p className={styles.sub}>
-              Contemporary clothing crafted for
-              <br className={styles.desktopBr} />
-              everyday confidence.
-            </p>
-            <RatingWidget />
-          </div>
-          <div className={styles.mobileBtnWrapper}>
             <Button variant='light' size='sm' onClick={handleShopNow}>
               Shop Now
             </Button>

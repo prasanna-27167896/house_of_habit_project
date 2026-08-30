@@ -176,20 +176,69 @@
 
 /* ── Mobile ── */
 @media (max-width: 768px) {
+  .statusHeader {
+    margin: 8px;
+    padding: 8px;
+  }
+
+  .statusTitleRow {
+    flex-wrap: wrap;
+    gap: 0.2rem 0.5rem;
+  }
+
+  .productRow {
+    padding: 0.75rem 1rem;
+    gap: 0.75rem;
+  }
+
   .productImage {
-    width: 3.5rem;
-    height: 4rem;
+    width: 4rem;
+    height: 4.5rem;
+  }
+
+  .productName {
+    font-size: 0.9rem;
+  }
+
+  .productDesc,
+  .productMeta {
+    font-size: 0.75rem;
   }
 
   .actions {
     grid-template-columns: repeat(3, 1fr);
     gap: 0.4rem;
+    padding: 0.5rem 1rem 0.8rem;
   }
 
   .actionBtn {
-    padding: 0.5rem 0.3rem;
+    padding: 0.55rem 0.35rem;
     font-size: 0.72rem;
     gap: 0.25rem;
+  }
+
+  .refundModalCard,
+  .trackModalCard {
+    padding: 1rem;
+    max-width: 92vw;
+  }
+}
+
+@media (max-width: 480px) {
+  .actions {
+    grid-template-columns: repeat(auto-fit, minmax(95px, 1fr));
+    gap: 0.35rem;
+    padding: 0.4rem 0.75rem 0.75rem;
+  }
+
+  .actionBtn {
+    padding: 0.5rem 0.25rem;
+    font-size: 0.7rem;
+  }
+
+  .productImage {
+    width: 3.5rem;
+    height: 4rem;
   }
 }
 
@@ -317,12 +366,14 @@
 
 /* ── Track Item Modal Popup ── */
 .trackModalCard {
-  background: #ffffff;
-  border-radius: 16px;
+ background: #ffffff;
   padding: max(1rem, 1dvw) max(1rem, 1dvw) max(2rem, 2dvw);
   width: 100%;
   max-width: 440px;
+  overflow-y: auto;
+  border-radius: 16px;
   animation: modalFadeIn 0.2s ease-out;
+
 }
 
 .trackModalHeader {
@@ -332,15 +383,15 @@
 }
 
 .trackModalTitle {
-  font-size: max(1.05em, 1.05dvw);
+  font-size: max(1.05rem, 1.05dvw);
   font-weight: 500;
   color: #28282B;
   margin: 0;
 }
 
 .trackModalSubtitle {
-  font-size: max(0.75rem, 0.75dvw);
-  color: #9C9C9D;
+   font-size: max(0.78rem, 0.78dvw);
+  color: #9C9C9D;;
 }
 
 .trackModalDivider {
@@ -369,7 +420,7 @@
 }
 
 .trackStepText {
-  font-size: max(0.95rem, 0.95dvw);
+  font-size: max(0.82rem, 0.82dvw);
   color: #28282B;
   margin: 0;
 }
@@ -377,11 +428,11 @@
 .trackStepText strong,
 .trackStepTextGreen strong {
   font-weight: 500 !important;
-  font-size: max(1rem, 1dvw) !important;
+  font-size: max(0.92rem, 0.92dvw) !important;
 }
 
 .trackStepTextGreen {
-  font-size: max(0.95rem, 0.95dvw);
+  font-size: max(0.92rem, 0.92dvw);
   color: #05D205;
   margin: 0;
 }
