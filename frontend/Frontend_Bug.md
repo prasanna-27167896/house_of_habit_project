@@ -1,4 +1,4 @@
-# Frontend Issues — Explained in Detail
+# Frontend Issues
 
 This file lists every problem found by comparing the frontend code against the real
 backend (HohBE). Every backend endpoint mentioned here already exists, works, and has
