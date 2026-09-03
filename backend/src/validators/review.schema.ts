@@ -1,16 +1,35 @@
 import { z } from "zod";
 
-export const createReviewSchema = z.object({
-  rating: z.number().int().min(1).max(5),
-  title: z.string().max(150).optional(),
-  body: z.string().max(2000).optional(),
-});
+// The review photo must have gone through POST /upload/presign-review, which only ever
+// writes into the "reviews/" folder — this guards against a client linking some other
+// R2 key (e.g. a product image) onto a review.
+const reviewImageKey = z
+  .string()
+  .refine((key) => key.startsWith("reviews/"), { error: "imageKey must be a key returned by /upload/presign-review" });
 
-export const updateReviewSchema = z.object({
-  rating: z.number().int().min(1).max(5).optional(),
-  title: z.string().max(150).nullable().optional(),
-  body: z.string().max(2000).nullable().optional(),
-});
+export const createReviewSchema = z
+  .object({
+    rating: z.number().int().min(1).max(5),
+    title: z.string().max(150).optional(),
+    body: z.string().max(2000).optional(),
+    imageUrl: z.string().url().optional(),
+    imageKey: reviewImageKey.optional(),
+  })
+  .refine((data) => Boolean(data.imageUrl) === Boolean(data.imageKey), {
+    error: "imageUrl and imageKey must be provided together",
+  });
+
+export const updateReviewSchema = z
+  .object({
+    rating: z.number().int().min(1).max(5).optional(),
+    title: z.string().max(150).nullable().optional(),
+    body: z.string().max(2000).nullable().optional(),
+    imageUrl: z.string().url().nullable().optional(),
+    imageKey: reviewImageKey.nullable().optional(),
+  })
+  .refine((data) => Boolean(data.imageUrl) === Boolean(data.imageKey), {
+    error: "imageUrl and imageKey must be provided (or cleared) together",
+  });
 
 export const createReplySchema = z.object({
   replyText: z.string().min(1).max(2000),

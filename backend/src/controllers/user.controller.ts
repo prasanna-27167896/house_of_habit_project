@@ -17,12 +17,16 @@ export const updateProfile = asyncHandler(async (req: Request, res: Response) =>
   sendSuccess(res, user);
 });
 
+export const changeOwnPassword = asyncHandler(async (req: Request, res: Response) => {
+  const { currentPassword, newPassword } = changeOwnPasswordSchema.parse(req.body);
+  await userService.changeOwnPassword(req.user!.userId, req.user!.sessionId, currentPassword, newPassword);
+  sendSuccess(res, { message: "Password updated successfully." });
+});
+
 export const deleteAccount = asyncHandler(async (req: Request, res: Response) => {
   await userService.deleteAccount(req.user!.userId);
   sendSuccess(res, { message: "Account deleted successfully." });
 });
-
-
 
 // ── Admin ──────────────────────────────────────────────────────────────────────
 

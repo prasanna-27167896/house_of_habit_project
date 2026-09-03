@@ -27,8 +27,8 @@ export const updateUserProfile = (userId: string, data: UpdateProfileInput): Pro
     },
   });
 
-// export const updateUserPassword = (userId: string, password: string): Promise<User> =>
-//   prisma.user.update({ where: { userId }, data: { password } });
+export const updateUserPassword = (userId: string, password: string): Promise<User> =>
+  prisma.user.update({ where: { userId }, data: { password } });
 
 export const findAllUsers = (skip: number, take: number): Promise<UserListItem[]> =>
   prisma.user.findMany({

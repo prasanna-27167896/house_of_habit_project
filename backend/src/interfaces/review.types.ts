@@ -20,12 +20,16 @@ export type ReviewWriteData = {
   rating: number;
   title: string | null;
   body: string | null;
+  imageUrl: string | null;
+  imageKey: string | null;
 };
 
 export type ReviewUpdateData = {
   rating?: number;
   title?: string | null;
   body?: string | null;
+  imageUrl?: string | null;
+  imageKey?: string | null;
 };
 
 // ─── List result ──────────────────────────────────────────────────────────────

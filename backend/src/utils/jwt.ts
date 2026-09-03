@@ -4,7 +4,7 @@ import type { CookieOptions } from "express";
 import { env } from "@config/env";
 
 export const REFRESH_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
-const ACCESS_EXPIRY_MS = 60 * 60 * 1000; // 1 hour
+const ACCESS_EXPIRY_MS = 15 * 60 * 1000; // 15 minutes
 
 export interface JwtPayload {
   userId: string;

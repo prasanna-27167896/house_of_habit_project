@@ -140,7 +140,6 @@ export { authLimiter, readLimiter, writeLimiter };
 // ── Global error handler (must be last) ──────────────────────────────────────
 app.use(errorMiddleware);
 
-// Trigger dev server reload for updated auth routes
 export default app;
 
 // ── Server startup ────────────────────────────────────────────────────────────

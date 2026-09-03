@@ -3,6 +3,7 @@ import * as productRepo from "@repos/product.repo";
 import * as userRepo from "@repos/user.repo";
 import { Errors } from "@errors/index";
 import { sendReviewReplyEmail } from "@utils/email";
+import { deleteFromPublicR2 } from "@services/cloudflare.service";
 import type { ReviewWithRelations, ReviewListResult } from "@interfaces/review.types";
 import type {
   CreateReviewInput,
@@ -34,6 +35,8 @@ export const createReview = async (
     rating: input.rating,
     title: input.title ?? null,
     body: input.body ?? null,
+    imageUrl: input.imageUrl ?? null,
+    imageKey: input.imageKey ?? null,
   });
 
   await reviewRepo.recalcProductRating(productId);
@@ -50,11 +53,21 @@ export const updateReview = async (
   if (!review) throw Errors.REVIEW_NOT_FOUND();
   if (review.userId !== userId) throw Errors.REVIEW_NOT_OWNED();
 
+  // Replacing or clearing the image orphans the old R2 object — delete it only AFTER
+  // the DB update succeeds, so a failed update never leaves the review pointing at a
+  // missing object.
+  const oldImageKeyToDelete =
+    input.imageKey !== undefined && input.imageKey !== review.imageKey ? review.imageKey : null;
+
   const updated = await reviewRepo.updateReview(reviewId, {
     ...(input.rating !== undefined ? { rating: input.rating } : {}),
     ...(input.title !== undefined ? { title: input.title } : {}),
     ...(input.body !== undefined ? { body: input.body } : {}),
+    ...(input.imageUrl !== undefined ? { imageUrl: input.imageUrl } : {}),
+    ...(input.imageKey !== undefined ? { imageKey: input.imageKey } : {}),
   });
+
+  if (oldImageKeyToDelete) await deleteFromPublicR2(oldImageKeyToDelete).catch(() => undefined);
 
   await reviewRepo.recalcProductRating(review.productId);
 
@@ -68,6 +81,7 @@ export const deleteOwnReview = async (userId: string, reviewId: string): Promise
 
   const productId = review.productId;
   await reviewRepo.deleteReview(reviewId);
+  if (review.imageKey) await deleteFromPublicR2(review.imageKey).catch(() => undefined);
   await reviewRepo.recalcProductRating(productId);
 };
 
@@ -103,6 +117,7 @@ export const adminDeleteReview = async (reviewId: string): Promise<void> => {
 
   const productId = review.productId;
   await reviewRepo.deleteReview(reviewId);
+  if (review.imageKey) await deleteFromPublicR2(review.imageKey).catch(() => undefined);
   await reviewRepo.recalcProductRating(productId);
 };
 

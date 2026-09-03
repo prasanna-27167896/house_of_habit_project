@@ -21,29 +21,19 @@ const getClientMeta = (req: Request): { ipAddress: string | null; userAgent: str
   userAgent: typeof req.headers["user-agent"] === "string" ? req.headers["user-agent"] : null,
 });
 
-// ─── Registration & Login OTP ────────────────────────────────────────────────
+// ─── Registration OTP ─────────────────────────────────────────────────────────
 
 export const sendVerificationOtp = asyncHandler(async (req: Request, res: Response) => {
-  const rawEmail = req.query["email"] ?? req.body?.email;
-  const { email } = sendOtpSchema.parse({ email: rawEmail });
+  const { email } = sendOtpSchema.parse({ email: req.query["email"] });
   await authService.sendVerificationOtp(email);
   sendSuccess(res, { message: "OTP sent to your email." });
 });
 
 export const verifyRegistrationOtp = asyncHandler(async (req: Request, res: Response) => {
-  const emailParam = (req.params as { email?: string }).email;
-  const rawEmail = emailParam ?? req.body?.email;
+  const { email } = req.params as { email: string };
   const { otp } = verifyOtpSchema.parse(req.body);
-  const { ipAddress, userAgent } = getClientMeta(req);
-
-  const result = await authService.verifyRegistrationOtp(rawEmail, otp, ipAddress, userAgent);
-
-  if (result.refreshToken) {
-    res.cookie("refresh_token", result.refreshToken, refreshCookieOptions);
-    sendSuccess(res, { message: "Login successful.", user: result.user, accessToken: result.accessToken });
-  } else {
-    sendSuccess(res, { message: "Email verified successfully." });
-  }
+  await authService.verifyRegistrationOtp(email, otp);
+  sendSuccess(res, { message: "Email verified successfully." });
 });
 
 // ─── Register / Login ─────────────────────────────────────────────────────────
@@ -57,7 +47,33 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
   sendSuccess(res, { user, accessToken }, 201);
 });
 
+export const login = asyncHandler(async (req: Request, res: Response) => {
+  const data = loginSchema.parse(req.body);
+  const { ipAddress, userAgent } = getClientMeta(req);
+  const { user, accessToken, refreshToken } = await authService.login(data, ipAddress, userAgent);
 
+  res.cookie("refresh_token", refreshToken, refreshCookieOptions);
+  sendSuccess(res, { user, accessToken });
+});
+
+// ─── Login OTP (ROLE_USER sign-in — no password) ─────────────────────────────
+
+export const sendLoginOtp = asyncHandler(async (req: Request, res: Response) => {
+  const { email } = sendOtpSchema.parse({ email: req.query["email"] });
+  await authService.sendLoginOtp(email);
+  // Generic response regardless of whether the account exists (anti-enumeration).
+  sendSuccess(res, { message: "If this account exists, an OTP has been sent." });
+});
+
+export const verifyLoginOtp = asyncHandler(async (req: Request, res: Response) => {
+  const { email } = req.params as { email: string };
+  const { otp } = verifyOtpSchema.parse(req.body);
+  const { ipAddress, userAgent } = getClientMeta(req);
+  const { user, accessToken, refreshToken } = await authService.verifyLoginOtp(email, otp, ipAddress, userAgent);
+
+  res.cookie("refresh_token", refreshToken, refreshCookieOptions);
+  sendSuccess(res, { user, accessToken });
+});
 
 // ─── Refresh (reads httpOnly cookie, rotates it) ──────────────────────────────
 
@@ -95,4 +111,9 @@ export const verifyForgotPasswordOtp = asyncHandler(async (req: Request, res: Re
   sendSuccess(res, { message: "OTP verified. You may now reset your password." });
 });
 
-
+export const changePassword = asyncHandler(async (req: Request, res: Response) => {
+  const { email } = req.params as { email: string };
+  const { otp, newPassword } = changePasswordSchema.parse(req.body);
+  await authService.changePassword(email, otp, newPassword);
+  sendSuccess(res, { message: "Password changed successfully." });
+});

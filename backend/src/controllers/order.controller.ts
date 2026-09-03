@@ -3,9 +3,11 @@ import { asyncHandler } from "@utils/asyncHandler";
 import { sendSuccess } from "@utils/response";
 import * as orderService from "@services/order.service";
 import {
+  cancelOrderSchema,
   updateOrderStatusSchema,
   updatePaymentStatusSchema,
   orderListQuerySchema,
+  myOrderListQuerySchema,
   monthlyCountsQuerySchema,
 } from "@validators/order.schema";
 import type { OrderStatus } from "@interfaces/order.types";
@@ -14,7 +16,7 @@ import type { OrderStatus } from "@interfaces/order.types";
 
 export const getUserOrders = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user!.userId;
-  const query = orderListQuerySchema.parse(req.query);
+  const query = myOrderListQuerySchema.parse(req.query);
   const result = await orderService.getUserOrders(userId, query);
   sendSuccess(res, result);
 });
@@ -29,7 +31,8 @@ export const getOrderDetail = asyncHandler(async (req: Request, res: Response) =
 export const cancelOrder = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user!.userId;
   const orderId = req.params["orderId"] as string;
-  const order = await orderService.cancelOrder(userId, orderId);
+  const input = cancelOrderSchema.parse(req.body ?? {});
+  const order = await orderService.cancelOrder(userId, orderId, input);
   sendSuccess(res, order);
 });
 

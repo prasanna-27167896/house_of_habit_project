@@ -1,8 +1,10 @@
 import { prisma } from "@lib/prisma";
+import type { Prisma } from "@generated/prisma/client";
 import { cartItemSelect } from "@repos/cart.repo";
 import * as paymentRepo from "@repos/payment.repo";
 import * as reservationRepo from "@repos/reservation.repo";
 import * as couponRepo from "@repos/coupon.repo";
+import * as trackingRepo from "@repos/tracking.repo";
 import { Errors } from "@errors/index";
 import type {
   OrderWithRelations,
@@ -42,21 +44,50 @@ export const findOrderByIdForUser = (orderId: string, userId: string): Promise<O
     include: orderInclude,
   }) as Promise<OrderWithRelations | null>;
 
+export type MyOrdersFilter = {
+  status?: OrderStatus | undefined;
+  startDate?: string | undefined; // YYYY-MM-DD
+  endDate?: string | undefined; // YYYY-MM-DD, treated as inclusive of the whole day
+  search?: string | undefined; // matches against order item product titles
+};
+
+const buildMyOrdersWhere = (userId: string, filters?: MyOrdersFilter): Prisma.OrderWhereInput => {
+  const where: Prisma.OrderWhereInput = { userId };
+
+  if (filters?.status) where.orderStatus = filters.status;
+
+  if (filters?.startDate || filters?.endDate) {
+    where.createdAt = {
+      ...(filters.startDate && { gte: new Date(filters.startDate) }),
+      ...(filters.endDate && { lte: new Date(`${filters.endDate}T23:59:59.999`) }),
+    };
+  }
+
+  if (filters?.search) {
+    where.orderItems = {
+      some: { productTitle: { contains: filters.search, mode: "insensitive" } },
+    };
+  }
+
+  return where;
+};
+
 export const findOrdersByUser = (
   userId: string,
   skip: number,
   take: number,
+  filters?: MyOrdersFilter,
 ): Promise<OrderWithRelations[]> =>
   prisma.order.findMany({
-    where: { userId },
+    where: buildMyOrdersWhere(userId, filters),
     include: orderInclude,
     orderBy: { createdAt: "desc" },
     skip,
     take,
   }) as Promise<OrderWithRelations[]>;
 
-export const countOrdersByUser = (userId: string): Promise<number> =>
-  prisma.order.count({ where: { userId } });
+export const countOrdersByUser = (userId: string, filters?: MyOrdersFilter): Promise<number> =>
+  prisma.order.count({ where: buildMyOrdersWhere(userId, filters) });
 
 // Open (undelivered, non-cancelled) COD orders for a user. A COD order sits at
 // paymentStatus COD_PENDING from placement until it's DELIVERED (→ COMPLETED) or
@@ -109,6 +140,7 @@ export const findCartItemForOrder = (
 export const cancelOrderTransaction = (
   orderId: string,
   cancelledBy: "CUSTOMER" | "ADMIN",
+  cancellation?: { reason?: string | undefined; comment?: string | undefined },
 ): Promise<OrderWithRelations> =>
   prisma.$transaction(async (tx) => {
     const order = await tx.order.findUnique({
@@ -140,7 +172,7 @@ export const cancelOrderTransaction = (
     // Return the coupon slot (no-op if none was used)
     await couponRepo.releaseCoupon(tx, orderId);
 
-    return tx.order.update({
+    const updated = await tx.order.update({
       where: { orderId },
       data: {
         orderStatus: "CANCELLED",
@@ -150,9 +182,19 @@ export const cancelOrderTransaction = (
         refundStatus: refundOwed ? "REFUND_PENDING" : "NONE",
         cancelledBy,
         cancelledAt: new Date(),
+        cancellationReason: cancellation?.reason ?? null,
+        cancellationComment: cancellation?.comment ?? null,
       },
       include: orderInclude,
     });
+
+    await trackingRepo.txCreateLogEntry(tx, {
+      orderId,
+      status: "CANCELLED",
+      description: `Order cancelled by ${cancelledBy.toLowerCase()}.`,
+    });
+
+    return updated;
   }) as Promise<OrderWithRelations>;
 
 // ─── Status / payment updates ─────────────────────────────────────────────────
@@ -162,10 +204,14 @@ export const updateOrderStatus = (
   orderStatus: OrderStatus,
   extra?: { deliveredAt?: Date; paymentStatus?: PaymentStatus },
 ): Promise<OrderWithRelations> =>
-  prisma.order.update({
-    where: { orderId },
-    data: { orderStatus, ...extra },
-    include: orderInclude,
+  prisma.$transaction(async (tx) => {
+    const updated = await tx.order.update({
+      where: { orderId },
+      data: { orderStatus, ...extra },
+      include: orderInclude,
+    });
+    await trackingRepo.txCreateLogEntry(tx, { orderId, status: orderStatus });
+    return updated;
   }) as Promise<OrderWithRelations>;
 
 export const updatePaymentStatus = (
@@ -429,7 +475,7 @@ export const confirmPaymentTransaction = (
       source: data.source,
     });
 
-    return tx.order.update({
+    const confirmed = await tx.order.update({
       where: { orderId },
       data: {
         orderStatus: "ORDER_PLACED",
@@ -440,9 +486,10 @@ export const confirmPaymentTransaction = (
       },
       include: orderInclude,
     });
-  }, {
-    maxWait: 10000,
-    timeout: 15000,
+
+    await trackingRepo.txCreateLogEntry(tx, { orderId, status: "ORDER_PLACED" });
+
+    return confirmed;
   }) as Promise<OrderWithRelations>;
 
 // Mark a pending payment as failed — release any held stock back to inventory.
@@ -488,7 +535,7 @@ export const failPendingPayment = (
 // ─── Stats ────────────────────────────────────────────────────────────────────
 
 export const getOrderStats = async (): Promise<OrderStats> => {
-  const [grouped, revenueResult] = await Promise.all([
+  const [grouped, revenueResult] = await prisma.$transaction([
     prisma.order.groupBy({
       by: ["orderStatus"],
       _count: { orderId: true },

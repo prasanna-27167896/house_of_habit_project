@@ -3,12 +3,14 @@ import * as categoryRepo from "@repos/category.repo";
 import * as brandRepo from "@repos/brand.repo";
 import { Errors } from "@errors/index";
 import { deleteFromPublicR2 } from "@services/cloudflare.service";
+import { sortBySize } from "@utils/sizeOrder";
 import type {
   ProductWithRelations,
   ProductVariant,
   ProductListResult,
   ProductGroupedCategory,
   ToggleProductResult,
+  ProductWithSales,
 } from "@interfaces/product.types";
 import type {
   CreateProductInput,
@@ -121,11 +123,30 @@ export const getAllProducts = async (query: ProductListQuery): Promise<ProductLi
 export const getProductById = async (productId: string): Promise<ProductWithRelations> => {
   const product = await productRepo.findProductById(productId);
   if (!product) throw Errors.PRODUCT_NOT_FOUND();
-  return product;
+  // Variants come back in creation order — re-sort to logical size order (S, M, L, XL...)
+  // so the size-selection UI on the product page doesn't display them out of sequence.
+  return { ...product, variants: sortBySize(product.variants) };
 };
 
 export const getProductsByCategory = async (categoryId: string, query: ProductListQuery): Promise<ProductListResult> =>
   productRepo.findProductsByCategory(categoryId, query);
+
+export const getBestSellingProducts = async (limit: number): Promise<ProductWithSales[]> => {
+  const ranked = await productRepo.findBestSellingProductIds(limit);
+  if (ranked.length === 0) return [];
+
+  const products = await productRepo.findProductsByIds(ranked.map((r) => r.productId));
+  const byId = new Map(products.map((p) => [p.productId, p]));
+
+  // Re-attach unitsSold and preserve the ranked order — findMany's `in` filter doesn't
+  // guarantee result order matches the id list.
+  return ranked
+    .map((r) => {
+      const product = byId.get(r.productId);
+      return product ? { ...product, variants: sortBySize(product.variants), unitsSold: r.unitsSold } : null;
+    })
+    .filter((p): p is ProductWithSales => p !== null);
+};
 
 export const searchProducts = async (query: ProductSearchQuery): Promise<ProductListResult> =>
   productRepo.searchProductsDb(query);

@@ -20,6 +20,10 @@ export type ProductListResult = {
   totalPages: number;
 };
 
+// A best-selling product, ranked by total units sold across valid (non-cancelled,
+// payment-committed) order items.
+export type ProductWithSales = ProductWithRelations & { unitsSold: number };
+
 export type ProductGroupedCategory = {
   categoryId: string;
   categoryTitle: string;

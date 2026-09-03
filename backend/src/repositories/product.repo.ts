@@ -1,5 +1,11 @@
 import { prisma } from "@lib/prisma";
-import type { Product, ProductWithRelations, ProductVariant, ProductListResult, ToggleProductResult } from "@interfaces/product.types";
+import type {
+  Product,
+  ProductWithRelations,
+  ProductVariant,
+  ProductListResult,
+  ToggleProductResult,
+} from "@interfaces/product.types";
 import type {
   CreateProductInput,
   UpdateProductInput,
@@ -49,9 +55,39 @@ export const findActiveProduct = (productId: string): Promise<Product | null> =>
 export const findVisibleProduct = (productId: string): Promise<Product | null> =>
   prisma.product.findFirst({ where: { productId, isDeleted: false, isDisabled: false } });
 
+export const findProductsByIds = (productIds: string[]): Promise<ProductWithRelations[]> =>
+  prisma.product.findMany({
+    where: { productId: { in: productIds } },
+    include: productInclude,
+  }) as Promise<ProductWithRelations[]>;
+
+// Ranks products by total units sold across "real" sales — payment committed
+// (COMPLETED or COD_PENDING) and the order wasn't cancelled. Raw SQL because grouping
+// by a joined table's column (orderItem → variant → product) isn't expressible with
+// Prisma's groupBy, which only groups by scalar fields on the same table.
+export const findBestSellingProductIds = async (
+  limit: number,
+): Promise<{ productId: string; unitsSold: number }[]> => {
+  const rows = await prisma.$queryRaw<{ productId: string; unitsSold: bigint }[]>`
+    SELECT p."productId" AS "productId", SUM(oi."quantity")::bigint AS "unitsSold"
+    FROM   order_items oi
+    JOIN   product_variants pv ON pv."variantId" = oi."variantId"
+    JOIN   products p          ON p."productId" = pv."productId"
+    JOIN   orders o            ON o."orderId" = oi."orderId"
+    WHERE  o."paymentStatus" IN ('COMPLETED', 'COD_PENDING')
+      AND  o."orderStatus" != 'CANCELLED'
+      AND  p."isDeleted" = false
+      AND  p."isDisabled" = false
+    GROUP  BY p."productId"
+    ORDER  BY "unitsSold" DESC
+    LIMIT  ${limit}
+  `;
+  return rows.map((r) => ({ productId: r.productId, unitsSold: Number(r.unitsSold) }));
+};
+
 export const findAllActiveProducts = async (query: ProductListQuery): Promise<ProductListResult> => {
   const skip = (query.page - 1) * query.limit;
-  const [products, total] = await Promise.all([
+  const [products, total] = await prisma.$transaction([
     prisma.product.findMany({ where: activeWhere, orderBy: buildSortOrder(query.sortBy), skip, take: query.limit, include: productInclude }),
     prisma.product.count({ where: activeWhere }),
   ]);
@@ -61,7 +97,7 @@ export const findAllActiveProducts = async (query: ProductListQuery): Promise<Pr
 export const findProductsByCategory = async (categoryId: string, query: ProductListQuery): Promise<ProductListResult> => {
   const skip = (query.page - 1) * query.limit;
   const where = { ...activeWhere, categoryId };
-  const [products, total] = await Promise.all([
+  const [products, total] = await prisma.$transaction([
     prisma.product.findMany({ where, orderBy: buildSortOrder(query.sortBy), skip, take: query.limit, include: productInclude }),
     prisma.product.count({ where }),
   ]);
@@ -93,7 +129,7 @@ export const searchProductsDb = async (query: ProductSearchQuery): Promise<Produ
     }),
   };
 
-  const [products, total] = await Promise.all([
+  const [products, total] = await prisma.$transaction([
     prisma.product.findMany({ where, orderBy: buildSortOrder(sortBy), skip, take: limit, include: productInclude }),
     prisma.product.count({ where }),
   ]);

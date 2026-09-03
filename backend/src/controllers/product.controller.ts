@@ -9,6 +9,7 @@ import {
   updateVariantSchema,
   productListSchema,
   productSearchSchema,
+  bestSellingQuerySchema,
 } from "@validators/product.schema";
 
 // ─── Product ──────────────────────────────────────────────────────────────────
@@ -56,6 +57,12 @@ export const getProductsByCategory = asyncHandler(async (req: Request, res: Resp
   const query = productListSchema.parse(req.query);
   const result = await productService.getProductsByCategory(categoryId, query);
   sendSuccess(res, result);
+});
+
+export const getBestSellingProducts = asyncHandler(async (req: Request, res: Response) => {
+  const query = bestSellingQuerySchema.parse(req.query);
+  const products = await productService.getBestSellingProducts(query.limit);
+  sendSuccess(res, products);
 });
 
 export const searchProducts = asyncHandler(async (req: Request, res: Response) => {

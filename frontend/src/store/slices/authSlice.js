@@ -17,11 +17,49 @@ export const sendVerificationOtp = createAsyncThunk(
   }
 );
 
+// Bug #1 fix: email goes in the URL path, not the body
 export const verifyOtp = createAsyncThunk(
   "auth/verifyOtp",
   async ({ email, otp }, { rejectWithValue }) => {
     try {
-      const response = await api.post("/auth/verifyOtp", { email, otp: Number(otp) });
+      const response = await api.post(
+        `/auth/verifyOtp/${encodeURIComponent(email)}`,
+        { otp: Number(otp) },
+      );
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Invalid OTP. Please try again."
+      );
+    }
+  }
+);
+
+// Bug #3: Login OTP endpoints
+export const sendLoginOtp = createAsyncThunk(
+  "auth/sendLoginOtp",
+  async (email, { rejectWithValue }) => {
+    try {
+      const response = await api.post("/auth/login/otp/send", {}, {
+        params: { email },
+      });
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to send login OTP. Please try again."
+      );
+    }
+  }
+);
+
+export const verifyLoginOtp = createAsyncThunk(
+  "auth/verifyLoginOtp",
+  async ({ email, otp }, { rejectWithValue }) => {
+    try {
+      const response = await api.post(
+        `/auth/login/otp/verify/${encodeURIComponent(email)}`,
+        { otp: Number(otp) },
+      );
       return response.data;
     } catch (err) {
       return rejectWithValue(
@@ -135,7 +173,7 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Send OTP
+      // Send Verification OTP
       .addCase(sendVerificationOtp.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -148,12 +186,40 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
       })
-      // Verify OTP
+      // Verify OTP (sign-up verify — only returns a message, no login)
       .addCase(verifyOtp.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(verifyOtp.fulfilled, (state, action) => {
+      .addCase(verifyOtp.fulfilled, (state) => {
+        // Bug #4 fix: this endpoint only returns { message }, no user/token.
+        // The dead if(user && accessToken) check has been removed.
+        state.isLoading = false;
+        state.error = null;
+      })
+      .addCase(verifyOtp.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      // Send Login OTP
+      .addCase(sendLoginOtp.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(sendLoginOtp.fulfilled, (state) => {
+        state.isLoading = false;
+        state.error = null;
+      })
+      .addCase(sendLoginOtp.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      // Verify Login OTP — this one DOES return user + accessToken
+      .addCase(verifyLoginOtp.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(verifyLoginOtp.fulfilled, (state, action) => {
         state.isLoading = false;
         state.error = null;
         const { user, accessToken } = action.payload.data || action.payload;
@@ -165,7 +231,7 @@ const authSlice = createSlice({
           localStorage.setItem("hoh_token", accessToken);
         }
       })
-      .addCase(verifyOtp.rejected, (state, action) => {
+      .addCase(verifyLoginOtp.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       })

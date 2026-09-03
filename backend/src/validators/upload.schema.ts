@@ -12,4 +12,15 @@ export const presignSchema = z.object({
   fileSize: z.number().int().min(1).max(MAX_FILE_SIZE, "File size must not exceed 5 MB"),
 });
 
+// Folder is fixed to "reviews" (not caller-supplied) — any authenticated user can hit
+// this one, unlike the admin-only /presign above, so it must not be able to write
+// into the catalog folders (categories/brands/products).
+export const presignReviewSchema = z.object({
+  contentType: z.enum(ALLOWED_MIME_TYPES, {
+    error: "contentType must be one of: image/jpeg, image/png, image/webp",
+  }),
+  fileSize: z.number().int().min(1).max(MAX_FILE_SIZE, "File size must not exceed 5 MB"),
+});
+
 export type PresignInput = z.infer<typeof presignSchema>;
+export type PresignReviewInput = z.infer<typeof presignReviewSchema>;

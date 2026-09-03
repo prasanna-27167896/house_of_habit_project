@@ -117,31 +117,27 @@ const options: swaggerJsdoc.Options = {
         // ── Auth ───────────────────────────────────────────────────────────────
         RegisterInput: {
           type: "object",
-          required: ["fullName", "email", "password"],
+          required: ["fullName", "email"],
+          description: "No password — accounts sign in via email OTP (see /auth/login/otp/send).",
           properties: {
             fullName: { type: "string", minLength: 2, example: "Jane Doe" },
             email: { type: "string", format: "email", example: "jane@example.com" },
-            password: {
-              type: "string",
-              minLength: 8,
-              description: "≥8 chars, ≥1 uppercase, ≥1 number",
-              example: "Passw0rd",
-            },
             mobile: { type: "string", example: "9000000000" },
           },
         },
         LoginInput: {
           type: "object",
           required: ["email", "password"],
+          description: "Admin only — ROLE_USER accounts have no password.",
           properties: {
-            email: { type: "string", format: "email", example: "user@hoh.com" },
-            password: { type: "string", example: "User@1234" },
+            email: { type: "string", format: "email", example: "admin@hoh.com" },
+            password: { type: "string", example: "Admin@1234" },
           },
         },
         OtpInput: {
           type: "object",
           required: ["otp"],
-          properties: { otp: { type: "integer", example: 1234, minimum: 1000, maximum: 9999 } },
+          properties: { otp: { type: "integer", example: 123456, minimum: 100000, maximum: 999999 } },
         },
         ForgotMailInput: {
           type: "object",
@@ -152,7 +148,7 @@ const options: swaggerJsdoc.Options = {
           type: "object",
           required: ["otp", "newPassword"],
           properties: {
-            otp: { type: "integer", example: 1234 },
+            otp: { type: "integer", example: 123456 },
             newPassword: { type: "string", minLength: 8, example: "NewPass1" },
           },
         },
@@ -288,6 +284,13 @@ const options: swaggerJsdoc.Options = {
         },
 
         // ── Order / Payment ──────────────────────────────────────────────────────
+        CancelOrderInput: {
+          type: "object",
+          properties: {
+            reason: { type: "string", example: "Ordered by mistake" },
+            comment: { type: "string", nullable: true },
+          },
+        },
         UpdateOrderStatusInput: {
           type: "object",
           required: ["orderStatus"],
@@ -309,6 +312,64 @@ const options: swaggerJsdoc.Options = {
             paymentStatus: {
               type: "string",
               enum: ["PENDING", "PROCESSING", "COMPLETED", "FAILED", "CANCELLED"],
+            },
+          },
+        },
+        CreateReturnInput: {
+          type: "object",
+          required: ["orderItemId", "reasonCategory", "reasonDetail"],
+          properties: {
+            orderItemId: { type: "string", format: "uuid" },
+            reasonCategory: { type: "string", example: "Size issue" },
+            reasonDetail: { type: "string", example: "Item runs smaller than expected" },
+            comment: { type: "string", nullable: true },
+          },
+        },
+        UpdateReturnStatusInput: {
+          type: "object",
+          required: ["status"],
+          properties: {
+            status: { type: "string", enum: ["PENDING", "APPROVED", "REJECTED", "COMPLETED"] },
+          },
+        },
+        CreateExchangeInput: {
+          type: "object",
+          required: ["orderItemId", "requestedSize", "reasonCategory", "reasonDetail"],
+          properties: {
+            orderItemId: { type: "string", format: "uuid" },
+            requestedSize: { type: "string", example: "L" },
+            reasonCategory: { type: "string", example: "Wrong size" },
+            reasonDetail: { type: "string", example: "Ordered M but need L" },
+          },
+        },
+        UpdateExchangeStatusInput: {
+          type: "object",
+          required: ["status"],
+          properties: {
+            status: { type: "string", enum: ["PENDING", "APPROVED", "REJECTED", "COMPLETED"] },
+          },
+        },
+        CreateDeliveryFeedbackInput: {
+          type: "object",
+          required: ["rating"],
+          properties: {
+            rating: { type: "integer", minimum: 1, maximum: 5, example: 4 },
+            comment: { type: "string", nullable: true, example: "Delivery agent was courteous and on time" },
+          },
+        },
+        AddTrackingNoteInput: {
+          type: "object",
+          required: ["description"],
+          properties: {
+            description: { type: "string", example: "Package left the Mumbai facility" },
+            status: {
+              type: "string",
+              enum: [
+                "PENDING", "ORDER_PLACED", "CONFIRMED", "PROCESSING", "SHIPPED",
+                "IN_TRANSIT", "DELIVERED", "CANCELLED", "RETURN_REQUESTED",
+                "RETURNED", "RETURN_REJECTED",
+              ],
+              description: "Defaults to the order's current status if omitted.",
             },
           },
         },
@@ -342,6 +403,16 @@ const options: swaggerJsdoc.Options = {
             rating: { type: "integer", minimum: 1, maximum: 5, example: 5 },
             title: { type: "string", example: "Lovely fabric" },
             body: { type: "string", example: "Soft and true to colour." },
+            imageUrl: {
+              type: "string",
+              nullable: true,
+              description: "publicUrl from POST /upload/presign-review. Must be provided together with imageKey.",
+            },
+            imageKey: {
+              type: "string",
+              nullable: true,
+              description: "key from POST /upload/presign-review (must start with \"reviews/\").",
+            },
           },
         },
         ReplyInput: {
@@ -415,6 +486,14 @@ const options: swaggerJsdoc.Options = {
           required: ["folder", "contentType", "fileSize"],
           properties: {
             folder: { type: "string", enum: ["categories", "brands", "products"] },
+            contentType: { type: "string", enum: ["image/jpeg", "image/png", "image/webp"] },
+            fileSize: { type: "integer", maximum: 5242880, example: 204800 },
+          },
+        },
+        PresignReviewInput: {
+          type: "object",
+          required: ["contentType", "fileSize"],
+          properties: {
             contentType: { type: "string", enum: ["image/jpeg", "image/png", "image/webp"] },
             fileSize: { type: "integer", maximum: 5242880, example: 204800 },
           },

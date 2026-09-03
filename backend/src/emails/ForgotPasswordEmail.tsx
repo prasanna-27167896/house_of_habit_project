@@ -1,7 +1,7 @@
 import * as React from "react";
 
 export const ForgotPasswordEmail = ({ otp }: { otp: number }) => {
-  const otpStr = otp.toString().padStart(4, "0");
+  const otpStr = otp.toString().padStart(6, "0");
   const digits = otpStr.split("");
 
   return (

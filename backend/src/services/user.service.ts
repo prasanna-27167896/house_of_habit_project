@@ -34,6 +34,29 @@ export const updateProfile = async (
   return safeUser(user);
 };
 
+export const changeOwnPassword = async (
+  userId: string,
+  sessionId: string,
+  currentPassword: string,
+  newPassword: string,
+): Promise<void> => {
+  const user = await userRepo.findUserById(userId);
+  if (!user) throw Errors.USER_NOT_FOUND();
+  // ROLE_USER accounts have no password (they sign in via OTP) — nothing to change.
+  if (user.password == null) throw Errors.PASSWORD_LOGIN_NOT_ALLOWED();
+
+  const isValid = await comparePassword(currentPassword, user.password);
+  if (!isValid) throw Errors.INVALID_PASSWORD();
+
+  const hashed = await hashPassword(newPassword);
+  await userRepo.updateUserPassword(userId, hashed);
+
+  // A password change usually means "someone may have my account" — revoke every OTHER
+  // session so any intruder is logged out on their next request. The caller's current
+  // session is kept so the user stays logged in on this device.
+  await authRepo.revokeOtherUserSessions(userId, sessionId);
+};
+
 export const getAllUsers = async (
   page: number,
   limit: number,
@@ -78,4 +101,3 @@ export const deleteAccount = async (userId: string): Promise<void> => {
   if (!user) throw Errors.USER_NOT_FOUND();
   await userRepo.deleteUser(userId);
 };
-

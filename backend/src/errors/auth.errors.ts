@@ -37,4 +37,8 @@ export const AuthErrors = {
     new AppError("No account found with this email.", 404, "ACCOUNT_NOT_FOUND"),
   OTP_NOT_REQUESTED: () =>
     new AppError("No OTP requested for this account.", 404, "OTP_NOT_REQUESTED"),
+  PASSWORD_LOGIN_NOT_ALLOWED: () =>
+    new AppError("This account signs in with an email OTP, not a password.", 403, "PASSWORD_LOGIN_NOT_ALLOWED"),
+  OTP_LOGIN_NOT_ALLOWED: () =>
+    new AppError("This account must sign in with a password.", 403, "OTP_LOGIN_NOT_ALLOWED"),
 };

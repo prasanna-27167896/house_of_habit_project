@@ -45,7 +45,6 @@ authRouter.post("/sendVerificationOtp", authController.sendVerificationOtp);
  *       400: { $ref: '#/components/responses/ValidationError' }
  *       429: { description: Too many incorrect attempts — request a new OTP }
  */
-authRouter.post("/verifyOtp", authController.verifyRegistrationOtp);
 authRouter.post("/verifyOtp/:email", authController.verifyRegistrationOtp);
 
 /**
@@ -66,6 +65,71 @@ authRouter.post("/verifyOtp/:email", authController.verifyRegistrationOtp);
 authRouter.post("/register", authController.register);
 
 // ── Session ────────────────────────────────────────────────────────────────────
+
+/**
+ * @openapi
+ * /auth/login:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Log in with a password (admin only)
+ *     description: Password login is restricted to ROLE_ADMIN accounts. ROLE_USER accounts have no password and must use /auth/login/otp/send + /auth/login/otp/verify/{email}. Returns an accessToken in the body and sets the refresh token as an httpOnly cookie.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: { $ref: '#/components/schemas/LoginInput' }
+ *     responses:
+ *       200: { description: Logged in }
+ *       400: { $ref: '#/components/responses/ValidationError' }
+ *       401: { description: Invalid credentials }
+ *       403: { description: "Account locked by an admin, or this account signs in with OTP (PASSWORD_LOGIN_NOT_ALLOWED)" }
+ *       429: { description: Too many failed attempts — temporary cooldown; message states minutes remaining }
+ */
+authRouter.post("/login", authController.login);
+
+/**
+ * @openapi
+ * /auth/login/otp/send:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Send a login OTP (ROLE_USER sign-in)
+ *     description: Always responds 200 with a generic message whether or not the account exists, or is an admin account (anti-enumeration).
+ *     parameters:
+ *       - in: query
+ *         name: email
+ *         required: true
+ *         schema: { type: string, format: email }
+ *     responses:
+ *       200: { $ref: '#/components/responses/Success' }
+ *       400: { $ref: '#/components/responses/ValidationError' }
+ */
+authRouter.post("/login/otp/send", authController.sendLoginOtp);
+
+/**
+ * @openapi
+ * /auth/login/otp/verify/{email}:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Verify the login OTP and sign in
+ *     description: Returns an accessToken in the body and sets the refresh token as an httpOnly cookie, same as password login.
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema: { type: string, format: email }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: { $ref: '#/components/schemas/OtpInput' }
+ *     responses:
+ *       200: { description: Logged in }
+ *       400: { $ref: '#/components/responses/ValidationError' }
+ *       403: { description: "Account locked, or this account signs in with a password (OTP_LOGIN_NOT_ALLOWED)" }
+ *       404: { description: Account not found, or no OTP requested }
+ *       429: { description: Too many incorrect attempts — request a new OTP }
+ */
+authRouter.post("/login/otp/verify/:email", authController.verifyLoginOtp);
 
 /**
  * @openapi
@@ -135,4 +199,25 @@ forgotRouter.post("/verifyMail", authController.sendForgotPasswordOtp);
  */
 forgotRouter.post("/verifyOtp/:email", authController.verifyForgotPasswordOtp);
 
-
+/**
+ * @openapi
+ * /forgotPassword/changePassword/{email}:
+ *   post:
+ *     tags: [Forgot Password]
+ *     summary: Set a new password (revokes all sessions)
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema: { type: string, format: email }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema: { $ref: '#/components/schemas/ChangePasswordInput' }
+ *     responses:
+ *       200: { $ref: '#/components/responses/Success' }
+ *       400: { $ref: '#/components/responses/ValidationError' }
+ *       429: { description: Too many incorrect attempts — request a new OTP }
+ */
+forgotRouter.post("/changePassword/:email", authController.changePassword);

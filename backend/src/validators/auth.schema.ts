@@ -5,7 +5,7 @@ export const sendOtpSchema = z.object({
 });
 
 export const verifyOtpSchema = z.object({
-  otp: z.number({ error: "OTP must be a number" }).int().min(1000).max(9999),
+  otp: z.number({ error: "OTP must be a number" }).int().min(100000).max(999999),
 });
 
 export const registerSchema = z.object({
@@ -22,10 +22,6 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-export const sendLoginOtpSchema = z.object({
-  email: z.string().email("Invalid email address"),
-});
-
 export const refreshSchema = z.object({
   refreshToken: z.string().min(1, "Refresh token is required"),
 });
@@ -35,11 +31,11 @@ export const forgotPasswordMailSchema = z.object({
 });
 
 export const forgotPasswordOtpSchema = z.object({
-  otp: z.number({ error: "OTP must be a number" }).int().min(1000).max(9999),
+  otp: z.number({ error: "OTP must be a number" }).int().min(100000).max(999999),
 });
 
 export const changePasswordSchema = z.object({
-  otp: z.number({ error: "OTP must be a number" }).int().min(1000).max(9999),
+  otp: z.number({ error: "OTP must be a number" }).int().min(100000).max(999999),
   newPassword: z
     .string()
     .min(8, "Password must be at least 8 characters")

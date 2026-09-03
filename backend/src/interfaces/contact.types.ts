@@ -7,6 +7,8 @@ export type { ContactMessage, CustomerFeedback, FeedbackStatus };
 export type ContactMessageWriteData = {
   name: string;
   email: string;
+  phone: string | null;
+  subject: string;
   message: string;
 };
 

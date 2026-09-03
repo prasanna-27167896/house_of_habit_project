@@ -1,17 +1,19 @@
 import { createHash } from "node:crypto";
+import bcrypt from "bcrypt";
 import { prisma } from "@lib/prisma";
 import * as authRepo from "@repos/auth.repo";
 import { Errors } from "@errors/index";
+import { hashPassword, comparePassword } from "@utils/bcrypt";
 import { generateOtp, otpExpiresAt } from "@utils/otp";
 import {
   signAccessToken,
   signRefreshToken,
   verifyRefreshToken,
 } from "@utils/jwt";
-import { sendOtpEmail, sendForgotPasswordOtp } from "@utils/email";
+import { sendOtpEmail, sendForgotPasswordOtp, sendLoginOtpEmail } from "@utils/email";
 import type { SafeUser, AuthResult, RefreshResult } from "@interfaces/auth.types";
 import type { UserWithRoles } from "@interfaces/user.types";
-import type { RegisterInput } from "@validators/auth.schema";
+import type { RegisterInput, LoginInput } from "@validators/auth.schema";
 
 const MAX_FAILED_ATTEMPTS = 5;
 const LOGIN_COOLDOWN_MS = 15 * 60 * 1000; // temporary lockout after MAX_FAILED_ATTEMPTS wrong passwords
@@ -50,9 +52,24 @@ const safeUser = (user: SafeUser): SafeUser => ({
 
 const roleOf = (user: UserWithRoles): string => user.roles[0]?.role.roleName ?? "ROLE_USER";
 
+// ROLE_USER accounts have no password and must sign in via OTP; ROLE_ADMIN keeps password
+// login. Checked by role membership (not roleOf's first-role pick) so it's correct
+// regardless of role array ordering.
+const isAdmin = (user: UserWithRoles): boolean =>
+  user.roles.some((r) => r.role.roleName === "ROLE_ADMIN");
+
 // SHA-256 of the refresh token — only ever the hash is stored in the DB.
 const hashToken = (token: string): string =>
   createHash("sha256").update(token).digest("hex");
+
+// ─── Timing-safe login helper ────────────────────────────────────────────────
+// Cached dummy hash so an unknown-email login still spends ~one bcrypt compare,
+// keeping response time constant and preventing timing-based email enumeration.
+let dummyHash: string | undefined;
+const getDummyHash = async (): Promise<string> => {
+  if (!dummyHash) dummyHash = await hashPassword("__hoh_dummy_password__");
+  return dummyHash;
+};
 
 // ─── Session issuance ────────────────────────────────────────────────────────
 // Multi-device: a new login creates its own session and never touches the others.
@@ -70,9 +87,12 @@ const issueSession = async (
     return { accessToken, refreshToken };
   });
 
-// ─── Email verification (OTP) ────────────────────────────────────────────────
+// ─── Email verification (OTP) — unchanged flow ───────────────────────────────
 
 export const sendVerificationOtp = async (email: string): Promise<void> => {
+  const existing = await authRepo.findUserByEmail(email);
+  if (existing) throw Errors.EMAIL_ALREADY_REGISTERED();
+
   // Throttle resends to the same address (email-bombing / Resend quota protection).
   const record = await authRepo.findEmailVerification(email);
   if (withinResendCooldown(record?.lastOtpSentAt)) throw Errors.OTP_RESEND_COOLDOWN();
@@ -82,12 +102,7 @@ export const sendVerificationOtp = async (email: string): Promise<void> => {
   await sendOtpEmail(email, otp);
 };
 
-export const verifyRegistrationOtp = async (
-  email: string,
-  otp: number,
-  ipAddress: string | null = null,
-  userAgent: string | null = null,
-): Promise<{ user?: SafeUser; accessToken?: string; refreshToken?: string; isVerified?: boolean }> => {
+export const verifyRegistrationOtp = async (email: string, otp: number): Promise<void> => {
   const record = await authRepo.findEmailVerification(email);
   if (!record) throw Errors.OTP_NOT_FOUND();
   if (record.isVerified) throw Errors.EMAIL_ALREADY_VERIFIED();
@@ -99,24 +114,11 @@ export const verifyRegistrationOtp = async (
     );
   }
 
-  const existingUser = await authRepo.findUserByEmail(email);
-  if (existingUser) {
-    await authRepo.deleteEmailVerification(email);
-    const { accessToken, refreshToken } = await issueSession(
-      existingUser.userId,
-      roleOf(existingUser),
-      ipAddress,
-      userAgent,
-    );
-    return { user: safeUser(existingUser), accessToken, refreshToken };
-  }
-
   // Verified state is only good for a limited window — register must complete before it.
   await authRepo.markEmailVerified(email, new Date(Date.now() + VERIFIED_STATE_TTL_MS));
-  return { isVerified: true };
 };
 
-// ─── Register / Refresh / Logout ─────────────────────────────────────
+// ─── Register / Login / Refresh / Logout ─────────────────────────────────────
 
 export const register = async (
   data: RegisterInput,
@@ -131,6 +133,114 @@ export const register = async (
   const user = await authRepo.createUser(data.email, data.fullName, data.mobile);
 
   await authRepo.deleteEmailVerification(data.email);
+
+  const { accessToken, refreshToken } = await issueSession(
+    user.userId,
+    roleOf(user),
+    ipAddress,
+    userAgent,
+  );
+
+  return { user: safeUser(user), accessToken, refreshToken };
+};
+
+export const login = async (
+  data: LoginInput,
+  ipAddress: string | null,
+  userAgent: string | null,
+): Promise<AuthResult> => {
+  const user = await authRepo.findUserByEmail(data.email);
+
+  if (!user) {
+    // Spend one bcrypt compare so timing matches a real failed login — no enumeration.
+    await bcrypt.compare(data.password, await getDummyHash());
+    throw Errors.INVALID_CREDENTIALS();
+  }
+
+  // ROLE_USER accounts have no password — this endpoint is admin-only. Revealing this
+  // (rather than a generic INVALID_CREDENTIALS) is consistent with ACCOUNT_LOCKED below,
+  // which already reveals account existence at this same step.
+  if (!isAdmin(user) || user.password == null) throw Errors.PASSWORD_LOGIN_NOT_ALLOWED();
+
+  // Admin ban — permanent, only an admin can lift it.
+  if (user.locked) throw Errors.ACCOUNT_LOCKED();
+
+  // Temporary cooldown after too many wrong passwords. Rejected BEFORE the password is
+  // checked, so it also throttles brute-force (max MAX_FAILED_ATTEMPTS guesses per window).
+  // It auto-expires, and a password reset clears it.
+  const now = new Date();
+  if (user.lockedUntil && user.lockedUntil > now) {
+    const minutes = Math.ceil((user.lockedUntil.getTime() - now.getTime()) / 60_000);
+    throw Errors.LOGIN_COOLDOWN(minutes);
+  }
+
+  const isValid = await comparePassword(data.password, user.password);
+
+  if (!isValid) {
+    // If a previous cooldown has just expired, this is a fresh run of attempts.
+    const cooldownExpired = user.lockedUntil != null && user.lockedUntil <= now;
+    const attempts = (cooldownExpired ? 0 : user.failedLoginAttempts) + 1;
+    const lockedUntil =
+      attempts >= MAX_FAILED_ATTEMPTS ? new Date(now.getTime() + LOGIN_COOLDOWN_MS) : null;
+
+    await authRepo.recordLoginFailure(user.userId, attempts, lockedUntil);
+
+    if (lockedUntil) throw Errors.LOGIN_COOLDOWN(Math.ceil(LOGIN_COOLDOWN_MS / 60_000));
+    throw Errors.INVALID_CREDENTIALS();
+  }
+
+  await authRepo.resetFailedAttempts(user.userId);
+
+  const { accessToken, refreshToken } = await issueSession(
+    user.userId,
+    roleOf(user),
+    ipAddress,
+    userAgent,
+  );
+
+  return { user: safeUser(user), accessToken, refreshToken };
+};
+
+// ─── Login OTP (ROLE_USER sign-in — no password) ─────────────────────────────
+
+export const sendLoginOtp = async (email: string): Promise<void> => {
+  const user = await authRepo.findUserByEmail(email);
+  // Silent for unknown emails AND admin accounts (anti-enumeration; admins sign in
+  // with a password, not OTP) — the controller returns the same generic response either way.
+  if (!user || isAdmin(user)) return;
+  if (user.locked) return;
+
+  // Throttle resends to the same account (email-bombing / Resend quota protection).
+  const record = await authRepo.findLoginOtp(user.userId);
+  if (withinResendCooldown(record?.lastOtpSentAt)) return;
+
+  const otp = generateOtp();
+  await authRepo.upsertLoginOtp(user.userId, otp, otpExpiresAt());
+  await sendLoginOtpEmail(email, otp);
+};
+
+export const verifyLoginOtp = async (
+  email: string,
+  otp: number,
+  ipAddress: string | null,
+  userAgent: string | null,
+): Promise<AuthResult> => {
+  const user = await authRepo.findUserByEmail(email);
+  if (!user) throw Errors.ACCOUNT_NOT_FOUND();
+  if (isAdmin(user)) throw Errors.OTP_LOGIN_NOT_ALLOWED();
+  if (user.locked) throw Errors.ACCOUNT_LOCKED();
+
+  const record = await authRepo.findLoginOtp(user.userId);
+  if (!record) throw Errors.OTP_NOT_REQUESTED();
+  if (record.expiresAt < new Date()) throw Errors.OTP_EXPIRED();
+  if (record.otp !== otp) {
+    await rejectOtp(
+      () => authRepo.incrementLoginOtpAttempts(user.userId),
+      () => authRepo.deleteLoginOtp(user.userId),
+    );
+  }
+
+  await authRepo.deleteLoginOtp(user.userId);
 
   const { accessToken, refreshToken } = await issueSession(
     user.userId,
@@ -218,4 +328,28 @@ export const verifyForgotPasswordOtp = async (email: string, otp: number): Promi
   }
 };
 
+export const changePassword = async (
+  email: string,
+  otp: number,
+  newPassword: string,
+): Promise<void> => {
+  const user = await authRepo.findUserByEmail(email);
+  if (!user) throw Errors.ACCOUNT_NOT_FOUND();
 
+  const record = await authRepo.findForgotPassword(user.userId);
+  if (!record) throw Errors.OTP_NOT_REQUESTED();
+  if (record.expiresAt < new Date()) throw Errors.OTP_EXPIRED();
+  if (record.otp !== otp) {
+    await rejectOtp(
+      () => authRepo.incrementForgotPasswordAttempts(user.userId),
+      () => authRepo.deleteForgotPassword(user.userId),
+    );
+  }
+
+  const hashed = await hashPassword(newPassword);
+  await authRepo.updateUserPassword(user.userId, hashed);
+  await authRepo.deleteForgotPassword(user.userId);
+
+  // Password changed → force every existing session to re-authenticate.
+  await authRepo.revokeAllUserSessions(prisma, user.userId);
+};

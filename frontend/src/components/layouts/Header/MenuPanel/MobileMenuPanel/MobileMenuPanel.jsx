@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import useAuthStore from '../../../../../store/useAuthStore';
+import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser } from '../../../../../store/slices/authSlice';
 import SlidePanel from '../../../../common/SlidePanel/SlidePanel';
 import slidePanelStyles from '../../../../common/SlidePanel/SlidePanel.module.css';
@@ -58,7 +57,7 @@ const NavRow = ({ label, icon: Icon, onClick }) => (
 const MobileMenuPanel = ({ isOpen, onClose, onOpenCart, onOpenProfile }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { isAuthenticated, logout } = useAuthStore();
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -66,7 +65,6 @@ const MobileMenuPanel = ({ isOpen, onClose, onOpenCart, onOpenProfile }) => {
     setIsLoggingOut(true);
     try {
       await dispatch(logoutUser());
-      logout();
     } finally {
       setIsLoggingOut(false);
       setShowLogoutModal(false);

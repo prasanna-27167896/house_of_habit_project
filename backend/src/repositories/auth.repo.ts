@@ -47,6 +47,7 @@ export const markEmailVerified = (email: string, verifiedUntil: Date) =>
 export const deleteEmailVerification = (email: string) =>
   prisma.emailVerification.delete({ where: { email } });
 
+// ROLE_USER accounts sign in via OTP and have no password.
 export const createUser = (
   email: string,
   fullName?: string,
@@ -190,5 +191,28 @@ export const deleteForgotPassword = (userId: string) =>
 export const updateUserPassword = (userId: string, password: string) =>
   prisma.user.update({
     where: { userId },
-    data: { failedLoginAttempts: 0, lockedUntil: null },
+    data: { password, failedLoginAttempts: 0, lockedUntil: null },
   });
+
+// ─── Login OTP (ROLE_USER sign-in) ────────────────────────────────────────────
+
+export const findLoginOtp = (userId: string) =>
+  prisma.loginOtp.findUnique({ where: { userId } });
+
+export const upsertLoginOtp = (userId: string, otp: number, expiresAt: Date) =>
+  prisma.loginOtp.upsert({
+    where: { userId },
+    create: { userId, otp, expiresAt, lastOtpSentAt: new Date() },
+    // A fresh OTP resets the wrong-guess counter and stamps the send time.
+    update: { otp, expiresAt, attempts: 0, lastOtpSentAt: new Date() },
+  });
+
+export const incrementLoginOtpAttempts = (userId: string): Promise<{ attempts: number }> =>
+  prisma.loginOtp.update({
+    where: { userId },
+    data: { attempts: { increment: 1 } },
+    select: { attempts: true },
+  });
+
+export const deleteLoginOtp = (userId: string) =>
+  prisma.loginOtp.delete({ where: { userId } });

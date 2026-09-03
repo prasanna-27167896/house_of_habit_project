@@ -25,6 +25,9 @@ const send = async (
 export const sendOtpEmail = (to: string, otp: number): Promise<void> =>
   send(to, "Your HoH Verification Code", <OtpEmail otp={otp} />);
 
+export const sendLoginOtpEmail = (to: string, otp: number): Promise<void> =>
+  send(to, "Your HoH Login Code", <OtpEmail otp={otp} />);
+
 export const sendForgotPasswordOtp = (to: string, otp: number): Promise<void> =>
   send(to, "Reset Your HoH Password", <ForgotPasswordEmail otp={otp} />);
 

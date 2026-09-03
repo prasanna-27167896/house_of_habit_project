@@ -10,10 +10,11 @@ import LogoWhite from "../../../assets/icons/hoh-logo-white.svg?react";
 import {
   sendVerificationOtp,
   verifyOtp,
+  sendLoginOtp,
+  verifyLoginOtp,
   registerUser,
   clearError,
 } from "../../../store/slices/authSlice";
-import useAuthStore from "../../../store/useAuthStore";
 
 const STEPS = {
   EMAIL: "email",
@@ -21,11 +22,13 @@ const STEPS = {
   DETAILS: "details",
   SUCCESS: "success",
 };
-const MODES = { LOGIN: "login", REGISTER: "register" };
 
-const AuthPopup = ({ isOpen, onClose, mode: initialMode = MODES.LOGIN }) => {
+// Bug #3: track whether we're doing a sign-up or login flow
+const FLOWS = { REGISTER: "register", LOGIN: "login" };
+
+const AuthPopup = ({ isOpen, onClose, mode: initialMode = "login" }) => {
   const [step, setStep] = useState(STEPS.EMAIL);
-  const [mode, setMode] = useState(initialMode);
+  const [flow, setFlow] = useState(null); // "register" or "login" — decided after email step
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -33,12 +36,12 @@ const AuthPopup = ({ isOpen, onClose, mode: initialMode = MODES.LOGIN }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isLoading, error, isAuthenticated } = useSelector((state) => state.auth);
-  const zustandLogin = useAuthStore((state) => state.login);
 
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
       setStep(STEPS.EMAIL);
+      setFlow(null);
       setEmail("");
       setName("");
       setPhone("");
@@ -65,7 +68,7 @@ const AuthPopup = ({ isOpen, onClose, mode: initialMode = MODES.LOGIN }) => {
   const handleClose = () => {
     const wasAuthenticated = isAuthenticated;
     setStep(STEPS.EMAIL);
-    setMode(initialMode);
+    setFlow(null);
     setEmail("");
     setName("");
     setPhone("");
@@ -83,15 +86,38 @@ const AuthPopup = ({ isOpen, onClose, mode: initialMode = MODES.LOGIN }) => {
         return (
           <EmailStep
             initialEmail={email}
-            mode={mode}
+            mode={initialMode}
             error={error}
             isLoading={isLoading}
             onSubmit={async (submittedEmail) => {
               dispatch(clearError());
+              // Try sign-up OTP first
               const result = await dispatch(sendVerificationOtp(submittedEmail));
               if (sendVerificationOtp.fulfilled.match(result)) {
+                // New user — proceed with registration flow
                 setEmail(submittedEmail);
+                setFlow(FLOWS.REGISTER);
                 setStep(STEPS.OTP);
+              } else {
+                // Check if the error is "already registered" (409)
+                const errMsg =
+                  typeof result.payload === "string"
+                    ? result.payload
+                    : result.payload?.message || "";
+                const isAlreadyRegistered = errMsg.toLowerCase().includes("already registered");
+
+                if (isAlreadyRegistered) {
+                  // Existing user — switch to login flow
+                  dispatch(clearError());
+                  const loginResult = await dispatch(sendLoginOtp(submittedEmail));
+                  if (sendLoginOtp.fulfilled.match(loginResult)) {
+                    setEmail(submittedEmail);
+                    setFlow(FLOWS.LOGIN);
+                    setStep(STEPS.OTP);
+                  }
+                  // If sendLoginOtp fails, the error will be shown by Redux state
+                }
+                // If it's some other error (network etc.), the error is already in Redux state
               }
             }}
           />
@@ -105,21 +131,30 @@ const AuthPopup = ({ isOpen, onClose, mode: initialMode = MODES.LOGIN }) => {
             isLoading={isLoading}
             onResend={async () => {
               dispatch(clearError());
-              await dispatch(sendVerificationOtp(email));
+              if (flow === FLOWS.LOGIN) {
+                await dispatch(sendLoginOtp(email));
+              } else {
+                await dispatch(sendVerificationOtp(email));
+              }
             }}
             onVerify={async (otpCode) => {
               dispatch(clearError());
-              const result = await dispatch(
-                verifyOtp({ email, otp: Number(otpCode) })
-              );
-              if (verifyOtp.fulfilled.match(result)) {
-                const resData = result.payload.data || result.payload;
-                if (resData?.user && resData?.accessToken) {
-                  zustandLogin(resData.user, resData.accessToken);
-                  onClose();
-                  navigate("/");
-                  window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-                } else {
+
+              if (flow === FLOWS.LOGIN) {
+                // Login flow — verify via login endpoint, which returns user + token
+                const result = await dispatch(
+                  verifyLoginOtp({ email, otp: Number(otpCode) })
+                );
+                if (verifyLoginOtp.fulfilled.match(result)) {
+                  // User is now logged in (Redux state updated by the slice)
+                  setStep(STEPS.SUCCESS);
+                }
+              } else {
+                // Register flow — verify email ownership, then show details step
+                const result = await dispatch(
+                  verifyOtp({ email, otp: Number(otpCode) })
+                );
+                if (verifyOtp.fulfilled.match(result)) {
                   setStep(STEPS.DETAILS);
                 }
               }
@@ -147,10 +182,6 @@ const AuthPopup = ({ isOpen, onClose, mode: initialMode = MODES.LOGIN }) => {
                 })
               );
               if (registerUser.fulfilled.match(result)) {
-                const resData = result.payload.data || result.payload;
-                if (resData?.user && resData?.accessToken) {
-                  zustandLogin(resData.user, resData.accessToken);
-                }
                 setStep(STEPS.SUCCESS);
               }
             }}

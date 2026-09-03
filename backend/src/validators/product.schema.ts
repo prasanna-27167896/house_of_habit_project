@@ -120,9 +120,14 @@ export const productSearchSchema = z.object({
     path: ["minPrice"],
   });
 
+export const bestSellingQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(50).default(10),
+});
+
 export type CreateProductInput = z.infer<typeof createProductSchema>;
 export type UpdateProductInput = z.infer<typeof updateProductSchema>;
 export type CreateVariantInput = z.infer<typeof createVariantSchema>;
 export type UpdateVariantInput = z.infer<typeof updateVariantSchema>;
 export type ProductListQuery = z.infer<typeof productListSchema>;
 export type ProductSearchQuery = z.infer<typeof productSearchSchema>;
+export type BestSellingQuery = z.infer<typeof bestSellingQuerySchema>;

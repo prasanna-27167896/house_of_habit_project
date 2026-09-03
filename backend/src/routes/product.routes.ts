@@ -78,6 +78,20 @@ router.get("/search", productController.searchProducts);
 
 /**
  * @openapi
+ * /products/best-selling:
+ *   get:
+ *     tags: [Products]
+ *     summary: Best-selling products, ranked by total units sold
+ *     description: Ranked by actual sales (order items on non-cancelled, payment-committed orders) — distinct from the "popular" sortBy option elsewhere, which proxies via review count.
+ *     parameters:
+ *       - { in: query, name: limit, schema: { type: integer, default: 10, maximum: 50 } }
+ *     responses:
+ *       200: { description: "Array of products, each with an added unitsSold field" }
+ */
+router.get("/best-selling", productController.getBestSellingProducts);
+
+/**
+ * @openapi
  * /products/category/{categoryId}:
  *   get:
  *     tags: [Products]

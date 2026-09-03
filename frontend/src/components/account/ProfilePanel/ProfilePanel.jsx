@@ -4,9 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import styles from './ProfilePanel.module.css';
 import FormField from '../../../components/common/FormField/FormField';
 import DeleteAccountPopup from '../../../components/common/Popup/DeleteAccountPopup';
-import { logout } from '../../../store/slices/authSlice';
-import api from '../../../utils/axiosInstance';
-import useAuthStore from '../../../store/useAuthStore';
+import { deleteUserAccount } from '../../../store/slices/authSlice';
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -37,7 +35,6 @@ const DeleteAccountIcon = () => (
 const ProfilePanel = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const zustandLogout = useAuthStore((state) => state.logout);
   const currentUser = useSelector((state) => state.auth.user);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -62,13 +59,12 @@ const ProfilePanel = () => {
   const handleConfirmDelete = async () => {
     setIsDeleting(true);
     try {
-      await api.delete('/user/delete');
+      await dispatch(deleteUserAccount()).unwrap();
       navigate('/', { replace: true });
       window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-      dispatch(logout());
-      zustandLogout();
     } catch (err) {
       console.error('Failed to delete account:', err);
+    } finally {
       setIsDeleting(false);
       setShowDeleteModal(false);
     }

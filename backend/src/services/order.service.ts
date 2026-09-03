@@ -9,9 +9,11 @@ import type {
   PaymentStatus,
 } from "@interfaces/order.types";
 import type {
+  CancelOrderInput,
   UpdateOrderStatusInput,
   UpdatePaymentStatusInput,
   OrderListQuery,
+  MyOrderListQuery,
   MonthlyCountsQuery,
 } from "@validators/order.schema";
 
@@ -56,12 +58,18 @@ const PAYMENT_STATUS_TRANSITIONS: Record<PaymentStatus, PaymentStatus[]> = {
 
 export const getUserOrders = async (
   userId: string,
-  query: OrderListQuery,
+  query: MyOrderListQuery,
 ): Promise<OrderListResult> => {
   const skip = (query.page - 1) * query.limit;
+  const filters = {
+    status: query.status,
+    startDate: query.startDate,
+    endDate: query.endDate,
+    search: query.search,
+  };
   const [orders, total] = await Promise.all([
-    orderRepo.findOrdersByUser(userId, skip, query.limit),
-    orderRepo.countOrdersByUser(userId),
+    orderRepo.findOrdersByUser(userId, skip, query.limit, filters),
+    orderRepo.countOrdersByUser(userId, filters),
   ]);
   return { orders, total, page: query.page, limit: query.limit, totalPages: Math.ceil(total / query.limit) };
 };
@@ -78,6 +86,7 @@ export const getOrderDetail = async (
 export const cancelOrder = async (
   userId: string,
   orderId: string,
+  input: CancelOrderInput,
 ): Promise<OrderWithRelations> => {
   const order = await orderRepo.findOrderByIdForUser(orderId, userId);
   if (!order) throw Errors.ORDER_NOT_FOUND();
@@ -87,7 +96,7 @@ export const cancelOrder = async (
   }
 
   // Restores stock, releases the coupon, and flags a refund if the order was paid.
-  return orderRepo.cancelOrderTransaction(orderId, "CUSTOMER");
+  return orderRepo.cancelOrderTransaction(orderId, "CUSTOMER", input);
 };
 
 // ─── Admin ────────────────────────────────────────────────────────────────────
