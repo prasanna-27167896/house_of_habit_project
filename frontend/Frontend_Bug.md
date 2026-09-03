@@ -6,7 +6,10 @@ been tested live — you can look up the exact request/response shape for any of
 `http://localhost:3006/api/docs` (Swagger) if anything below is unclear.
 
 The list is in two parts:
+<<<<<<< HEAD
 
+=======
+>>>>>>> 092fb4feca69d391cabc2be93d2129a73c29d47c
 - **Part 1: Real bugs** — broken right now, should be fixed.
 - **Part 2: Not connected yet** — screens still using placeholder/fake data. Normal for
   a build in progress, not urgent, but needs wiring up before launch. One of these
@@ -22,11 +25,17 @@ The list is in two parts:
 **File:** `src/store/slices/authSlice.js`, function `verifyOtp`
 
 **What the code does now:**
+<<<<<<< HEAD
 
 ```js
 const response = await api.post("/auth/verifyOtp", { email, otp: Number(otp) });
 ```
 
+=======
+```js
+const response = await api.post("/auth/verifyOtp", { email, otp: Number(otp) });
+```
+>>>>>>> 092fb4feca69d391cabc2be93d2129a73c29d47c
 It puts the email inside the request body (the JSON payload).
 
 **Why that's wrong:** the backend doesn't read the email from the body for this
@@ -41,6 +50,7 @@ whose OTP this is, and the route doesn't even match — it returns a 404 "not fo
 error, every single time.
 
 **The fix:**
+<<<<<<< HEAD
 
 ```js
 const response = await api.post(
@@ -49,6 +59,14 @@ const response = await api.post(
 );
 ```
 
+=======
+```js
+const response = await api.post(
+  `/auth/verifyOtp/${encodeURIComponent(email)}`,
+  { otp: Number(otp) }
+);
+```
+>>>>>>> 092fb4feca69d391cabc2be93d2129a73c29d47c
 (`encodeURIComponent` just makes sure special characters like `@` and `+` in the email
 don't break the URL.)
 
@@ -99,10 +117,17 @@ screen.
 **The backend has a completely separate, already-working login system that the
 frontend just never calls:**
 
+<<<<<<< HEAD
 | Step                    | Endpoint                                       | What it needs                                                                   | What it gives back                                                                                                                          |
 | ----------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1. Ask for a login code | `POST /auth/login/otp/send?email=...`          | Email as a URL query parameter (e.g. `?email=john@example.com`), no body needed | Always a generic `200 OK` with a message — even if the email doesn't exist, on purpose (so people can't use this to guess who's registered) |
 | 2. Submit the code      | `POST /auth/login/otp/verify/john@example.com` | Body: `{ otp: 482913 }`                                                         | On success: `{ user: {...}, accessToken: "..." }` — this is a real, logged-in session                                                       |
+=======
+| Step | Endpoint | What it needs | What it gives back |
+|---|---|---|---|
+| 1. Ask for a login code | `POST /auth/login/otp/send?email=...` | Email as a URL query parameter (e.g. `?email=john@example.com`), no body needed | Always a generic `200 OK` with a message — even if the email doesn't exist, on purpose (so people can't use this to guess who's registered) |
+| 2. Submit the code | `POST /auth/login/otp/verify/john@example.com` | Body: `{ otp: 482913 }` | On success: `{ user: {...}, accessToken: "..." }` — this is a real, logged-in session |
+>>>>>>> 092fb4feca69d391cabc2be93d2129a73c29d47c
 
 **How to wire this in, step by step, without changing what the customer sees on
 screen:**
@@ -113,7 +138,11 @@ screen:**
      does today: show the OTP box → verify via `/auth/verifyOtp/:email` → show the
      "enter your name and phone" step → call `/auth/register`.
    - **If it fails with "already registered" (409)** → this is a returning customer.
+<<<<<<< HEAD
      Instead, call `POST /auth/login/otp/send?email=...`, then show the _same_ OTP box
+=======
+     Instead, call `POST /auth/login/otp/send?email=...`, then show the *same* OTP box
+>>>>>>> 092fb4feca69d391cabc2be93d2129a73c29d47c
      component (no UI change needed). When they submit the code, call
      `POST /auth/login/otp/verify/:email` instead of the sign-up verify endpoint. This
      call gives back `{ user, accessToken }` directly — log them in immediately and
@@ -160,7 +189,10 @@ which endpoint to call), so there's no need to guess from the response shape any
 `DeleteAccountPopup.jsx`
 
 **What the code does now:**
+<<<<<<< HEAD
 
+=======
+>>>>>>> 092fb4feca69d391cabc2be93d2129a73c29d47c
 ```js
 const response = await api.delete("/user/delete");
 ```
@@ -215,6 +247,7 @@ backend for the real ones.
 
 Endpoints ready to use once this gets connected:
 
+<<<<<<< HEAD
 | What the customer wants to do                              | Endpoint to call                                                     |
 | ---------------------------------------------------------- | -------------------------------------------------------------------- |
 | See their past orders                                      | `GET /orders` (supports filtering by status, date range, and search) |
@@ -225,6 +258,18 @@ Endpoints ready to use once this gets connected:
 | See delivery tracking steps (placed → shipped → delivered) | `GET /orders/:orderId/track`                                         |
 | Download the invoice as a PDF                              | `GET /orders/:orderId/invoice`                                       |
 | Rate how the delivery went                                 | `POST /orders/:orderId/delivery-feedback`                            |
+=======
+| What the customer wants to do | Endpoint to call |
+|---|---|
+| See their past orders | `GET /orders` (supports filtering by status, date range, and search) |
+| See one order's full details | `GET /orders/:orderId` |
+| Cancel an order | `PUT /orders/:orderId/cancel` |
+| Ask to return an item | `POST /orders/:orderId/return` |
+| Ask to exchange an item for a different size | `POST /orders/:orderId/exchange` |
+| See delivery tracking steps (placed → shipped → delivered) | `GET /orders/:orderId/track` |
+| Download the invoice as a PDF | `GET /orders/:orderId/invoice` |
+| Rate how the delivery went | `POST /orders/:orderId/delivery-feedback` |
+>>>>>>> 092fb4feca69d391cabc2be93d2129a73c29d47c
 
 (Exact fields each one needs are in the Swagger docs — search for "Orders" there.)
 
@@ -264,8 +309,13 @@ uploads to cloud storage), it's just not something you'd guess without being tol
 
 ```js
 const presignRes = await api.post("/upload/presign-review", {
+<<<<<<< HEAD
   contentType: file.type, // e.g. "image/jpeg" — must be one of: image/jpeg, image/png, image/webp
   fileSize: file.size, // size in bytes — max 5MB (5 * 1024 * 1024)
+=======
+  contentType: file.type,      // e.g. "image/jpeg" — must be one of: image/jpeg, image/png, image/webp
+  fileSize: file.size,         // size in bytes — max 5MB (5 * 1024 * 1024)
+>>>>>>> 092fb4feca69d391cabc2be93d2129a73c29d47c
 });
 
 const { signedUrl, key, publicUrl } = presignRes.data.data;
@@ -283,13 +333,21 @@ backend.**
 ```js
 await fetch(signedUrl, {
   method: "PUT",
+<<<<<<< HEAD
   body: file, // the raw File object, not FormData
   headers: { "Content-Type": file.type }, // must match what you sent in Step 1
+=======
+  body: file,                                   // the raw File object, not FormData
+  headers: { "Content-Type": file.type },        // must match what you sent in Step 1
+>>>>>>> 092fb4feca69d391cabc2be93d2129a73c29d47c
 });
 ```
 
 **Important details that are easy to get wrong here:**
+<<<<<<< HEAD
 
+=======
+>>>>>>> 092fb4feca69d391cabc2be93d2129a73c29d47c
 - Use plain `fetch` (or plain `axios.put`, but NOT your `api` instance from
   `axiosInstance.js`) — that instance automatically attaches your login token as an
   `Authorization` header, and CORS/Content-Type settings meant for our own backend.
@@ -310,8 +368,13 @@ await api.post(`/reviews/product/${productId}`, {
   rating: 5,
   title: "Great fit",
   body: "Really happy with this.",
+<<<<<<< HEAD
   imageUrl: publicUrl, // from Step 1
   imageKey: key, // from Step 1
+=======
+  imageUrl: publicUrl,   // from Step 1
+  imageKey: key,         // from Step 1
+>>>>>>> 092fb4feca69d391cabc2be93d2129a73c29d47c
 });
 ```
 
