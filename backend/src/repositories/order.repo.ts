@@ -24,7 +24,7 @@ const orderInclude = {
   shippingAddress: true,
   orderItems: {
     include: {
-      variant: { select: { sku: true } },
+      variant: { select: { sku: true, productId: true } },
     },
   },
   payments: true,
@@ -142,60 +142,63 @@ export const cancelOrderTransaction = (
   cancelledBy: "CUSTOMER" | "ADMIN",
   cancellation?: { reason?: string | undefined; comment?: string | undefined },
 ): Promise<OrderWithRelations> =>
-  prisma.$transaction(async (tx) => {
-    const order = await tx.order.findUnique({
-      where: { orderId },
-      include: { orderItems: true },
-    });
+  prisma.$transaction(
+    async (tx) => {
+      const order = await tx.order.findUnique({
+        where: { orderId },
+        include: { orderItems: true },
+      });
 
-    if (!order) throw new Error("Order not found");
+      if (!order) throw new Error("Order not found");
 
-    // Stock was actually deducted (not merely held) once the order was confirmed:
-    //  - online COMPLETED → its holds were CONSUMED (stock stayed down)
-    //  - COD (COD_PENDING or COMPLETED) → decremented directly at placement
-    const stockDeducted =
-      order.paymentStatus === "COMPLETED" || order.paymentStatus === "COD_PENDING";
-    // Real money was collected only for a COMPLETED payment (online capture, or COD cash
-    // collected on delivery). A COD_PENDING order never took money → no refund owed.
-    const refundOwed = order.paymentStatus === "COMPLETED";
+      // Stock was actually deducted (not merely held) once the order was confirmed:
+      //  - online COMPLETED → its holds were CONSUMED (stock stayed down)
+      //  - COD (COD_PENDING or COMPLETED) → decremented directly at placement
+      const stockDeducted =
+        order.paymentStatus === "COMPLETED" || order.paymentStatus === "COD_PENDING";
+      // Real money was collected only for a COMPLETED payment (online capture, or COD cash
+      // collected on delivery). A COD_PENDING order never took money → no refund owed.
+      const refundOwed = order.paymentStatus === "COMPLETED";
 
-    // Give stock back:
-    //  - pending/held orders still have ACTIVE reservations → release them (CAS-safe)
-    //  - stock-deducted orders → add it straight back
-    await reservationRepo.releaseReservations(tx, orderId);
-    if (stockDeducted) {
-      for (const item of order.orderItems) {
-        await reservationRepo.restoreStock(tx, item.variantId, item.quantity);
+      // Give stock back:
+      //  - pending/held orders still have ACTIVE reservations → release them (CAS-safe)
+      //  - stock-deducted orders → add it straight back
+      await reservationRepo.releaseReservations(tx, orderId);
+      if (stockDeducted) {
+        for (const item of order.orderItems) {
+          await reservationRepo.restoreStock(tx, item.variantId, item.quantity);
+        }
       }
-    }
 
-    // Return the coupon slot (no-op if none was used)
-    await couponRepo.releaseCoupon(tx, orderId);
+      // Return the coupon slot (no-op if none was used)
+      await couponRepo.releaseCoupon(tx, orderId);
 
-    const updated = await tx.order.update({
-      where: { orderId },
-      data: {
-        orderStatus: "CANCELLED",
-        // Keep paymentStatus COMPLETED on a genuinely-paid order so we don't lose that
-        // money was taken — the refund is tracked via refundStatus instead.
-        paymentStatus: refundOwed ? "COMPLETED" : "CANCELLED",
-        refundStatus: refundOwed ? "REFUND_PENDING" : "NONE",
-        cancelledBy,
-        cancelledAt: new Date(),
-        cancellationReason: cancellation?.reason ?? null,
-        cancellationComment: cancellation?.comment ?? null,
-      },
-      include: orderInclude,
-    });
+      const updated = await tx.order.update({
+        where: { orderId },
+        data: {
+          orderStatus: "CANCELLED",
+          // Keep paymentStatus COMPLETED on a genuinely-paid order so we don't lose that
+          // money was taken — the refund is tracked via refundStatus instead.
+          paymentStatus: refundOwed ? "COMPLETED" : "CANCELLED",
+          refundStatus: refundOwed ? "REFUND_PENDING" : "NONE",
+          cancelledBy,
+          cancelledAt: new Date(),
+          cancellationReason: cancellation?.reason ?? null,
+          cancellationComment: cancellation?.comment ?? null,
+        },
+        include: orderInclude,
+      });
 
-    await trackingRepo.txCreateLogEntry(tx, {
-      orderId,
-      status: "CANCELLED",
-      description: `Order cancelled by ${cancelledBy.toLowerCase()}.`,
-    });
+      await trackingRepo.txCreateLogEntry(tx, {
+        orderId,
+        status: "CANCELLED",
+        description: `Order cancelled by ${cancelledBy.toLowerCase()}.`,
+      });
 
-    return updated;
-  }) as Promise<OrderWithRelations>;
+      return updated;
+    },
+    { maxWait: 10000, timeout: 25000 },
+  ) as Promise<OrderWithRelations>;
 
 // ─── Status / payment updates ─────────────────────────────────────────────────
 
@@ -204,15 +207,19 @@ export const updateOrderStatus = (
   orderStatus: OrderStatus,
   extra?: { deliveredAt?: Date; paymentStatus?: PaymentStatus },
 ): Promise<OrderWithRelations> =>
-  prisma.$transaction(async (tx) => {
-    const updated = await tx.order.update({
-      where: { orderId },
-      data: { orderStatus, ...extra },
-      include: orderInclude,
-    });
-    await trackingRepo.txCreateLogEntry(tx, { orderId, status: orderStatus });
-    return updated;
-  }) as Promise<OrderWithRelations>;
+  prisma.$transaction(
+    async (tx) => {
+      const updated = await tx.order.update({
+        where: { orderId },
+        data: { orderStatus, ...extra },
+        include: orderInclude,
+      });
+      await trackingRepo.txCreateLogEntry(tx, { orderId, status: orderStatus });
+      return updated;
+    },
+    { maxWait: 10000, timeout: 25000 },
+  ) as Promise<OrderWithRelations>;
+
 
 export const updatePaymentStatus = (
   orderId: string,
@@ -246,22 +253,25 @@ export const recordCapturedPaymentForRefund = (
     method: string | null;
   },
 ): Promise<void> =>
-  prisma.$transaction(async (tx) => {
-    await paymentRepo.txCreatePayment(tx, {
-      orderId,
-      razorpayOrderId: data.razorpayOrderId,
-      razorpayPaymentId: data.razorpayPaymentId,
-      amount: data.amount,
-      currency: data.currency,
-      method: data.method,
-      status: "COMPLETED",
-      source: "WEBHOOK",
-    });
-    await tx.order.update({
-      where: { orderId },
-      data: { refundStatus: "REFUND_PENDING" },
-    });
-  }).then(() => undefined);
+  prisma.$transaction(
+    async (tx) => {
+      await paymentRepo.txCreatePayment(tx, {
+        orderId,
+        razorpayOrderId: data.razorpayOrderId,
+        razorpayPaymentId: data.razorpayPaymentId,
+        amount: data.amount,
+        currency: data.currency,
+        method: data.method,
+        status: "COMPLETED",
+        source: "WEBHOOK",
+      });
+      await tx.order.update({
+        where: { orderId },
+        data: { refundStatus: "REFUND_PENDING" },
+      });
+    },
+    { maxWait: 10000, timeout: 25000 },
+  ).then(() => undefined);
 
 export const deleteOrder = (orderId: string): Promise<OrderWithRelations> =>
   prisma.order.delete({
@@ -307,58 +317,62 @@ export const createPendingOrderWithReservation = (
   data: PendingOrderCreateData,
   expiresAt: Date,
 ): Promise<OrderWithRelations> =>
-  prisma.$transaction(async (tx) => {
-    const order = await tx.order.create({
-      data: {
-        userId: data.userId,
-        shippingAddressId: data.shippingAddressId,
-        totalPrice: data.totalPrice,
-        totalDiscountedPrice: data.totalDiscountedPrice,
-        discount: data.discount,
-        couponCode: data.couponCode,
-        couponDiscount: data.couponDiscount,
-        shippingCharge: data.shippingCharge,
-        totalAmount: data.totalAmount,
-        totalItems: data.totalItems,
-        orderItems: {
-          create: data.items.map((item) => ({
-            variantId: item.variantId,
-            productTitle: item.productTitle,
-            size: item.size,
-            color: item.color,
-            imageUrl: item.imageUrl ?? null,
-            quantity: item.quantity,
-            price: item.price,
-            discountedPrice: item.discountedPrice,
-          })),
+  prisma.$transaction(
+    async (tx) => {
+      const order = await tx.order.create({
+        data: {
+          userId: data.userId,
+          shippingAddressId: data.shippingAddressId,
+          totalPrice: data.totalPrice,
+          totalDiscountedPrice: data.totalDiscountedPrice,
+          discount: data.discount,
+          couponCode: data.couponCode,
+          couponDiscount: data.couponDiscount,
+          shippingCharge: data.shippingCharge,
+          totalAmount: data.totalAmount,
+          totalItems: data.totalItems,
+          orderItems: {
+            create: data.items.map((item) => ({
+              variantId: item.variantId,
+              productTitle: item.productTitle,
+              size: item.size,
+              color: item.color,
+              imageUrl: item.imageUrl ?? null,
+              quantity: item.quantity,
+              price: item.price,
+              discountedPrice: item.discountedPrice,
+            })),
+          },
         },
-      },
-      include: orderInclude,
-    });
-
-    await reservationRepo.reserveItems(tx, {
-      orderId: order.orderId,
-      userId: data.userId,
-      items: data.items.map((i) => ({
-        variantId: i.variantId,
-        quantity: i.quantity,
-        productTitle: i.productTitle,
-      })),
-      expiresAt,
-    });
-
-    // Reserve the coupon slot too (atomic global + per-user limits). Released with
-    // the stock hold if the payment fails or the reservation expires.
-    if (data.couponCode) {
-      await couponRepo.reserveCoupon(tx, {
-        couponCode: data.couponCode,
-        userId: data.userId,
-        orderId: order.orderId,
+        include: orderInclude,
       });
-    }
 
-    return order as OrderWithRelations;
-  }) as Promise<OrderWithRelations>;
+      await reservationRepo.reserveItems(tx, {
+        orderId: order.orderId,
+        userId: data.userId,
+        items: data.items.map((i) => ({
+          variantId: i.variantId,
+          quantity: i.quantity,
+          productTitle: i.productTitle,
+        })),
+        expiresAt,
+      });
+
+      // Reserve the coupon slot too (atomic global + per-user limits). Released with
+      // the stock hold if the payment fails or the reservation expires.
+      if (data.couponCode) {
+        await couponRepo.reserveCoupon(tx, {
+          couponCode: data.couponCode,
+          userId: data.userId,
+          orderId: order.orderId,
+        });
+      }
+
+      return order as OrderWithRelations;
+    },
+    { maxWait: 10000, timeout: 25000 },
+  ) as Promise<OrderWithRelations>;
+
 
 export const setRazorpayOrderId = (
   orderId: string,
@@ -391,146 +405,162 @@ export const confirmPaymentTransaction = (
   orderId: string,
   data: ConfirmPaymentData,
 ): Promise<OrderWithRelations> =>
-  prisma.$transaction(async (tx) => {
-    // COD collects cash on delivery, so a confirmed COD order is COD_PENDING (stock
-    // deducted, money not yet in) until it's DELIVERED. Online payment is COMPLETED here.
-    const finalPaymentStatus: PaymentStatus = data.source === "COD" ? "COD_PENDING" : "COMPLETED";
+  prisma.$transaction(
+    async (tx) => {
+      // COD collects cash on delivery, so a confirmed COD order is COD_PENDING (stock
+      // deducted, money not yet in) until it's DELIVERED. Online payment is COMPLETED here.
+      const finalPaymentStatus: PaymentStatus = data.source === "COD" ? "COD_PENDING" : "COMPLETED";
 
-    // Idempotent claim: only proceed if the order hasn't already been confirmed. Both
-    // COMPLETED and COD_PENDING count as "already confirmed" so a repeat call bails out.
-    const claim = await tx.order.updateMany({
-      where: { orderId, paymentStatus: { notIn: ["COMPLETED", "COD_PENDING"] } },
-      data: { paymentStatus: finalPaymentStatus },
-    });
+      // Idempotent claim: only proceed if the order hasn't already been confirmed. Both
+      // COMPLETED and COD_PENDING count as "already confirmed" so a repeat call bails out.
+      const claim = await tx.order.updateMany({
+        where: { orderId, paymentStatus: { notIn: ["COMPLETED", "COD_PENDING"] } },
+        data: { paymentStatus: finalPaymentStatus },
+      });
 
-    const order = await tx.order.findUnique({
-      where: { orderId },
-      include: orderInclude,
-    });
+      const order = await tx.order.findUnique({
+        where: { orderId },
+        include: orderInclude,
+      });
 
-    if (!order) throw new Error("Order not found in confirmPaymentTransaction");
+      if (!order) throw new Error("Order not found in confirmPaymentTransaction");
 
-    // Lost the race — another path (verify or webhook) already confirmed this order.
-    // Return it as-is; do NOT deduct stock / clear cart / write a duplicate payment row.
-    if (claim.count === 0) return order as OrderWithRelations;
+      // Lost the race — another path (verify or webhook) already confirmed this order.
+      // Return it as-is; do NOT deduct stock / clear cart / write a duplicate payment row.
+      if (claim.count === 0) return order as OrderWithRelations;
 
-    const items = order.orderItems.map((i) => ({
-      variantId: i.variantId,
-      quantity: i.quantity,
-      productTitle: i.productTitle,
-    }));
+      const items = order.orderItems.map((i) => ({
+        variantId: i.variantId,
+        quantity: i.quantity,
+        productTitle: i.productTitle,
+      }));
 
-    if (data.source === "COD") {
-      // COD never reserved stock — deduct now, atomically guarded (no oversell).
-      for (const item of items) {
-        const ok = await reservationRepo.decrementStock(tx, item.variantId, item.quantity);
-        if (!ok) {
-          const v = await tx.productVariant.findUnique({
-            where: { variantId: item.variantId },
-            select: { stock: true },
-          });
-          throw Errors.OUT_OF_STOCK(item.productTitle, v?.stock ?? 0);
+      if (data.source === "COD") {
+        // COD never reserved stock — deduct now, atomically guarded (no oversell).
+        for (const item of items) {
+          const ok = await reservationRepo.decrementStock(tx, item.variantId, item.quantity);
+          if (!ok) {
+            const v = await tx.productVariant.findUnique({
+              where: { variantId: item.variantId },
+              select: { stock: true },
+            });
+            throw Errors.OUT_OF_STOCK(item.productTitle, v?.stock ?? 0);
+          }
         }
+      } else {
+        // Online: stock was held at checkout — turn the holds into a real sale.
+        // If a hold was swept just before payment landed and the stock is truly
+        // gone, the order can't be fulfilled → roll back; the captured payment is
+        // logged for a manual/automated refund, and the sweep leaves stock intact.
+        const { unfulfillable } = await reservationRepo.consumeReservations(tx, orderId, items);
+        if (unfulfillable.length > 0) throw Errors.PAYMENT_STOCK_CONFLICT();
       }
-    } else {
-      // Online: stock was held at checkout — turn the holds into a real sale.
-      // If a hold was swept just before payment landed and the stock is truly
-      // gone, the order can't be fulfilled → roll back; the captured payment is
-      // logged for a manual/automated refund, and the sweep leaves stock intact.
-      const { unfulfillable } = await reservationRepo.consumeReservations(tx, orderId, items);
-      if (unfulfillable.length > 0) throw Errors.PAYMENT_STOCK_CONFLICT();
-    }
 
-    // Clear matching cart items (covers both full-cart and single-item orders)
-    const cart = await tx.cart.findUnique({ where: { userId: order.userId } });
-    if (cart) {
-      const variantIds = order.orderItems.map((i) => i.variantId);
-      await tx.cartItem.deleteMany({
-        where: { cartId: cart.cartId, variantId: { in: variantIds } },
-      });
-    }
+      // Clear matching cart items (covers both full-cart and single-item orders)
+      const cart = await tx.cart.findUnique({ where: { userId: order.userId } });
+      if (cart) {
+        const variantIds = order.orderItems.map((i) => i.variantId);
+        await tx.cartItem.deleteMany({
+          where: { cartId: cart.cartId, variantId: { in: variantIds } },
+        });
+      }
 
-    // Coupon usage:
-    //  - Online: the slot was reserved at checkout — nothing to do here.
-    //  - COD: no reservation happened, so reserve (and thereby consume) it now.
-    if (order.couponCode && data.source === "COD") {
-      await couponRepo.reserveCoupon(tx, {
-        couponCode: order.couponCode,
-        userId: order.userId,
+      // Coupon usage:
+      //  - Online: the slot was reserved at checkout — nothing to do here.
+      //  - COD: no reservation happened, so reserve (and thereby consume) it now.
+      if (order.couponCode && data.source === "COD") {
+        await couponRepo.reserveCoupon(tx, {
+          couponCode: order.couponCode,
+          userId: order.userId,
+          orderId,
+        });
+      }
+
+      // Create Payment record — use actual Razorpay data when available (webhook path),
+      // otherwise fall back to order values (frontend verify + COD path)
+      await paymentRepo.txCreatePayment(tx, {
         orderId,
-      });
-    }
-
-    // Create Payment record — use actual Razorpay data when available (webhook path),
-    // otherwise fall back to order values (frontend verify + COD path)
-    await paymentRepo.txCreatePayment(tx, {
-      orderId,
-      razorpayOrderId: data.razorpayOrderId !== "COD" ? data.razorpayOrderId : null,
-      razorpayPaymentId: data.paymentId !== "COD" ? data.paymentId : null,
-      amount: data.actualAmount ?? order.totalAmount,
-      currency: data.actualCurrency ?? "INR",
-      method: data.paymentMethod,
-      // COD → COD_PENDING (cash not collected yet); online → COMPLETED (captured).
-      status: finalPaymentStatus,
-      source: data.source,
-    });
-
-    const confirmed = await tx.order.update({
-      where: { orderId },
-      data: {
-        orderStatus: "ORDER_PLACED",
-        paymentStatus: finalPaymentStatus,
-        paymentId: data.paymentId !== "COD" ? data.paymentId : null,
-        paymentMethod: data.paymentMethod,
         razorpayOrderId: data.razorpayOrderId !== "COD" ? data.razorpayOrderId : null,
-      },
-      include: orderInclude,
-    });
+        razorpayPaymentId: data.paymentId !== "COD" ? data.paymentId : null,
+        amount: data.actualAmount ?? order.totalAmount,
+        currency: data.actualCurrency ?? "INR",
+        method: data.paymentMethod,
+        // COD → COD_PENDING (cash not collected yet); online → COMPLETED (captured).
+        status: finalPaymentStatus,
+        source: data.source,
+      });
 
-    await trackingRepo.txCreateLogEntry(tx, { orderId, status: "ORDER_PLACED" });
+      const confirmed = await tx.order.update({
+        where: { orderId },
+        data: {
+          orderStatus: "ORDER_PLACED",
+          paymentStatus: finalPaymentStatus,
+          paymentId: data.paymentId !== "COD" ? data.paymentId : null,
+          paymentMethod: data.paymentMethod,
+          razorpayOrderId: data.razorpayOrderId !== "COD" ? data.razorpayOrderId : null,
+        },
+        include: orderInclude,
+      });
 
-    return confirmed;
-  }) as Promise<OrderWithRelations>;
+      await trackingRepo.txCreateLogEntry(tx, { orderId, status: "ORDER_PLACED" });
+
+      return confirmed;
+    },
+    { maxWait: 10000, timeout: 25000 },
+  ) as Promise<OrderWithRelations>;
+
 
 // Mark a pending payment as failed — release any held stock back to inventory.
 export const failPendingPayment = (
   orderId: string,
   source: "WEBHOOK" | "RAZORPAY_CREATE_ERROR" = "WEBHOOK",
 ): Promise<OrderWithRelations> =>
-  prisma.$transaction(async (tx) => {
-    const order = await tx.order.findUnique({ where: { orderId } });
+  prisma.$transaction(
+    async (tx) => {
+      const order = await tx.order.findUnique({ where: { orderId } });
 
-    if (order && order.paymentStatus !== "COMPLETED") {
-      // Return reserved stock to inventory (no-op for COD / already-released holds)
-      await reservationRepo.releaseReservations(tx, orderId);
-      // Return the coupon slot too (no-op if no coupon was used)
-      await couponRepo.releaseCoupon(tx, orderId);
+      if (order && order.paymentStatus !== "COMPLETED") {
+        // Return reserved stock to inventory (no-op for COD / already-released holds)
+        await reservationRepo.releaseReservations(tx, orderId);
+        // Return the coupon slot too (no-op if no coupon was used)
+        await couponRepo.releaseCoupon(tx, orderId);
 
-      await paymentRepo.txCreatePayment(tx, {
-        orderId,
-        razorpayOrderId: order.razorpayOrderId ?? null,
-        razorpayPaymentId: null,
-        amount: order.totalAmount,
-        currency: "INR",
-        method: null,
-        status: "FAILED",
-        source,
+        await paymentRepo.txCreatePayment(tx, {
+          orderId,
+          razorpayOrderId: order.razorpayOrderId ?? null,
+          razorpayPaymentId: null,
+          amount: order.totalAmount,
+          currency: "INR",
+          method: null,
+          status: "FAILED",
+          source,
+        });
+      }
+
+      const updated = await tx.order.update({
+        where: { orderId },
+        data: {
+          orderStatus: "CANCELLED",
+          paymentStatus: "FAILED",
+          // System-initiated cancellation (payment failed / never completed) — record it so
+          // support can tell this apart from a customer/admin cancellation.
+          cancelledBy: "SYSTEM",
+          cancelledAt: new Date(),
+        },
+        include: orderInclude,
       });
-    }
 
-    return tx.order.update({
-      where: { orderId },
-      data: {
-        orderStatus: "CANCELLED",
-        paymentStatus: "FAILED",
-        // System-initiated cancellation (payment failed / never completed) — record it so
-        // support can tell this apart from a customer/admin cancellation.
-        cancelledBy: "SYSTEM",
-        cancelledAt: new Date(),
-      },
-      include: orderInclude,
-    });
-  }) as Promise<OrderWithRelations>;
+      await trackingRepo.txCreateLogEntry(tx, {
+        orderId,
+        status: "CANCELLED",
+        description: "Payment failed or expired.",
+      });
+
+      return updated;
+    },
+    { maxWait: 10000, timeout: 25000 },
+  ) as Promise<OrderWithRelations>;
+
 
 // ─── Stats ────────────────────────────────────────────────────────────────────
 

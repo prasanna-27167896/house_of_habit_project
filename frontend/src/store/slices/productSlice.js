@@ -111,6 +111,21 @@ export const searchProductsAction = createAsyncThunk(
   }
 );
 
+// Fetch best-selling products ranked by units sold
+export const fetchBestSelling = createAsyncThunk(
+  "product/fetchBestSelling",
+  async ({ limit = 10 } = {}, { rejectWithValue }) => {
+    try {
+      const response = await productService.fetchBestSellingProducts({ limit });
+      return response.data || response;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch best-selling products."
+      );
+    }
+  }
+);
+
 // ─── Initial State ────────────────────────────────────────────────────────────
 
 const initialState = {
@@ -120,11 +135,17 @@ const initialState = {
   homeLoading: false,
   homeError: null,
 
+  // Best selling products
+  bestSellingProducts: [],
+  bestSellingLoading: false,
+  bestSellingError: null,
+
   // All products
   allProducts: [],
   allProductsPagination: { page: 1, totalPages: 1, total: 0, limit: 12 },
   allProductsLoading: false,
   allProductsError: null,
+
 
   // Category page products
   categoryProducts: [],
@@ -264,9 +285,25 @@ const productSlice = createSlice({
       .addCase(searchProductsAction.rejected, (state, action) => {
         state.searchLoading = false;
         state.searchError = action.payload;
+      })
+
+      // ─── fetchBestSelling ───
+      .addCase(fetchBestSelling.pending, (state) => {
+        state.bestSellingLoading = true;
+        state.bestSellingError = null;
+      })
+      .addCase(fetchBestSelling.fulfilled, (state, action) => {
+        state.bestSellingLoading = false;
+        // payload can be array of products or wrapped in data
+        state.bestSellingProducts = Array.isArray(action.payload) ? action.payload : action.payload?.products || action.payload?.data || [];
+      })
+      .addCase(fetchBestSelling.rejected, (state, action) => {
+        state.bestSellingLoading = false;
+        state.bestSellingError = action.payload;
       });
   },
 });
+
 
 export const {
   shuffleHomeProducts,

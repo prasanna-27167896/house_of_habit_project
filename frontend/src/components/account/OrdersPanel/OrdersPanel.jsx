@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import styles from './OrdersPanel.module.css';
 import PanelHeader from '../PanelHeader/PanelHeader';
 import OrderCard from '../OrderCard/OrderCard';
@@ -10,7 +12,8 @@ import SizeExchangeView from './SizeExchangeView';
 
 import ArrowIcon from '../../../assets/icons/arrow-btn.svg?react';
 import OrdersBagIcon from '../../../assets/icons/orders-bag-icon.svg?react';
-import { mockOrders, ORDER_STATUSES } from '../../../data/ordersData';
+import { fetchOrders } from '../../../store/slices/orderSlice';
+import { normalizeOrder, mockOrders } from '../../../data/ordersData';
 
 /* ── Inline icons ── */
 const SearchIcon = () => (
@@ -36,6 +39,10 @@ const CloseIcon = () => (
 );
 
 const OrdersPanel = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { orders: rawOrders, ordersLoading, ordersError } = useSelector((state) => state.order);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilter, setShowFilter] = useState(false);
 
@@ -50,32 +57,74 @@ const OrdersPanel = () => {
   /* ── View state: controls which sub-view is displayed ── */
   const [view, setView] = useState({ type: 'list' });
 
-  const orders = []; 
+  // Load orders on mount
+  const loadOrders = useCallback(() => {
+    dispatch(fetchOrders());
+  }, [dispatch]);
 
-  const filteredOrders = orders.filter((order) => {
-    const matchesSearch =
-      order.product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      order.orderId.includes(searchQuery);
+  useEffect(() => {
+    loadOrders();
+  }, [loadOrders]);
 
-    let matchesStatus = true;
-    if (appliedStatus === 'on-the-way') {
-      matchesStatus =
-        order.status === ORDER_STATUSES.CONFIRMED ||
-        order.status === ORDER_STATUSES.PLACED ||
-        order.status === ORDER_STATUSES.SHIPPED ||
-        order.status === ORDER_STATUSES.OUT_FOR_DELIVERY;
-    } else if (appliedStatus === 'delivered') {
-      matchesStatus = order.status === ORDER_STATUSES.DELIVERED;
-    } else if (appliedStatus === 'cancelled') {
-      matchesStatus = order.status === ORDER_STATUSES.CANCELLED;
-    } else if (appliedStatus === 'returned') {
-      matchesStatus =
-        order.status === ORDER_STATUSES.OUT_FOR_PICKUP ||
-        order.status === ORDER_STATUSES.REFUND_CREDITED;
+  // Normalize raw orders from backend or fallback to empty array
+  const normalizedOrders = useMemo(() => {
+    if (rawOrders && rawOrders.length > 0) {
+      return rawOrders.map(normalizeOrder);
     }
+    return [];
+  }, [rawOrders]);
 
-    return matchesSearch && matchesStatus;
-  });
+  // Filter orders based on search query, applied status, and applied time
+  const filteredOrders = useMemo(() => {
+    return normalizedOrders.filter((order) => {
+      const q = searchQuery.toLowerCase().trim();
+      const matchesSearch =
+        !q ||
+        (order.product?.name && order.product.name.toLowerCase().includes(q)) ||
+        (order.orderId && String(order.orderId).toLowerCase().includes(q)) ||
+        (order.otherItems && order.otherItems.some((it) => it.name.toLowerCase().includes(q)));
+
+      let matchesStatus = true;
+      const st = (order.status || '').toUpperCase();
+      if (appliedStatus === 'on-the-way') {
+        matchesStatus =
+          st === 'CONFIRMED' ||
+          st === 'ORDER_PLACED' ||
+          st === 'PROCESSING' ||
+          st === 'SHIPPED' ||
+          st === 'IN_TRANSIT' ||
+          st === 'PENDING';
+      } else if (appliedStatus === 'delivered') {
+        matchesStatus = st === 'DELIVERED';
+      } else if (appliedStatus === 'cancelled') {
+        matchesStatus = st === 'CANCELLED';
+      } else if (appliedStatus === 'returned') {
+        matchesStatus =
+          st === 'RETURNED' ||
+          st === 'RETURN_REQUESTED' ||
+          st === 'RETURN_REJECTED';
+      }
+
+      // Time filter
+      let matchesTime = true;
+      if (appliedTime !== 'anytime' && order.orderedOn) {
+        const orderDate = new Date(order.orderedOn);
+        if (!isNaN(orderDate.getTime())) {
+          const now = new Date();
+          const diffDays = (now - orderDate) / (1000 * 60 * 60 * 24);
+          if (appliedTime === '30-days') {
+            matchesTime = diffDays <= 30;
+          } else if (appliedTime === '6-months') {
+            matchesTime = diffDays <= 180;
+          } else if (appliedTime === 'year') {
+            matchesTime = diffDays <= 365;
+          }
+        }
+      }
+
+      return matchesSearch && matchesStatus && matchesTime;
+    });
+  }, [normalizedOrders, searchQuery, appliedStatus, appliedTime]);
 
   const statusOptions = [
     { id: 'all', label: 'All' },
@@ -97,6 +146,7 @@ const OrdersPanel = () => {
     setSelectedTime('anytime');
     setAppliedStatus('all');
     setAppliedTime('anytime');
+    setShowFilter(false);
   };
 
   const handleApplyFilter = () => {
@@ -115,6 +165,7 @@ const OrdersPanel = () => {
       setView(target);
     } else {
       setView({ type: 'list' });
+      loadOrders(); // reload orders in case status was modified
     }
   };
 
@@ -126,14 +177,14 @@ const OrdersPanel = () => {
         <input
           type='text'
           className={styles.searchInput}
-          placeholder='Search anything here'
+          placeholder='Search orders or items...'
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
       <div className={styles.filterWrapper}>
         <button
-          className={`${styles.filterBtn} ${showFilter ? styles.filterBtnActive : ''}`}
+          className={`${styles.filterBtn} ${showFilter || appliedStatus !== 'all' || appliedTime !== 'anytime' ? styles.filterBtnActive : ''}`}
           onClick={() => setShowFilter((p) => !p)}
         >
           <FilterIcon /> Filter
@@ -176,7 +227,8 @@ const OrdersPanel = () => {
                   {statusOptions.map((opt) => (
                     <label key={opt.id} className={styles.optionItem}>
                       <input
-                        type='checkbox'
+                        type='radio'
+                        name='statusFilter'
                         className={styles.checkboxInput}
                         checked={selectedStatus === opt.id}
                         onChange={() => setSelectedStatus(opt.id)}
@@ -191,7 +243,8 @@ const OrdersPanel = () => {
                   {timeOptions.map((opt) => (
                     <label key={opt.id} className={styles.optionItem}>
                       <input
-                        type='checkbox'
+                        type='radio'
+                        name='timeFilter'
                         className={styles.checkboxInput}
                         checked={selectedTime === opt.id}
                         onChange={() => setSelectedTime(opt.id)}
@@ -218,23 +271,6 @@ const OrdersPanel = () => {
       </div>
     </div>
   );
-
-  /* ── Empty state (no orders at all) ── */
-  if (orders.length === 0) {
-    return (
-      <div className={styles.panel}>
-        <PanelHeader title='Order History' subtitle='View and track your past orders.' />
-
-        <div className={styles.emptyState}>
-          <OrdersBagIcon width={140} height={160} />
-          <p className={styles.emptyText}>You haven't placed any orders yet.</p>
-          <Button variant='light' size='sm' bgColor='#1e1e1e' textColor='#ffffff'>
-            Continue Shopping <ArrowIcon width={30} height={30} />
-          </Button>
-        </div>
-      </div>
-    );
-  }
 
   const isListView = view.type === 'list';
 
@@ -269,7 +305,7 @@ const OrdersPanel = () => {
 
     if (view.type === 'detail') {
       headerTitle = 'Order Details';
-      const order = mockOrders.find((o) => o.id === Number(view.orderId));
+      const order = normalizedOrders.find((o) => String(o.id) === String(view.orderId));
       headerSubtitle = order ? `Order ID # ${order.orderId}` : '';
     } else if (view.type === 'cancel') {
       headerTitle = 'Cancel Item';
@@ -281,6 +317,23 @@ const OrdersPanel = () => {
       headerTitle = 'Size Exchange';
       headerSubtitle = 'Select the replacement size and reason.';
     }
+  }
+
+  /* ── Empty state (no orders at all) ── */
+  if (!ordersLoading && normalizedOrders.length === 0 && isListView) {
+    return (
+      <div className={styles.panel}>
+        <PanelHeader title='Order History' subtitle='View and track your past orders.' />
+
+        <div className={styles.emptyState}>
+          <OrdersBagIcon width={140} height={160} />
+          <p className={styles.emptyText}>You haven't placed any orders yet.</p>
+          <Button variant='light' size='sm' bgColor='#1e1e1e' textColor='#ffffff' onClick={() => navigate('/shop')}>
+            Continue Shopping <ArrowIcon width={30} height={30} />
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -296,12 +349,20 @@ const OrdersPanel = () => {
       <div className={styles.scrollWrapper}>
         {isListView ? (
           <div className={styles.orderList}>
-            {filteredOrders.length > 0 ? (
+            {ordersLoading && normalizedOrders.length === 0 ? (
+              <div style={{ padding: '40px 0', textAlign: 'center' }}>
+                <div className="dots-loading" style={{ margin: '0 auto', color: '#ff5f15' }}>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            ) : filteredOrders.length > 0 ? (
               filteredOrders.map((order) => (
                 <OrderCard key={order.id} order={order} onNavigate={handleNavigate} />
               ))
             ) : (
-              <p className={styles.noResults}>No orders found matching your search.</p>
+              <p className={styles.noResults}>No orders found matching your criteria.</p>
             )}
           </div>
         ) : (

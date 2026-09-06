@@ -34,3 +34,10 @@ export const searchProducts = async (params = {}) => {
   const response = await api.get('/products/search', { params });
   return response.data;
 };
+
+// Fetch best-selling products ranked by units sold
+export const fetchBestSellingProducts = async (params = {}) => {
+  const response = await api.get('/products/best-selling', { params });
+  return response.data;
+};
+

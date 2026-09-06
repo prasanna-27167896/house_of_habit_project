@@ -264,7 +264,22 @@
   padding: max(1.1rem, 1.1dvw);
   width: 100%;
   max-width: 440px;
+  max-height: 85vh;
+  max-height: 85dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
   animation: modalFadeIn 0.2s ease-out;
+}
+
+.refundModalCard::-webkit-scrollbar {
+  width: 6px;
+}
+
+.refundModalCard::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 6px;
 }
 
 @keyframes modalFadeIn {
@@ -366,14 +381,27 @@
 
 /* ── Track Item Modal Popup ── */
 .trackModalCard {
- background: #ffffff;
+  background: #ffffff;
   padding: max(1rem, 1dvw) max(1rem, 1dvw) max(2rem, 2dvw);
   width: 100%;
   max-width: 440px;
+  max-height: 85vh;
+  max-height: 85dvh;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
   border-radius: 16px;
   animation: modalFadeIn 0.2s ease-out;
+}
 
+.trackModalCard::-webkit-scrollbar {
+  width: 6px;
+}
+
+.trackModalCard::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 6px;
 }
 
 .trackModalHeader {

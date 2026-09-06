@@ -1,50 +1,179 @@
 import DummyImage from '../assets/images/dummy-model.png';
 
 export const ORDER_STATUSES = {
+  PENDING: 'PENDING',
+  ORDER_PLACED: 'ORDER_PLACED',
   PLACED: 'placed',
-  CONFIRMED: 'confirmed',
-  SHIPPED: 'shipped',
+  CONFIRMED: 'CONFIRMED',
+  PROCESSING: 'PROCESSING',
+  SHIPPED: 'SHIPPED',
+  IN_TRANSIT: 'IN_TRANSIT',
   OUT_FOR_DELIVERY: 'out-for-delivery',
-  DELIVERED: 'delivered',
-  CANCELLED: 'cancelled',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED',
+  RETURN_REQUESTED: 'RETURN_REQUESTED',
+  RETURNED: 'RETURNED',
+  RETURN_REJECTED: 'RETURN_REJECTED',
   OUT_FOR_PICKUP: 'out-for-pickup',
   REFUND_CREDITED: 'refund-credited',
 };
 
 export const STATUS_CONFIG = {
-  [ORDER_STATUSES.PLACED]: {
-    label: 'Placed',
-    color: '#00a63e',
-  },
-  [ORDER_STATUSES.CONFIRMED]: {
-    label: 'Confirmed',
-    color: '#00a63e',
-  },
-  [ORDER_STATUSES.SHIPPED]: {
-    label: 'Shipped',
-    color: '#00a63e',
-  },
-  [ORDER_STATUSES.OUT_FOR_DELIVERY]: {
-    label: 'On Delivery',
-    color: '#00a63e',
-  },
-  [ORDER_STATUSES.DELIVERED]: {
-    label: 'Delivered',
-    color: '#00a63e',
-  },
-  [ORDER_STATUSES.CANCELLED]: {
-    label: 'Cancelled',
-    color: '#e53935',
-  },
-  [ORDER_STATUSES.OUT_FOR_PICKUP]: {
-    label: 'Out For Pickup',
-    color: '#00a63e',
-  },
-  [ORDER_STATUSES.REFUND_CREDITED]: {
-    label: 'Refund Credited',
-    color: '#00a63e',
-  },
+  // Backend upper-case statuses
+  PENDING: { label: 'Pending', color: '#eab308' },
+  ORDER_PLACED: { label: 'Placed', color: '#00a63e' },
+  CONFIRMED: { label: 'Confirmed', color: '#00a63e' },
+  PROCESSING: { label: 'Processing', color: '#3b82f6' },
+  SHIPPED: { label: 'Shipped', color: '#00a63e' },
+  IN_TRANSIT: { label: 'In Transit', color: '#00a63e' },
+  DELIVERED: { label: 'Delivered', color: '#00a63e' },
+  CANCELLED: { label: 'Cancelled', color: '#e53935' },
+  RETURN_REQUESTED: { label: 'Return Requested', color: '#f59e0b' },
+  RETURNED: { label: 'Returned', color: '#00a63e' },
+  RETURN_REJECTED: { label: 'Return Rejected', color: '#e53935' },
+
+  // Lower-case legacy support
+  placed: { label: 'Placed', color: '#00a63e' },
+  confirmed: { label: 'Confirmed', color: '#00a63e' },
+  shipped: { label: 'Shipped', color: '#00a63e' },
+  'out-for-delivery': { label: 'On Delivery', color: '#00a63e' },
+  delivered: { label: 'Delivered', color: '#00a63e' },
+  cancelled: { label: 'Cancelled', color: '#e53935' },
+  'out-for-pickup': { label: 'Out For Pickup', color: '#00a63e' },
+  'refund-credited': { label: 'Refund Credited', color: '#00a63e' },
 };
+
+export const getStatusConfig = (status) => {
+  if (!status) return { label: 'Processing', color: '#3b82f6' };
+  const upper = String(status).toUpperCase();
+  const lower = String(status).toLowerCase();
+  return STATUS_CONFIG[upper] || STATUS_CONFIG[lower] || STATUS_CONFIG[status] || { label: status, color: '#00a63e' };
+};
+
+export const normalizeOrder = (raw) => {
+  if (!raw) return null;
+  const id = raw.orderId || raw.id;
+  const rawStatus = raw.orderStatus || raw.status || 'CONFIRMED';
+  const status = String(rawStatus).toUpperCase();
+
+  // Format items
+  const items = (raw.orderItems && raw.orderItems.length > 0)
+    ? raw.orderItems
+    : raw.items || [];
+
+  const firstItem = items[0] || {};
+  const product = {
+    orderItemId: firstItem.orderItemId || firstItem.id,
+    variantId: firstItem.variantId,
+    productId: firstItem.variant?.productId || firstItem.productId || raw.product?.productId || firstItem.variantId,
+    name: firstItem.productTitle || firstItem.name || raw.product?.name || 'Solid Muscle Fit Polo shirt',
+    description: firstItem.productTitle || raw.product?.description || 'Geometric textured Knit Slim Fit Polo',
+    size: firstItem.size || raw.product?.size || 'M',
+    qty: firstItem.quantity || raw.product?.qty || 1,
+    price: firstItem.discountedPrice ?? firstItem.price ?? raw.product?.price ?? raw.totalAmount ?? 0,
+    originalPrice: firstItem.price ?? raw.product?.originalPrice ?? raw.totalPrice ?? 0,
+    image: firstItem.imageUrl || raw.product?.image || DummyImage,
+  };
+
+  const otherItems = items.slice(1).map((item) => ({
+    orderItemId: item.orderItemId || item.id,
+    variantId: item.variantId,
+    productId: item.variant?.productId || item.productId || item.variantId,
+    name: item.productTitle || item.name || 'Product',
+    description: item.productTitle || '',
+    size: item.size || 'M',
+    qty: item.quantity || 1,
+    price: item.discountedPrice ?? item.price ?? 0,
+    image: item.imageUrl || DummyImage,
+  }));
+
+  const addr = raw.shippingAddress || raw.deliveryInfo || {};
+  const fullAddress = [addr.addressLine1, addr.addressLine2, addr.city, addr.state, addr.pincode]
+    .filter(Boolean)
+    .join(', ') || addr.address || 'Address not provided';
+
+  const deliveryInfo = {
+    name: addr.fullName || addr.name || raw.user?.fullName || 'Customer',
+    phone: addr.mobile || addr.phone || raw.user?.mobile || '',
+    address: fullAddress,
+  };
+
+  const payment = (raw.payments && raw.payments[0]) || {};
+  const paymentMethod = payment.paymentMethod || 'Online Payment';
+
+  // Format dates
+  const orderedDateObj = raw.createdAt ? new Date(raw.createdAt) : null;
+  const orderedOn = orderedDateObj
+    ? orderedDateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+    : raw.orderedOn || '';
+
+  const deliveredDateObj = raw.deliveredAt ? new Date(raw.deliveredAt) : null;
+  const isDelivered = status === 'DELIVERED';
+  const isCancelled = status === 'CANCELLED';
+  const isReturned = status === 'RETURNED' || status === 'RETURN_REQUESTED';
+
+  let statusDate = '';
+  if (isDelivered) {
+    statusDate = deliveredDateObj
+      ? `On ${deliveredDateObj.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}`
+      : 'Delivered';
+  } else if (isCancelled) {
+    statusDate = raw.updatedAt
+      ? `on ${new Date(raw.updatedAt).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}`
+      : 'Cancelled';
+  } else if (raw.estimatedDelivery) {
+    const est = new Date(raw.estimatedDelivery);
+    statusDate = `Arriving by ${est.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' })}`;
+  } else {
+    statusDate = raw.statusDate || 'Expected soon';
+  }
+
+  // Return window: within 7 days of delivery
+  let returnWindowOpen = false;
+  let returnWindow = null;
+  if (isDelivered && deliveredDateObj) {
+    const now = new Date();
+    const diffDays = (now.getTime() - deliveredDateObj.getTime()) / (1000 * 60 * 60 * 24);
+    if (diffDays <= 7) {
+      returnWindowOpen = true;
+      const expiryDate = new Date(deliveredDateObj.getTime() + 7 * 24 * 60 * 60 * 1000);
+      returnWindow = expiryDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+  }
+
+  return {
+    id,
+    orderId: raw.orderId || raw.id || id,
+    status,
+    rawStatus,
+    statusDate,
+    statusDetail: raw.statusDetail || (isCancelled ? 'As per your request' : ''),
+    orderedOn,
+    product,
+    otherItems,
+    allItems: items,
+    deliveryInfo,
+    totalPrice: raw.totalAmount ?? raw.totalPrice ?? product.price,
+    subtotal: raw.totalPrice ?? product.price,
+    discount: raw.discount ?? 0,
+    shippingCharge: raw.shippingCharge ?? 0,
+    paymentMethod,
+    returnWindow,
+    returnWindowOpen,
+    refundStatus: raw.refundStatus || 'NONE',
+    refundDetails: raw.refundDetails || (
+      (raw.refundStatus === 'REFUND_PENDING' || raw.refundStatus === 'REFUNDED' || isReturned) ? {
+        amount: raw.totalAmount ?? raw.totalPrice ?? product.price ?? 0,
+        method: paymentMethod,
+        creditDate: raw.refundedAt ? new Date(raw.refundedAt).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) : null,
+        note: raw.refundStatus === 'REFUNDED'
+          ? 'Refund has been processed to your original payment source.'
+          : 'Refund will be processed to original payment source.',
+      } : null
+    ),
+  };
+};
+
 
 export const mockOrders = [
   {

@@ -121,45 +121,49 @@ export const sweepExpiredReservations = async (): Promise<{ released: number; or
   let ordersCancelled = 0;
 
   for (const { orderId } of orders) {
-    await prisma.$transaction(async (tx) => {
-      const active = await tx.inventoryReservation.findMany({
-        where: { orderId, status: "ACTIVE", expiresAt: { lt: now } },
-        select: { id: true, variantId: true, quantity: true },
-      });
-
-      for (const r of active) {
-        const cas = await tx.inventoryReservation.updateMany({
-          where: { id: r.id, status: "ACTIVE" },
-          data: { status: "RELEASED" },
+    await prisma.$transaction(
+      async (tx) => {
+        const active = await tx.inventoryReservation.findMany({
+          where: { orderId, status: "ACTIVE", expiresAt: { lt: now } },
+          select: { id: true, variantId: true, quantity: true },
         });
-        if (cas.count > 0) {
-          await restoreStock(tx, r.variantId, r.quantity);
-          released++;
+
+        for (const r of active) {
+          const cas = await tx.inventoryReservation.updateMany({
+            where: { id: r.id, status: "ACTIVE" },
+            data: { status: "RELEASED" },
+          });
+          if (cas.count > 0) {
+            await restoreStock(tx, r.variantId, r.quantity);
+            released++;
+          }
         }
-      }
 
-      // Abandoned checkout → cancel the pending order (never completed).
-      const order = await tx.order.findUnique({
-        where: { orderId },
-        select: { paymentStatus: true, orderStatus: true },
-      });
-      if (order && order.paymentStatus !== "COMPLETED" && order.orderStatus !== "CANCELLED") {
-        // Return the coupon slot for this abandoned order (no-op if none used).
-        await couponRepo.releaseCoupon(tx, orderId);
-        await tx.order.update({
+        // Abandoned checkout → cancel the pending order (never completed).
+        const order = await tx.order.findUnique({
           where: { orderId },
-          data: {
-            orderStatus: "CANCELLED",
-            paymentStatus: "FAILED",
-            // Abandoned checkout reclaimed by the sweep — mark it system-cancelled so it's
-            // distinguishable from a customer/admin cancellation.
-            cancelledBy: "SYSTEM",
-            cancelledAt: new Date(),
-          },
+          select: { paymentStatus: true, orderStatus: true },
         });
-        ordersCancelled++;
-      }
-    });
+        if (order && order.paymentStatus !== "COMPLETED" && order.orderStatus !== "CANCELLED") {
+          // Return the coupon slot for this abandoned order (no-op if none used).
+          await couponRepo.releaseCoupon(tx, orderId);
+          await tx.order.update({
+            where: { orderId },
+            data: {
+              orderStatus: "CANCELLED",
+              paymentStatus: "FAILED",
+              // Abandoned checkout reclaimed by the sweep — mark it system-cancelled so it's
+              // distinguishable from a customer/admin cancellation.
+              cancelledBy: "SYSTEM",
+              cancelledAt: new Date(),
+            },
+          });
+          ordersCancelled++;
+        }
+      },
+      { maxWait: 10000, timeout: 25000 },
+    );
+
   }
 
   return { released, ordersCancelled };

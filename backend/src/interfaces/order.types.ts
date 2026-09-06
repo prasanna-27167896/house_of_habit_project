@@ -8,7 +8,7 @@ export type OrderWithRelations = Prisma.OrderGetPayload<{
     shippingAddress: true;
     orderItems: {
       include: {
-        variant: { select: { sku: true } };
+        variant: { select: { sku: true; productId: true } };
       };
     };
     payments: true;

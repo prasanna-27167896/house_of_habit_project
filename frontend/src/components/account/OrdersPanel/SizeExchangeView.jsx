@@ -1,14 +1,10 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styles from '../../../pages/Account/SizeExchangePage.module.css';
-import { mockOrders } from '../../../data/ordersData';
+import { normalizeOrder } from '../../../data/ordersData';
+import { submitExchange } from '../../../store/slices/orderSlice';
 
 /* ── Inline SVG Icons ── */
-const BackIcon = () => (
-  <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'>
-    <polyline points='15 18 9 12 15 6' />
-  </svg>
-);
-
 const ChevronUpIcon = () => (
   <svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
     <polyline points='18 15 12 9 6 15' />
@@ -48,7 +44,7 @@ const DamagedIllustration = () => (
   </svg>
 );
 
-const SIZES = ['S', 'M', 'L', 'XL'];
+const SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
 
 const EXCHANGE_CATEGORIES = [
   {
@@ -75,11 +71,26 @@ const EXCHANGE_CATEGORIES = [
 ];
 
 const SizeExchangeView = ({ orderId, onBack }) => {
+  const dispatch = useDispatch();
+  const { orders, currentOrder, actionLoading } = useSelector((state) => state.order);
+
   const [selectedSize, setSelectedSize] = useState('');
   const [openCategory, setOpenCategory] = useState('size-fit');
+  const [selectedCategoryTitle, setSelectedCategoryTitle] = useState('Size & Fit Issues');
   const [selectedReason, setSelectedReason] = useState('');
+  const [errorMsg, setErrorMsg] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(null);
 
-  const order = mockOrders.find((o) => o.id === Number(orderId));
+  const rawOrder = useMemo(() => {
+    if (currentOrder && (String(currentOrder.orderId) === String(orderId) || String(currentOrder.id) === String(orderId))) {
+      return currentOrder;
+    }
+    return orders.find((o) => String(o.orderId) === String(orderId) || String(o.id) === String(orderId));
+  }, [currentOrder, orders, orderId]);
+
+  const order = useMemo(() => {
+    return normalizeOrder(rawOrder);
+  }, [rawOrder]);
 
   if (!order) {
     return (
@@ -91,8 +102,37 @@ const SizeExchangeView = ({ orderId, onBack }) => {
 
   const { product } = order;
 
-  const toggleCategory = (id) => {
+  const toggleCategory = (id, title) => {
     setOpenCategory((prev) => (prev === id ? null : id));
+    if (title) setSelectedCategoryTitle(title);
+  };
+
+  const handleExchangeSubmit = async () => {
+    if (!selectedSize || !selectedReason || actionLoading) return;
+    setErrorMsg(null);
+    setSuccessMsg(null);
+
+    const firstItem = (rawOrder?.orderItems && rawOrder.orderItems[0]) || {};
+    const orderItemId = product.orderItemId || firstItem.orderItemId || firstItem.id || order.id;
+
+    try {
+      await dispatch(
+        submitExchange({
+          orderId: order.id,
+          orderItemId,
+          requestedSize: selectedSize,
+          reasonCategory: selectedCategoryTitle,
+          reasonDetail: selectedReason,
+        })
+      ).unwrap();
+
+      setSuccessMsg(`Exchange request for size ${selectedSize} submitted successfully.`);
+      setTimeout(() => {
+        onBack({ type: 'detail', orderId: order.id });
+      }, 1800);
+    } catch (err) {
+      setErrorMsg(typeof err === 'string' ? err : 'Failed to submit size exchange request.');
+    }
   };
 
   return (
@@ -104,8 +144,8 @@ const SizeExchangeView = ({ orderId, onBack }) => {
           <div className={styles.productInfo}>
             <h2 className={styles.productName}>{product.name}</h2>
             <p className={styles.productDesc}>{product.description}</p>
-            <p className={styles.productMeta}>Size: {product.size}</p>
-            <p className={styles.productPrice}>₹ {product.price}</p>
+            <p className={styles.productMeta}>Current Size: {product.size}</p>
+            <p className={styles.productPrice}>₹ {Number(product.price).toFixed(2)}</p>
           </div>
         </div>
       </section>
@@ -120,6 +160,7 @@ const SizeExchangeView = ({ orderId, onBack }) => {
             {SIZES.map((size) => (
               <button
                 key={size}
+                type='button'
                 className={`${styles.sizeBtn} ${selectedSize === size ? styles.sizeActive : ''}`}
                 onClick={() => setSelectedSize(size)}
               >
@@ -127,8 +168,6 @@ const SizeExchangeView = ({ orderId, onBack }) => {
               </button>
             ))}
           </div>
-
-          <p className={styles.deliveryEstimate}>Delivery By on <strong>Mon, 11 May</strong></p>
         </div>
       </section>
 
@@ -143,7 +182,11 @@ const SizeExchangeView = ({ orderId, onBack }) => {
           <div className={styles.categoryList}>
             {EXCHANGE_CATEGORIES.map((cat) => (
               <div key={cat.id} className={styles.categoryCard}>
-                <button className={styles.categoryHeader} onClick={() => toggleCategory(cat.id)}>
+                <button
+                  type='button'
+                  className={styles.categoryHeader}
+                  onClick={() => toggleCategory(cat.id, cat.title)}
+                >
                   <div className={styles.categoryLeft}>
                     {cat.illustration}
                     <div>
@@ -164,7 +207,10 @@ const SizeExchangeView = ({ orderId, onBack }) => {
                           name='exchangeReason'
                           value={reason}
                           checked={selectedReason === reason}
-                          onChange={(e) => setSelectedReason(e.target.value)}
+                          onChange={(e) => {
+                            setSelectedReason(e.target.value);
+                            setSelectedCategoryTitle(cat.title);
+                          }}
                           className={styles.radio}
                         />
                         <span>{reason}</span>
@@ -175,13 +221,30 @@ const SizeExchangeView = ({ orderId, onBack }) => {
               </div>
             ))}
           </div>
+
+          {errorMsg && (
+            <p style={{ color: '#e53935', fontSize: '13px', margin: '10px 0' }}>
+              {errorMsg}
+            </p>
+          )}
+
+          {successMsg && (
+            <p style={{ color: '#16a34a', fontSize: '13px', margin: '10px 0' }}>
+              {successMsg}
+            </p>
+          )}
         </div>
       </section>
 
       {/* ── Continue button ── */}
       <div className={styles.continueRow}>
-        <button className={styles.continueBtn} disabled={!selectedSize || !selectedReason}>
-          Continue
+        <button
+          type='button'
+          className={styles.continueBtn}
+          disabled={!selectedSize || !selectedReason || actionLoading || successMsg}
+          onClick={handleExchangeSubmit}
+        >
+          {actionLoading ? 'Submitting...' : 'Submit Exchange Request'}
         </button>
       </div>
     </div>

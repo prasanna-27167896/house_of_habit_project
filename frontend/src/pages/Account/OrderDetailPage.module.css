@@ -636,9 +636,23 @@
   padding: max(1rem, 1dvw);
   width: 100%;
   max-width: 480px;
+  max-height: 85vh;
+  max-height: 85dvh;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
   border-radius: 16px;
   animation: modalFadeIn 0.2s ease-out;
+}
+
+.feedbackModalCard::-webkit-scrollbar {
+  width: 6px;
+}
+
+.feedbackModalCard::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 6px;
 }
 
 @keyframes modalFadeIn {
@@ -795,8 +809,23 @@
   padding: max(1.5rem, 1.5dvw);
   width: 100%;
   max-width: 440px;
+  max-height: 85vh;
+  max-height: 85dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   animation: modalFadeIn 0.2s ease-out;
+}
+
+.trackModalCard::-webkit-scrollbar {
+  width: 6px;
+}
+
+.trackModalCard::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 6px;
 }
 
 .trackModalHeader {
@@ -883,12 +912,32 @@
 /* ── Rate Our Product Modal ── */
 .reviewModalCard {
   background: #ffffff;
-  padding: max(1rem, 1dvw);
+  padding: max(1.2rem, 1.2dvw);
   width: 100%;
-  max-width: 440px;
+  max-width: 460px;
+  max-height: 95vh;
+  max-height: 95dvh;
   overflow-y: auto;
+  overscroll-behavior: contain;
   border-radius: 16px;
   animation: modalFadeIn 0.2s ease-out;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+  display: flex;
+  flex-direction: column;
+}
+
+.reviewModalCard::-webkit-scrollbar {
+  width: 6px;
+}
+
+.reviewModalCard::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 6px;
+}
+
+.reviewModalCard::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .reviewModalHeader {

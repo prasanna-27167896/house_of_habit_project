@@ -1,14 +1,10 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styles from '../../../pages/Account/ReturnItemPage.module.css';
-import { mockOrders } from '../../../data/ordersData';
+import { normalizeOrder } from '../../../data/ordersData';
+import { submitReturn } from '../../../store/slices/orderSlice';
 
 /* ── Inline SVG Icons ── */
-const BackIcon = () => (
-  <svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'>
-    <polyline points='15 18 9 12 15 6' />
-  </svg>
-);
-
 const ChevronUpIcon = () => (
   <svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
     <polyline points='18 15 12 9 6 15' />
@@ -115,10 +111,26 @@ const RETURN_CATEGORIES = [
 ];
 
 const ReturnItemView = ({ orderId, onBack }) => {
-  const [openCategory, setOpenCategory] = useState('quality');
-  const [selectedReason, setSelectedReason] = useState('');
+  const dispatch = useDispatch();
+  const { orders, currentOrder, actionLoading } = useSelector((state) => state.order);
 
-  const order = mockOrders.find((o) => o.id === Number(orderId));
+  const [openCategory, setOpenCategory] = useState('quality');
+  const [selectedCategoryTitle, setSelectedCategoryTitle] = useState('Quality Issues');
+  const [selectedReason, setSelectedReason] = useState('');
+  const [comment, setComment] = useState('');
+  const [errorMsg, setErrorMsg] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(null);
+
+  const rawOrder = useMemo(() => {
+    if (currentOrder && (String(currentOrder.orderId) === String(orderId) || String(currentOrder.id) === String(orderId))) {
+      return currentOrder;
+    }
+    return orders.find((o) => String(o.orderId) === String(orderId) || String(o.id) === String(orderId));
+  }, [currentOrder, orders, orderId]);
+
+  const order = useMemo(() => {
+    return normalizeOrder(rawOrder);
+  }, [rawOrder]);
 
   if (!order) {
     return (
@@ -130,8 +142,37 @@ const ReturnItemView = ({ orderId, onBack }) => {
 
   const { product } = order;
 
-  const toggleCategory = (id) => {
+  const toggleCategory = (id, title) => {
     setOpenCategory((prev) => (prev === id ? null : id));
+    if (title) setSelectedCategoryTitle(title);
+  };
+
+  const handleReturnSubmit = async () => {
+    if (!selectedReason || actionLoading) return;
+    setErrorMsg(null);
+    setSuccessMsg(null);
+
+    const firstItem = (rawOrder?.orderItems && rawOrder.orderItems[0]) || {};
+    const orderItemId = product.orderItemId || firstItem.orderItemId || firstItem.id || order.id;
+
+    try {
+      await dispatch(
+        submitReturn({
+          orderId: order.id,
+          orderItemId,
+          reasonCategory: selectedCategoryTitle,
+          reasonDetail: selectedReason,
+          comment: comment || undefined,
+        })
+      ).unwrap();
+
+      setSuccessMsg('Return request submitted successfully. Our courier partner will schedule pickup.');
+      setTimeout(() => {
+        onBack({ type: 'detail', orderId: order.id });
+      }, 1800);
+    } catch (err) {
+      setErrorMsg(typeof err === 'string' ? err : 'Failed to submit return request.');
+    }
   };
 
   return (
@@ -144,7 +185,7 @@ const ReturnItemView = ({ orderId, onBack }) => {
             <h2 className={styles.productName}>{product.name}</h2>
             <p className={styles.productDesc}>{product.description}</p>
             <p className={styles.productMeta}>Size: {product.size}</p>
-            <p className={styles.productPrice}>₹ {product.price}</p>
+            <p className={styles.productPrice}>₹ {Number(product.price).toFixed(2)}</p>
           </div>
         </div>
       </section>
@@ -154,7 +195,7 @@ const ReturnItemView = ({ orderId, onBack }) => {
         <div className={styles.returnPrompt}>
           <SadFaceBannerIcon />
           <h3 className={styles.returnTitle}>Want to return?</h3>
-          <p className={styles.returnSub}>Dont worry we are here to help you</p>
+          <p className={styles.returnSub}>Don't worry, we are here to help you</p>
         </div>
       </section>
 
@@ -162,14 +203,18 @@ const ReturnItemView = ({ orderId, onBack }) => {
       <section className={styles.section}>
         <div className={styles.reasonSection}>
           <h3 className={styles.sectionTitle}>Select Return reason</h3>
-          <p className={styles.sectionSub}>Please select correct reason for exchange to improve our service</p>
+          <p className={styles.sectionSub}>Please select correct reason for return to improve our service</p>
 
           <div className={styles.divider} />
 
           <div className={styles.categoryList}>
             {RETURN_CATEGORIES.map((cat) => (
               <div key={cat.id} className={styles.categoryCard}>
-                <button className={styles.categoryHeader} onClick={() => toggleCategory(cat.id)}>
+                <button
+                  type='button'
+                  className={styles.categoryHeader}
+                  onClick={() => toggleCategory(cat.id, cat.title)}
+                >
                   <div className={styles.categoryLeft}>
                     {cat.illustration}
                     <div>
@@ -190,7 +235,10 @@ const ReturnItemView = ({ orderId, onBack }) => {
                           name='returnReason'
                           value={reason}
                           checked={selectedReason === reason}
-                          onChange={(e) => setSelectedReason(e.target.value)}
+                          onChange={(e) => {
+                            setSelectedReason(e.target.value);
+                            setSelectedCategoryTitle(cat.title);
+                          }}
                           className={styles.radio}
                         />
                         <span>{reason}</span>
@@ -201,13 +249,49 @@ const ReturnItemView = ({ orderId, onBack }) => {
               </div>
             ))}
           </div>
+
+          <div style={{ marginTop: '16px' }}>
+            <textarea
+              style={{
+                width: '100%',
+                padding: '12px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px',
+                fontFamily: 'inherit',
+                fontSize: '14px',
+                resize: 'vertical',
+                outline: 'none',
+              }}
+              placeholder='Additional comments (optional)...'
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              rows={3}
+            />
+          </div>
+
+          {errorMsg && (
+            <p style={{ color: '#e53935', fontSize: '13px', margin: '10px 0' }}>
+              {errorMsg}
+            </p>
+          )}
+
+          {successMsg && (
+            <p style={{ color: '#16a34a', fontSize: '13px', margin: '10px 0' }}>
+              {successMsg}
+            </p>
+          )}
         </div>
       </section>
 
       {/* ── Continue button ── */}
       <div className={styles.continueRow}>
-        <button className={styles.continueBtn} disabled={!selectedReason}>
-          Continue
+        <button
+          type='button'
+          className={styles.continueBtn}
+          disabled={!selectedReason || actionLoading || successMsg}
+          onClick={handleReturnSubmit}
+        >
+          {actionLoading ? 'Submitting...' : 'Submit Return Request'}
         </button>
       </div>
     </div>

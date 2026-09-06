@@ -1,7 +1,7 @@
 import { useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { fetchHomeProducts } from "../../../store/slices/productSlice";
+import { fetchBestSelling } from "../../../store/slices/productSlice";
 import styles from "./BestSellers.module.css";
 import Button from "../../common/Button/Button";
 import bestSellerCard1 from "../../../assets/images/best-seller-card1.png";
@@ -23,7 +23,7 @@ const getCategorySlug = (categoryTitle) => {
 const BestSellers = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { homeShuffledProducts, homeLoading } = useSelector((state) => state.product);
+  const { bestSellingProducts, bestSellingLoading, homeShuffledProducts } = useSelector((state) => state.product);
 
   const gridRef = useRef(null);
   const isDown = useRef(false);
@@ -33,10 +33,9 @@ const BestSellers = () => {
   const rafId = useRef(null);
 
   useEffect(() => {
-    if (homeShuffledProducts.length === 0) {
-      dispatch(fetchHomeProducts());
-    }
-  }, [dispatch, homeShuffledProducts.length]);
+    dispatch(fetchBestSelling({ limit: 10 }));
+  }, [dispatch]);
+
 
   const handleMouseDown = (e) => {
     isDown.current = true;
@@ -91,7 +90,11 @@ const BestSellers = () => {
     }
   };
 
-  const displayProducts = homeShuffledProducts.slice(0, 4);
+  const displayProducts = (bestSellingProducts && bestSellingProducts.length > 0)
+    ? bestSellingProducts.slice(0, 8)
+    : homeShuffledProducts.slice(0, 4);
+
+  const isLoading = bestSellingLoading && displayProducts.length === 0;
 
   return (
     <section className={styles.section}>
@@ -110,7 +113,7 @@ const BestSellers = () => {
         onMouseUp={handleMouseUp}
         onMouseMove={handleMouseMove}
       >
-        {homeLoading ? (
+        {isLoading ? (
           Array.from({ length: 4 }).map((_, idx) => (
             <div key={idx} className={styles.skeletonCard}>
               <div className={styles.skeletonTextBlock}>
@@ -122,6 +125,7 @@ const BestSellers = () => {
             </div>
           ))
         ) : (
+
           displayProducts.map((product, idx) => {
             const bgImage = cardBackgrounds[idx % cardBackgrounds.length];
             const priceVal = product.discountedPrice ?? product.price ?? 0;

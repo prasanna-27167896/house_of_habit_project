@@ -1,11 +1,14 @@
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styles from './OrderCard.module.css';
-import { STATUS_CONFIG, ORDER_STATUSES } from '../../../data/ordersData';
+import { getStatusConfig, ORDER_STATUSES } from '../../../data/ordersData';
+import { fetchOrderTracking } from '../../../store/slices/orderSlice';
 
 import CancelledStatusIcon from '../../../assets/icons/cancelled-icon.svg?react';
 import ConfirmedStatusIcon from '../../../assets/icons/confirmed-icon.svg?react';
 import DeliveredStatusIcon from '../../../assets/icons/delivered-icon.svg?react';
 import RefundStatusIcon from '../../../assets/icons/refund-icon.svg?react';
+
 
 /* ── Inline SVG icons ── */
 const ChevronRightIcon = () => (
@@ -88,25 +91,42 @@ const StatusBadgeIcon = ({ status }) => {
 };
 
 const OrderCard = ({ order, onNavigate }) => {
+  const dispatch = useDispatch();
   const [showRefundModal, setShowRefundModal] = useState(false);
   const [showTrackModal, setShowTrackModal] = useState(false);
-  const config = STATUS_CONFIG[order.status];
+  const config = getStatusConfig(order.status);
   const { product } = order;
 
-  const isConfirmed = order.status === ORDER_STATUSES.CONFIRMED || order.status === ORDER_STATUSES.PLACED;
-  const isDelivered = order.status === ORDER_STATUSES.DELIVERED;
+  const status = (order.status || '').toUpperCase();
+  const isConfirmed =
+    status === 'CONFIRMED' ||
+    status === 'ORDER_PLACED' ||
+    status === 'PROCESSING' ||
+    status === 'PENDING' ||
+    order.status === ORDER_STATUSES.CONFIRMED ||
+    order.status === ORDER_STATUSES.PLACED;
+  const isDelivered = status === 'DELIVERED' || order.status === ORDER_STATUSES.DELIVERED;
   const hasReturnWindow = isDelivered && order.returnWindowOpen;
 
   const handleClick = () => {
     onNavigate({ type: 'detail', orderId: order.id });
   };
 
-  const refundInfo = order.refundDetails || {
-    amount: 667,
-    method: 'UPI',
-    creditDate: 'Sat, 9 May',
-    note: 'Have a dispute? Contact your bank with the refund transaction reference number 103269318677',
+  const handleOpenTrack = (e) => {
+    e.stopPropagation();
+    if (order.id) {
+      dispatch(fetchOrderTracking(order.id));
+    }
+    setShowTrackModal(true);
   };
+
+  const refundInfo = order.refundDetails || {
+    amount: order.totalPrice || 667,
+    method: order.paymentMethod || 'UPI',
+    creditDate: 'Sat, 9 May',
+    note: 'Have a dispute? Contact your bank with the refund transaction reference number',
+  };
+
 
   return (
     <div className={styles.card}>
@@ -173,13 +193,11 @@ const OrderCard = ({ order, onNavigate }) => {
           </button>
           <button
             className={styles.actionBtn}
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowTrackModal(true);
-            }}
+            onClick={handleOpenTrack}
           >
             <LocationPinIcon /> Track Item
           </button>
+
           <button className={styles.actionBtn} onClick={handleClick}>
             <HeadsetIcon /> Need Help
           </button>

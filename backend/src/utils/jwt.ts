@@ -3,8 +3,8 @@ import jwt from "jsonwebtoken";
 import type { CookieOptions } from "express";
 import { env } from "@config/env";
 
-export const REFRESH_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
-const ACCESS_EXPIRY_MS = 15 * 60 * 1000; // 15 minutes
+export const REFRESH_EXPIRY_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+export const ACCESS_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export interface JwtPayload {
   userId: string;
@@ -17,12 +17,12 @@ export interface JwtPayload {
 // ─── Refresh-token cookie ─────────────────────────────────────────────────────
 // httpOnly     → never readable by JS, immune to XSS token theft
 // secure       → HTTPS-only in production
-// sameSite     → strict: the browser won't attach it on cross-site requests (CSRF defence)
+// sameSite     → lax in dev / strict in prod
 // path         → scoped to the refresh route only; the browser never sends it elsewhere
 export const baseCookieOptions: CookieOptions = {
   httpOnly: true,
   secure: env.NODE_ENV === "production",
-  sameSite: "strict",
+  sameSite: env.NODE_ENV === "production" ? "strict" : "lax",
   path: "/api/v1/auth/refresh",
 };
 

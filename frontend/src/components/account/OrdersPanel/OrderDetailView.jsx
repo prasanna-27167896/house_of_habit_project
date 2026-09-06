@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styles from '../../../pages/Account/OrderDetailPage.module.css';
-import { mockOrders, STATUS_CONFIG, ORDER_STATUSES } from '../../../data/ordersData';
+import { getStatusConfig, ORDER_STATUSES, normalizeOrder } from '../../../data/ordersData';
+import { fetchOrderById, fetchOrderTracking, submitDeliveryFeedback, downloadInvoice } from '../../../store/slices/orderSlice';
+import { uploadReviewPhoto, createProductReview } from '../../../services/reviewService';
 
 import DeliveredStatusIcon from '../../../assets/icons/delivered-icon.svg?react';
 import CancelledStatusIcon from '../../../assets/icons/cancelled-icon.svg?react';
@@ -97,10 +100,11 @@ const CancelIcon = () => (
 );
 
 const StatusIcon = ({ status }) => {
-  if (status === ORDER_STATUSES.CANCELLED) {
+  const upper = String(status).toUpperCase();
+  if (upper === 'CANCELLED') {
     return <CancelledStatusIcon width={30} height={30} />;
   }
-  if (status === ORDER_STATUSES.DELIVERED) {
+  if (upper === 'DELIVERED') {
     return <DeliveredStatusIcon width={30} height={30} />;
   }
   return <ConfirmedStatusIcon width={30} height={30} />;
@@ -131,24 +135,179 @@ const CloseIcon = () => (
 );
 
 const DELIVERY_RATINGS = [
-  { emoji: '😍', label: 'Great' },
-  { emoji: '🙂', label: 'Good' },
-  { emoji: '😐', label: 'Ok' },
-  { emoji: '🙁', label: 'Bad' },
-  { emoji: '😤', label: 'Terrible' },
+  { emoji: '😍', label: 'Great', score: 5 },
+  { emoji: '🙂', label: 'Good', score: 4 },
+  { emoji: '😐', label: 'Ok', score: 3 },
+  { emoji: '🙁', label: 'Bad', score: 2 },
+  { emoji: '😤', label: 'Terrible', score: 1 },
 ];
 
 const OrderDetailView = ({ orderId, onBack, onNavigate }) => {
+  const dispatch = useDispatch();
+  const { orders, currentOrder, currentOrderLoading, trackingData, trackingLoading } = useSelector((state) => state.order);
+
+  // Modals state
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [showTrackModal, setShowTrackModal] = useState(false);
   const [showWriteReviewModal, setShowWriteReviewModal] = useState(false);
   const [showPriceDetailsModal, setShowPriceDetailsModal] = useState(false);
-  const [selectedRating, setSelectedRating] = useState('Great');
-  const [productRating, setProductRating] = useState(0);
-  const [feedbackText, setFeedbackText] = useState('');
-  const [reviewText, setReviewText] = useState('');
 
-  const order = mockOrders.find((o) => o.id === Number(orderId));
+  // Feedback form state
+  const [selectedRating, setSelectedRating] = useState('Great');
+  const [feedbackText, setFeedbackText] = useState('');
+  const [feedbackSubmitting, setFeedbackSubmitting] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState(null);
+
+  // Review form state
+  const [productRating, setProductRating] = useState(5);
+  const [reviewTitle, setReviewTitle] = useState('');
+  const [reviewText, setReviewText] = useState('');
+  const [reviewFile, setReviewFile] = useState(null);
+  const [reviewFilePreview, setReviewFilePreview] = useState(null);
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewError, setReviewError] = useState(null);
+  const [reviewSuccess, setReviewSuccess] = useState(null);
+
+  // Invoice downloading state
+  const [invoiceLoading, setInvoiceLoading] = useState(false);
+
+  // Fetch full details if needed
+  useEffect(() => {
+    if (orderId) {
+      dispatch(fetchOrderById(orderId));
+    }
+  }, [dispatch, orderId]);
+
+  // Find order in memory or use currentOrder
+  const rawOrder = useMemo(() => {
+    if (currentOrder && (String(currentOrder.orderId) === String(orderId) || String(currentOrder.id) === String(orderId))) {
+      return currentOrder;
+    }
+    return orders.find((o) => String(o.orderId) === String(orderId) || String(o.id) === String(orderId));
+  }, [currentOrder, orders, orderId]);
+
+  const order = useMemo(() => {
+    return normalizeOrder(rawOrder);
+  }, [rawOrder]);
+
+  const handleOpenTrack = () => {
+    if (orderId) {
+      dispatch(fetchOrderTracking(orderId));
+    }
+    setShowTrackModal(true);
+  };
+
+  const handleDownloadInvoice = async () => {
+    if (!orderId || invoiceLoading) return;
+    setInvoiceLoading(true);
+    try {
+      await dispatch(downloadInvoice(orderId)).unwrap();
+    } catch (err) {
+      alert(err || 'Failed to download invoice.');
+    } finally {
+      setInvoiceLoading(false);
+    }
+  };
+
+  const handleFeedbackSubmit = async () => {
+    if (!orderId || feedbackSubmitting) return;
+    const ratingObj = DELIVERY_RATINGS.find((r) => r.label === selectedRating) || DELIVERY_RATINGS[0];
+    setFeedbackSubmitting(true);
+    setFeedbackMessage(null);
+    try {
+      await dispatch(
+        submitDeliveryFeedback({
+          orderId,
+          rating: ratingObj.score,
+          comment: feedbackText,
+        })
+      ).unwrap();
+      setFeedbackMessage('Thank you for rating your delivery experience!');
+      setTimeout(() => {
+        setShowFeedbackModal(false);
+        setFeedbackMessage(null);
+      }, 1500);
+    } catch (err) {
+      setFeedbackMessage(typeof err === 'string' ? err : 'Feedback submission failed or already submitted.');
+    } finally {
+      setFeedbackSubmitting(false);
+    }
+  };
+
+  const handlePhotoSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        setReviewError('Photo must be less than 5MB.');
+        return;
+      }
+      setReviewFile(file);
+      setReviewFilePreview(URL.createObjectURL(file));
+      setReviewError(null);
+    }
+  };
+
+  const handleReviewSubmit = async () => {
+    if (!productRating || reviewSubmitting) return;
+
+    // We need productId of the item
+    const firstItem = (rawOrder?.orderItems && rawOrder.orderItems[0]) || {};
+    const pId = order?.product?.productId || firstItem.variant?.productId || firstItem.productId;
+
+    if (!pId && !firstItem.orderItemId) {
+      setReviewError('Could not identify product to review.');
+      return;
+    }
+
+    setReviewSubmitting(true);
+    setReviewError(null);
+    setReviewSuccess(null);
+
+    try {
+      let imageData = null;
+      if (reviewFile) {
+        // Step 1 & 2: Presign & direct Cloudflare PUT
+        imageData = await uploadReviewPhoto(reviewFile);
+      }
+
+      // Step 3: Submit review to backend
+      const targetProductId = pId || firstItem.orderItemId;
+      await createProductReview(targetProductId, {
+        rating: productRating,
+        title: reviewTitle || undefined,
+        body: reviewText || undefined,
+        imageUrl: imageData?.imageUrl,
+        imageKey: imageData?.imageKey,
+      });
+
+      setReviewSuccess('Review submitted successfully! Thank you.');
+      setTimeout(() => {
+        setShowWriteReviewModal(false);
+        setReviewSuccess(null);
+        setReviewFile(null);
+        setReviewFilePreview(null);
+        setReviewText('');
+        setReviewTitle('');
+      }, 1800);
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || 'Failed to submit review.';
+      setReviewError(msg);
+    } finally {
+      setReviewSubmitting(false);
+    }
+  };
+
+  if (currentOrderLoading && !order) {
+    return (
+      <div className={styles.wrapper} style={{ textAlign: 'center', padding: '60px 0' }}>
+        <div className="dots-loading" style={{ margin: '0 auto', color: '#ff5f15' }}>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    );
+  }
 
   if (!order) {
     return (
@@ -158,12 +317,17 @@ const OrderDetailView = ({ orderId, onBack, onNavigate }) => {
     );
   }
 
-  const config = STATUS_CONFIG[order.status];
+  const config = getStatusConfig(order.status);
   const { product } = order;
-  const isCancelled = order.status === ORDER_STATUSES.CANCELLED;
-  const isConfirmed = order.status === ORDER_STATUSES.CONFIRMED || order.status === ORDER_STATUSES.PLACED;
-  const isDelivered = order.status === ORDER_STATUSES.DELIVERED;
-  const isPickup = order.status === ORDER_STATUSES.OUT_FOR_PICKUP;
+  const status = (order.status || '').toUpperCase();
+  const isCancelled = status === 'CANCELLED';
+  const isConfirmed =
+    status === 'CONFIRMED' ||
+    status === 'ORDER_PLACED' ||
+    status === 'PROCESSING' ||
+    status === 'PENDING';
+  const isDelivered = status === 'DELIVERED';
+  const isPickup = status === 'RETURN_REQUESTED' || status === 'OUT_FOR_PICKUP';
   const hasReturnWindow = isDelivered && order.returnWindowOpen;
 
   return (
@@ -180,7 +344,7 @@ const OrderDetailView = ({ orderId, onBack, onNavigate }) => {
             <p className={styles.productMeta}>Order ID: # {order.orderId}</p>
             {order.orderedOn && <p className={styles.productMeta}>Ordered On: {order.orderedOn}</p>}
           </div>
-          <button className={styles.helpBtn}>
+          <button className={styles.helpBtn} onClick={() => alert('Support team will contact you shortly.')}>
             <HeadsetIcon /> Help
           </button>
         </div>
@@ -188,13 +352,22 @@ const OrderDetailView = ({ orderId, onBack, onNavigate }) => {
         {/* Action buttons (Style Exchange, Size Exchange, Return Item) for delivered items */}
         {hasReturnWindow && (
           <div className={styles.exchangeActionsRow}>
-            <button className={styles.exchangeActionBtn}>
+            <button
+              className={styles.exchangeActionBtn}
+              onClick={() => onNavigate({ type: 'size-exchange', orderId: order.id })}
+            >
               <StyleExchangeIcon /> Style Exchange
             </button>
-            <button className={styles.exchangeActionBtn} onClick={() => onNavigate({ type: 'size-exchange', orderId: order.id })}>
+            <button
+              className={styles.exchangeActionBtn}
+              onClick={() => onNavigate({ type: 'size-exchange', orderId: order.id })}
+            >
               <SizeExchangeIcon /> Size Exchange
             </button>
-            <button className={styles.exchangeActionBtn} onClick={() => onNavigate({ type: 'return', orderId: order.id })}>
+            <button
+              className={styles.exchangeActionBtn}
+              onClick={() => onNavigate({ type: 'return', orderId: order.id })}
+            >
               <ReturnItemIcon /> Return Item
             </button>
           </div>
@@ -229,11 +402,11 @@ const OrderDetailView = ({ orderId, onBack, onNavigate }) => {
                 <StatusIcon status={order.status} />
               </div>
               <div className={styles.statusBannerInner}>
-                <p className={styles.statusLabel}>{config.label}</p>
-                <p className={styles.statusDate}>
+                <p className={styles.statusLabel} style={{ color: '#ffffff' }}>{config.label}</p>
+                <p className={styles.statusDate} style={{ color: '#ffffff' }}>
                   {isConfirmed
-                    ? `Order placed ${order.trackingSteps?.[0]?.date || 'on 01 May'}`
-                    : order.pickupDate || order.statusDate}
+                    ? `Order Placed ${order.orderedOn || ''}`
+                    : order.statusDate}
                 </p>
               </div>
             </div>
@@ -252,7 +425,7 @@ const OrderDetailView = ({ orderId, onBack, onNavigate }) => {
                     </svg>
                   </div>
                   <p className={styles.timelineText}>
-                    <span>Order placed</span> <span className={styles.timelineDate}>{order.trackingSteps?.[0]?.date || 'on 01 May'}</span>
+                    <span>Order placed</span> <span className={styles.timelineDate}>{order.orderedOn ? `on ${order.orderedOn}` : ''}</span>
                   </p>
                 </div>
               </div>
@@ -261,10 +434,13 @@ const OrderDetailView = ({ orderId, onBack, onNavigate }) => {
             {/* Action buttons (Cancel Item & Track Item) */}
             {isConfirmed && (
               <div className={styles.activeOrderActions}>
-                <button className={styles.cancelOutlineBtn} onClick={() => onNavigate({ type: 'cancel', orderId: order.id })}>
+                <button
+                  className={styles.cancelOutlineBtn}
+                  onClick={() => onNavigate({ type: 'cancel', orderId: order.id })}
+                >
                   <CancelIcon /> Cancel Item
                 </button>
-                <button className={styles.trackPrimaryBtn} onClick={() => setShowTrackModal(true)}>
+                <button className={styles.trackPrimaryBtn} onClick={handleOpenTrack}>
                   <LocationPinIcon /> Track Item
                 </button>
               </div>
@@ -294,18 +470,18 @@ const OrderDetailView = ({ orderId, onBack, onNavigate }) => {
             <h3 className={styles.sectionTitle}>Refund Details</h3>
             <div className={styles.refundTotalRow}>
               <span className={styles.refundTotalLabel}>Total Refund Amount</span>
-              <span className={styles.refundTotalValue}>₹{order.refundDetails.amount.toFixed(2)}</span>
+              <span className={styles.refundTotalValue}>₹{Number(order.refundDetails.amount).toFixed(2)}</span>
             </div>
             <div className={styles.refundMethodBox}>
               <div>
-                <span className={styles.refundMethodAmount}>₹{order.refundDetails.amount.toFixed(2)}</span>
+                <span className={styles.refundMethodAmount}>₹{Number(order.refundDetails.amount).toFixed(2)}</span>
                 {order.refundDetails.creditDate && (
                   <p className={styles.refundCreditSub}>
                     Added to {order.refundDetails.method} Credit by {order.refundDetails.creditDate}
                   </p>
                 )}
               </div>
-              <span className={styles.refundBadge}>{order.refundDetails.method}</span>
+              <span className={styles.refundBadge}>{order.refundDetails.method || 'UPI'}</span>
             </div>
             <div className={styles.refundNoteRow}>
               <InfoIcon />
@@ -418,12 +594,12 @@ const OrderDetailView = ({ orderId, onBack, onNavigate }) => {
           <div className={styles.priceRow} onClick={() => setShowPriceDetailsModal(true)}>
             <h3 className={styles.sectionTitle}>Total Order Price</h3>
             <div className={styles.priceValue}>
-              <span>₹ {order.totalPrice.toFixed(2)}</span>
+              <span>₹ {Number(order.totalPrice).toFixed(2)}</span>
               <ChevronDownIcon />
             </div>
           </div>
-          <button className={styles.invoiceBtn} onClick={() => setShowPriceDetailsModal(true)}>
-            Get Invoice
+          <button className={styles.invoiceBtn} onClick={handleDownloadInvoice} disabled={invoiceLoading}>
+            {invoiceLoading ? 'Downloading...' : 'Get Invoice'}
           </button>
         </div>
       </section>
@@ -435,7 +611,7 @@ const OrderDetailView = ({ orderId, onBack, onNavigate }) => {
             <BellIcon />
             <h3 className={styles.sectionTitle}>Updates sent to</h3>
           </div>
-          <h4 className={styles.deliveryLabel}>Call</h4>
+          <h4 className={styles.deliveryLabel}>Call / WhatsApp</h4>
           <p className={styles.deliveryValue}>{order.deliveryInfo.phone}</p>
         </div>
       </section>
@@ -474,18 +650,28 @@ const OrderDetailView = ({ orderId, onBack, onNavigate }) => {
               <h4 className={styles.feedbackSectionLabel}>Feedback</h4>
               <textarea
                 className={styles.feedbackTextarea}
-                placeholder='Write something here...'
+                placeholder='Write something about the delivery experience...'
                 value={feedbackText}
                 onChange={(e) => setFeedbackText(e.target.value)}
                 rows={4}
               />
 
+              {feedbackMessage && (
+                <p style={{ margin: '8px 0', fontSize: '13px', color: feedbackMessage.includes('Thank') ? '#16a34a' : '#e53935' }}>
+                  {feedbackMessage}
+                </p>
+              )}
+
               <p className={styles.termsText}>
-                By submitting a review, you agree to our <a href='#' className={styles.termsLink}>Terms</a> & <a href='#' className={styles.termsLink}>Privacy Policy.</a>
+                By submitting feedback, you agree to our <a href='#' className={styles.termsLink}>Terms</a> & <a href='#' className={styles.termsLink}>Privacy Policy.</a>
               </p>
 
-              <button className={styles.submitFeedbackBtn} onClick={() => setShowFeedbackModal(false)}>
-                Submit
+              <button
+                className={styles.submitFeedbackBtn}
+                onClick={handleFeedbackSubmit}
+                disabled={feedbackSubmitting}
+              >
+                {feedbackSubmitting ? 'Submitting...' : 'Submit Feedback'}
               </button>
             </div>
           </div>
@@ -499,7 +685,7 @@ const OrderDetailView = ({ orderId, onBack, onNavigate }) => {
             <div className={styles.trackModalHeader}>
               <div>
                 <h3 className={styles.trackModalTitle}>Track Item</h3>
-                <p className={styles.trackModalSubtitle}>Get live updates on your item</p>
+                <p className={styles.trackModalSubtitle}>Get live updates on your order</p>
               </div>
               <button className={styles.closeModalBtn} onClick={() => setShowTrackModal(false)} aria-label='Close modal'>
                 <CloseIcon />
@@ -509,43 +695,67 @@ const OrderDetailView = ({ orderId, onBack, onNavigate }) => {
             <div className={styles.trackModalDivider} />
 
             <div className={styles.trackTimelineList}>
-              <div className={styles.trackTimelineStep}>
-                <div className={styles.trackStepIconPending}>
-                  <svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='#9ca3af' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
-                    <circle cx='12' cy='12' r='10' />
-                    <path d='M9 12l2 2 4-4' />
-                  </svg>
+              {trackingLoading ? (
+                <div style={{ textAlign: 'center', padding: '30px 0' }}>
+                  <div className="dots-loading" style={{ margin: '0 auto', color: '#ff5f15' }}>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
                 </div>
-                <p className={styles.trackStepText}>
-                  <strong>Arriving</strong> <span className={styles.trackStepDate}>by Wed, 6 May</span>
-                </p>
-              </div>
-              <div className={styles.trackLineDashed} />
-
-              <div className={styles.trackTimelineStep}>
-                <div className={styles.trackStepIconPending}>
-                  <svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='#9ca3af' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round'>
-                    <circle cx='12' cy='12' r='10' />
-                    <path d='M9 12l2 2 4-4' />
-                  </svg>
-                </div>
-                <p className={styles.trackStepText}>
-                  <strong>Shipped</strong> <span className={styles.trackStepDate}>by Mon, 4 May</span>
-                </p>
-              </div>
-              <div className={styles.trackLineGreen} />
-
-              <div className={styles.trackTimelineStep}>
-                <div className={styles.trackStepIconActive}>
-                  <svg width='18' height='18' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                    <circle cx='12' cy='12' r='10' fill='#16a34a' />
-                    <path d='M8.5 12L10.5 14L15.5 9' stroke='#FFFFFF' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
-                  </svg>
-                </div>
-                <p className={styles.trackStepTextGreen}>
-                  <strong>Oder Placed</strong> <span className={styles.trackStepDate}>on Fri, 1 May, 9:13PM</span>
-                </p>
-              </div>
+              ) : trackingData?.timeline && trackingData.timeline.length > 0 ? (
+                trackingData.timeline.map((item, idx) => (
+                  <div key={idx}>
+                    <div className={styles.trackTimelineStep}>
+                      <div className={styles.trackStepIconActive}>
+                        <svg width='18' height='18' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                          <circle cx='12' cy='12' r='10' fill='#16a34a' />
+                          <path d='M8.5 12L10.5 14L15.5 9' stroke='#FFFFFF' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+                        </svg>
+                      </div>
+                      <p className={styles.trackStepTextGreen}>
+                        <strong>{item.status || 'Status Update'}</strong>{' '}
+                        <span className={styles.trackStepDate}>
+                          {item.createdAt ? new Date(item.createdAt).toLocaleString('en-GB') : ''}
+                        </span>
+                      </p>
+                    </div>
+                    {item.description && (
+                      <p style={{ margin: '4px 0 12px 34px', fontSize: '13px', color: '#666' }}>
+                        {item.description}
+                      </p>
+                    )}
+                    {idx < trackingData.timeline.length - 1 && <div className={styles.trackLineGreen} />}
+                  </div>
+                ))
+              ) : (
+                <>
+                  <div className={styles.trackTimelineStep}>
+                    <div className={styles.trackStepIconActive}>
+                      <svg width='18' height='18' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                        <circle cx='12' cy='12' r='10' fill='#16a34a' />
+                        <path d='M8.5 12L10.5 14L15.5 9' stroke='#FFFFFF' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+                      </svg>
+                    </div>
+                    <p className={styles.trackStepTextGreen}>
+                      <strong>Status: {config.label}</strong>{' '}
+                      <span className={styles.trackStepDate}>{order.statusDate}</span>
+                    </p>
+                  </div>
+                  <div className={styles.trackLineGreen} />
+                  <div className={styles.trackTimelineStep}>
+                    <div className={styles.trackStepIconActive}>
+                      <svg width='18' height='18' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                        <circle cx='12' cy='12' r='10' fill='#16a34a' />
+                        <path d='M8.5 12L10.5 14L15.5 9' stroke='#FFFFFF' strokeWidth='2' strokeLinecap='round' strokeLinejoin='round' />
+                      </svg>
+                    </div>
+                    <p className={styles.trackStepTextGreen}>
+                      <strong>Order Placed</strong> <span className={styles.trackStepDate}>{order.orderedOn ? `on ${order.orderedOn}` : ''}</span>
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -558,7 +768,7 @@ const OrderDetailView = ({ orderId, onBack, onNavigate }) => {
             <div className={styles.reviewModalHeader}>
               <div>
                 <h3 className={styles.reviewModalTitle}>Rate Our Product</h3>
-                <p className={styles.reviewModalSubtitle}>Provide us with feedback for the product.</p>
+                <p className={styles.reviewModalSubtitle}>Share your feedback with future buyers.</p>
               </div>
               <button className={styles.closeModalBtn} onClick={() => setShowWriteReviewModal(false)} aria-label='Close modal'>
                 <CloseIcon />
@@ -573,6 +783,7 @@ const OrderDetailView = ({ orderId, onBack, onNavigate }) => {
                 {[1, 2, 3, 4, 5].map((n) => (
                   <button
                     key={n}
+                    type='button'
                     className={`${styles.modalStarBox} ${n <= productRating ? styles.modalStarBoxSelected : ''}`}
                     onClick={() => setProductRating(n)}
                   >
@@ -581,28 +792,81 @@ const OrderDetailView = ({ orderId, onBack, onNavigate }) => {
                 ))}
               </div>
 
+              <h4 className={styles.reviewSectionLabel}>Review Title</h4>
+              <input
+                type='text'
+                className={styles.feedbackTextarea}
+                style={{ height: '42px', minHeight: '42px', marginBottom: '12px' }}
+                placeholder='e.g. Great fit and fabric quality'
+                value={reviewTitle}
+                onChange={(e) => setReviewTitle(e.target.value)}
+              />
+
               <h4 className={styles.reviewSectionLabel}>Product Review</h4>
               <textarea
                 className={styles.reviewTextarea}
-                placeholder='Provide a detailed review...'
+                placeholder='Provide a detailed review about size, fabric, and fit...'
                 value={reviewText}
                 onChange={(e) => setReviewText(e.target.value)}
                 rows={4}
               />
 
-              <h4 className={styles.reviewSectionLabel}>Add Photo</h4>
-              <label className={styles.addPhotoBox}>
-                <input type='file' accept='image/*' className={styles.fileInputHidden} />
+              <h4 className={styles.reviewSectionLabel}>Add Photo (Direct Upload)</h4>
+              <label className={styles.addPhotoBox} style={{ cursor: 'pointer' }}>
+                <input
+                  type='file'
+                  accept='image/jpeg,image/png,image/webp'
+                  className={styles.fileInputHidden}
+                  onChange={handlePhotoSelect}
+                />
                 <AddPhotoIcon />
-                <span className={styles.addPhotoLabel}>Add Photo</span>
+                <span className={styles.addPhotoLabel}>
+                  {reviewFile ? reviewFile.name : 'Add Photo (JPEG, PNG, WebP up to 5MB)'}
+                </span>
               </label>
+
+              {reviewFilePreview && (
+                <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <img
+                    src={reviewFilePreview}
+                    alt='Preview'
+                    style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '6px' }}
+                  />
+                  <button
+                    type='button'
+                    onClick={() => {
+                      setReviewFile(null);
+                      setReviewFilePreview(null);
+                    }}
+                    style={{ fontSize: '12px', color: '#e53935', background: 'none', border: 'none', cursor: 'pointer' }}
+                  >
+                    Remove Photo
+                  </button>
+                </div>
+              )}
+
+              {reviewError && (
+                <p style={{ margin: '10px 0', fontSize: '13px', color: '#e53935' }}>
+                  {reviewError}
+                </p>
+              )}
+
+              {reviewSuccess && (
+                <p style={{ margin: '10px 0', fontSize: '13px', color: '#16a34a' }}>
+                  {reviewSuccess}
+                </p>
+              )}
 
               <p className={styles.termsText}>
                 By submitting a review, you agree to our <a href='#' className={styles.termsLink}>Terms</a> & <a href='#' className={styles.termsLink}>Privacy Policy.</a>
               </p>
 
-              <button className={styles.submitReviewBtn} onClick={() => setShowWriteReviewModal(false)}>
-                Submit
+              <button
+                className={styles.submitReviewBtn}
+                onClick={handleReviewSubmit}
+                disabled={reviewSubmitting}
+              >
+                {reviewSubmitting ? 'Uploading & Submitting...' : 'Submit Review'}
               </button>
             </div>
           </div>
@@ -616,7 +880,7 @@ const OrderDetailView = ({ orderId, onBack, onNavigate }) => {
             <div className={styles.priceModalHeader}>
               <div>
                 <h3 className={styles.priceModalTitle}>Price Details</h3>
-                <p className={styles.priceModalSubtitle}>Provide us with feedback for the product.</p>
+                <p className={styles.priceModalSubtitle}>Order ID # {order.orderId}</p>
               </div>
               <button className={styles.closeModalBtn} onClick={() => setShowPriceDetailsModal(false)} aria-label='Close modal'>
                 <CloseIcon />
@@ -628,39 +892,51 @@ const OrderDetailView = ({ orderId, onBack, onNavigate }) => {
             <div className={styles.priceModalContent}>
               <div className={styles.priceBreakdownBox}>
                 <div className={styles.priceBreakdownRow}>
-                  <span>1 x {product.name}</span>
-                  <span>₹2,499.00</span>
+                  <span>Item Subtotal ({order.allItems?.length || 1} item{order.allItems?.length > 1 ? 's' : ''})</span>
+                  <span>₹{Number(order.subtotal).toFixed(2)}</span>
                 </div>
-                <div className={styles.priceBreakdownRow}>
-                  <span>Discount</span>
-                  <span>-₹1,000.00</span>
-                </div>
+
+                {order.discount > 0 && (
+                  <div className={styles.priceBreakdownRow}>
+                    <span>Discount</span>
+                    <span style={{ color: '#16a34a' }}>-₹{Number(order.discount).toFixed(2)}</span>
+                  </div>
+                )}
+
                 <div className={styles.priceDottedLine} />
-                <div className={styles.priceBreakdownRow}>
-                  <span>Discounted Price</span>
-                  <span className={styles.boldPrice}>₹1,499.00</span>
-                </div>
+
+                {order.shippingCharge > 0 ? (
+                  <div className={styles.priceBreakdownRow}>
+                    <span>Shipping / Delivery Fee</span>
+                    <span>₹{Number(order.shippingCharge).toFixed(2)}</span>
+                  </div>
+                ) : (
+                  <div className={styles.priceBreakdownRow}>
+                    <span>Shipping</span>
+                    <span style={{ color: '#16a34a' }}>FREE</span>
+                  </div>
+                )}
+
                 <div className={styles.priceDottedLine} />
-                <div className={styles.priceBreakdownRow}>
-                  <span>Cash/Pay On Delivery</span>
-                  <span>₹90.00</span>
-                </div>
-                <div className={styles.priceDottedLine} />
+
                 <div className={styles.priceBreakdownRowBold}>
-                  <span>Total Paid</span>
-                  <span>₹1,589.00</span>
+                  <span>Total Amount</span>
+                  <span>₹{Number(order.totalPrice).toFixed(2)}</span>
                 </div>
 
                 <div className={styles.paidByBox}>
-                  <span>Paid By</span>
-                  <span className={styles.paidByMethod}>UPI Payment</span>
+                  <span>Payment Method</span>
+                  <span className={styles.paidByMethod}>{order.paymentMethod || 'Online'}</span>
                 </div>
-                <button className={styles.downloadInvoiceBtn} onClick={() => setShowPriceDetailsModal(false)}>
-                <DownloadIcon /> Download Invoice
-              </button>
-              </div>
 
-              
+                <button
+                  className={styles.downloadInvoiceBtn}
+                  onClick={handleDownloadInvoice}
+                  disabled={invoiceLoading}
+                >
+                  <DownloadIcon /> {invoiceLoading ? 'Downloading PDF...' : 'Download Invoice'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styles from '../../../pages/Account/CancelOrderPage.module.css';
-import { mockOrders } from '../../../data/ordersData';
+import { normalizeOrder } from '../../../data/ordersData';
+import { cancelUserOrder } from '../../../store/slices/orderSlice';
 
 /* ── Inline SVG Icons ── */
 const EligibleIcon = () => (
@@ -20,10 +22,24 @@ const CANCELLATION_REASONS = [
 ];
 
 const CancelOrderView = ({ orderId, onBack }) => {
+  const dispatch = useDispatch();
+  const { orders, currentOrder, actionLoading } = useSelector((state) => state.order);
+
   const [selectedReason, setSelectedReason] = useState('');
   const [comment, setComment] = useState('');
+  const [errorMsg, setErrorMsg] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(null);
 
-  const order = mockOrders.find((o) => o.id === Number(orderId));
+  const rawOrder = useMemo(() => {
+    if (currentOrder && (String(currentOrder.orderId) === String(orderId) || String(currentOrder.id) === String(orderId))) {
+      return currentOrder;
+    }
+    return orders.find((o) => String(o.orderId) === String(orderId) || String(o.id) === String(orderId));
+  }, [currentOrder, orders, orderId]);
+
+  const order = useMemo(() => {
+    return normalizeOrder(rawOrder);
+  }, [rawOrder]);
 
   if (!order) {
     return (
@@ -34,6 +50,29 @@ const CancelOrderView = ({ orderId, onBack }) => {
   }
 
   const { product } = order;
+
+  const handleCancelSubmit = async () => {
+    if (!selectedReason || actionLoading) return;
+    setErrorMsg(null);
+    setSuccessMsg(null);
+
+    try {
+      await dispatch(
+        cancelUserOrder({
+          orderId: order.id,
+          reason: selectedReason,
+          comment: comment || undefined,
+        })
+      ).unwrap();
+
+      setSuccessMsg('Your order has been successfully cancelled.');
+      setTimeout(() => {
+        onBack({ type: 'detail', orderId: order.id });
+      }, 1500);
+    } catch (err) {
+      setErrorMsg(typeof err === 'string' ? err : 'Unable to cancel this order. It may have already been shipped.');
+    }
+  };
 
   return (
     <div className={styles.wrapper}>
@@ -57,7 +96,9 @@ const CancelOrderView = ({ orderId, onBack }) => {
             <EligibleIcon />
             <span className={styles.eligibleText}>Eligible for cancellation</span>
           </div>
-          <button className={styles.viewPolicyBtn}>View Policy</button>
+          <button className={styles.viewPolicyBtn} onClick={() => alert('Orders can be cancelled before dispatch without any cancellation fee.')}>
+            View Policy
+          </button>
         </div>
       </section>
 
@@ -89,14 +130,26 @@ const CancelOrderView = ({ orderId, onBack }) => {
 
           <textarea
             className={styles.commentBox}
-            placeholder='Additional Comment'
+            placeholder='Additional Comment (optional)'
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             rows={3}
           />
 
+          {errorMsg && (
+            <p style={{ color: '#e53935', fontSize: '13px', margin: '8px 0' }}>
+              {errorMsg}
+            </p>
+          )}
+
+          {successMsg && (
+            <p style={{ color: '#16a34a', fontSize: '13px', margin: '8px 0' }}>
+              {successMsg}
+            </p>
+          )}
+
           <p className={styles.cancelNote}>
-            We will try to cancel this order. It may take upto 20 mins to confirm since it has shipped.
+            Once requested, the order will be cancelled and any prepaid amount will be refunded.
           </p>
         </div>
       </section>
@@ -106,10 +159,14 @@ const CancelOrderView = ({ orderId, onBack }) => {
         <div className={styles.refundFooter}>
           <div>
             <h3 className={styles.sectionTitle}>Refund Details</h3>
-            <p className={styles.refundPrice}>₹ {order.totalPrice.toFixed(2)}</p>
+            <p className={styles.refundPrice}>₹ {Number(order.totalPrice).toFixed(2)}</p>
           </div>
-          <button className={styles.cancelBtn} disabled={!selectedReason}>
-            Request Cancellation
+          <button
+            className={styles.cancelBtn}
+            disabled={!selectedReason || actionLoading || successMsg}
+            onClick={handleCancelSubmit}
+          >
+            {actionLoading ? 'Cancelling...' : 'Request Cancellation'}
           </button>
         </div>
       </section>
