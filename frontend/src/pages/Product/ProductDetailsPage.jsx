@@ -7,6 +7,7 @@ import Breadcrumb from '../../components/product/Breadcrumb/Breadcrumb';
 import ImageGallery from '../../components/product/ImageGallery/ImageGallery';
 import ColorSelector from '../../components/product/ColorSelector/ColorSelector';
 import SizeSelector from '../../components/product/SizeSelector/SizeSelector';
+import SizeGuideModal from '../../components/product/SizeGuideModal/SizeGuideModal';
 import DeliveryCheck from '../../components/product/DeliveryCheck/DeliveryCheck';
 import Accordion from '../../components/product/Accordion/Accordion';
 import ProductCard from '../../components/common/ProductCard/ProductCard';
@@ -41,6 +42,7 @@ const ProductDetailsPage = () => {
   const [quantity, setQuantity] = useState(1);
   const [isBuying, setIsBuying] = useState(false);
   const [localIsAdding, setLocalIsAdding] = useState(false);
+  const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
 
   const matchedVariant =
     productDetail?.variants?.find(
@@ -211,7 +213,12 @@ const ProductDetailsPage = () => {
             <p className={styles.taxNote}>inclusive of all taxes</p>
 
             {/* <ColorSelector colors={availableColors} activeColor={selectedColor} onSelect={setSelectedColor} /> */}
-            <SizeSelector sizes={availableSizes} activeSize={selectedSize} onSelect={setSelectedSize} />
+            <SizeSelector
+              sizes={availableSizes}
+              activeSize={selectedSize}
+              onSelect={setSelectedSize}
+              onOpenGuide={() => setIsSizeGuideOpen(true)}
+            />
 
             <div className={styles.actionsContainer}>
               <div className={styles.rowOne}>
@@ -310,6 +317,12 @@ const ProductDetailsPage = () => {
             </div>
           </section>
         )}
+
+        <SizeGuideModal
+          isOpen={isSizeGuideOpen}
+          onClose={() => setIsSizeGuideOpen(false)}
+          productName="Hoodie"
+        />
       </div>
     </main>
   );

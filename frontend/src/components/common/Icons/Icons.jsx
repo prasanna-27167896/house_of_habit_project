@@ -89,3 +89,9 @@ export const InstagramIcon = ({ size = 18 }) => (
   </svg>
 );
 
+export const CloseIcon = ({ size = 20, color = 'currentColor', strokeWidth = 2 }) => (
+  <svg width={size} height={size} fill="none" stroke={color} strokeWidth={strokeWidth} viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M18 6L6 18M6 6l12 12" />
+  </svg>
+);
+
