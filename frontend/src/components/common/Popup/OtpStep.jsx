@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import styles from "./steps.module.css";
 
-// Backend generates 4-digit OTPs for all flows (sign-up, login, forgot-password)
-const OTP_LENGTH = 4;
+// Backend generates 6-digit OTPs for all flows (sign-up, login, forgot-password)
+const OTP_LENGTH = 6;
 const RESEND_SECONDS = 60;
 
 const OtpStep = ({ contact, onVerify, onResend, error, isLoading }) => {
